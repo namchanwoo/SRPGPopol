@@ -8,6 +8,7 @@ HRESULT MainGame::init()
     ImGui::StyleColorsClassic();
 
 
+	int a;
 
     //게임을 실행할때 로딩이 길어진다.
     //Scene1 a ; //스택
