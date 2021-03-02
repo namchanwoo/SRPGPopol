@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="MainGame.h" />
+    <ClInclude Include="Singleton\Singleton.h" />
+    <ClInclude Include="Singleton\TimeManager.h" />
+    <ClInclude Include="Obect\Star.h" />
+    <ClInclude Include="Obect\Vertex.h" />
+    <ClInclude Include="Obect\Shader.h" />
+    <ClInclude Include="Singleton\CamManager.h" />
+    <ClInclude Include="Obect\Object.h" />
+    <ClInclude Include="Obect\Rect.h" />
+    <ClInclude Include="Obect\Circle.h" />
+    <ClInclude Include="Util\Collision.h" />
+    <ClInclude Include="Util\Math.h" />
+    <ClInclude Include="Singleton\KeyManager.h" />
+    <ClInclude Include="Obect\Line.h" />
+    <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="Scene\Scene1.h" />
+    <ClInclude Include="Scene\Scene2.h" />
+    <ClInclude Include="Util\ObjectCollision.h" />
+    <ClInclude Include="Obect\Image.h" />
+    <ClInclude Include="Singleton\SceneManager.h" />
+    <ClInclude Include="Shooting\Player.h" />
+    <ClInclude Include="Singleton\SoundManager.h" />
+    <ClInclude Include="Singleton\WriteManager.h" />
+    <ClInclude Include="TileMap\TileMap.h" />
+    <ClInclude Include="TileMap\TileMapEdit.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Win32API.cpp" />
+    <ClCompile Include="MainGame.cpp" />
+    <ClCompile Include="Singleton\TimeManager.cpp" />
+    <ClCompile Include="Obect\Star.cpp" />
+    <ClCompile Include="Obect\Shader.cpp" />
+    <ClCompile Include="Singleton\CamManager.cpp" />
+    <ClCompile Include="Obect\Object.cpp" />
+    <ClCompile Include="Obect\Rect.cpp" />
+    <ClCompile Include="Obect\Circle.cpp" />
+    <ClCompile Include="Singleton\KeyManager.cpp" />
+    <ClCompile Include="Obect\Line.cpp" />
+    <ClCompile Include="Scene\Scene1.cpp" />
+    <ClCompile Include="Scene\Scene2.cpp" />
+    <ClCompile Include="Obect\Image.cpp" />
+    <ClCompile Include="Singleton\SceneManager.cpp" />
+    <ClCompile Include="Shooting\Player.cpp" />
+    <ClCompile Include="Singleton\SoundManager.cpp" />
+    <ClCompile Include="Singleton\WriteManager.cpp" />
+    <ClCompile Include="TileMap\TileMap.cpp" />
+    <ClCompile Include="TileMap\TileMapEdit.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Vector.txt" />
+    <Text Include="삼각함수.txt" />
+    <Text Include="Matrix.txt" />
+    <Text Include="방향벡터.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\Star.hlsl" />
+    <None Include="Shader\Rect.hlsl" />
+    <None Include="Shader\Image.hlsl" />
+  </ItemGroup>
+</Project>

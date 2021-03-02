@@ -1,0 +1,40 @@
+
+삼각함수에 대해 조사
+A: 사잇각 180도 안넘는각도
+
+cosA = a/c     최소값-1  최대값1
+a = cosA * c;
+
+sinA = b/c      최소값-1  최대값1
+b = sinA * c;
+
+a와 b값을 유추하기 위해 보통 사용한다.
+
+삼각함수 덧셈정리 (공식이다.)
+sin(A+B) = sinAcosB + cosAsinB
+cos(A+B) = cosAcosB - sinAsinB
+
+a' = cos(A+B) * c;
+a' = (cosA*cosB - sinA*sinB) * c;
+a' = (a/c*cosB - b/c*sinB) * c;
+
+a' = a*cosB - b*sinB
+
+b' = a*SinB + b*cosB 
+
+
+라디안 Radian 디그리 Degree 각도
+
+프로그래밍할때 라디안각도 사용
+
+1radian : 호의 길이가 반지름 일때 각도
+원둘레 : 2PIr
+반지름 1일때 반원의 둘레가 PI가 되므로 
+
+180(디그리) == PI(라디안)
+
+1도 -> 라디안으로 표현   PI / 180
+ex 30도 -> 30 * PI / 180
+
+
+1라디안 -> 디그리로 표현 180 / PI

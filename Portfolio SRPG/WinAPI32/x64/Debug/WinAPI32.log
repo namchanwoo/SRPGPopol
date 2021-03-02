@@ -1,0 +1,41 @@
+﻿  Enemy.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\shooting\enemy.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Image.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\obect\image.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Line.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\obect\line.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Player.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\shooting\player.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  SceneManager.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\singleton\scenemanager.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Scene2.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\scene\scene2.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Scene1.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\scene\scene1.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  KeyManager.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\singleton\keymanager.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Circle.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\obect\circle.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Object.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\obect\object.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Rect.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\obect\rect.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  CamManager.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\singleton\cammanager.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  MainGame.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\stdafx.h(60): fatal error C1083: 포함 파일을 열 수 없습니다. 'd3dx11.h': No such file or directory
+  Star.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\obect\star.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Shader.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\obect\shader.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  TimeManager.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\singleton\timemanager.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  SoundManager.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\singleton\soundmanager.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  TileMap.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\tilemap\tilemap.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  Win32API.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\stdafx.h(60): fatal error C1083: 포함 파일을 열 수 없습니다. 'd3dx11.h': No such file or directory
+  WriteManager.cpp
+c:\users\namchanwoo\desktop\portfolio\dx11 (2) (1)\winapi32\singleton\writemanager.cpp(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'stdafx.h': No such file or directory
+  코드를 생성하고 있습니다...
