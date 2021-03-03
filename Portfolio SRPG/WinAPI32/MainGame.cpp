@@ -63,6 +63,8 @@ void MainGame::release()
 
 void MainGame::update()
 {
+
+	KEYMANAGER->Update();
     ImGui::Update();
 
     /*ImGui::SliderFloat("MasterVolume",&g_MasterVolume,0.0f,1.0f);
