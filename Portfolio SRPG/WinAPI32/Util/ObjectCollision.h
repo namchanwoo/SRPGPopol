@@ -152,7 +152,7 @@ static Vector2 HexCorner(Vector2 center,float size,int i)
 }
 
 //핵사타일과 점의 충돌
-static bool PtInHexTile(Vector2 pt,HexTile& p,TileMap& tm) 
+static bool PtInHexTile(Vector2 pt,Tile& p,TileMap& tm) 
 {
 	//6개의 꼭지점 변수
 	Vector2 polygon[6];

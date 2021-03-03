@@ -15,20 +15,18 @@ typedef struct CubeOfSet
 }CUBEOFSET;
 
 //타일마다 가져야할 정보
-struct HexTile
+struct Tile
 {
 
 #pragma region A* 알고리즘에 필요한 변수들
 	UINT F;					 //예상비용 + 현재까지비용
 	UINT G;					 //현재까지비용
 	UINT H;					 //예상비용
-	HexTile* P;				 //누굴통해 갱신되었는가?
+	Tile* P;				 //누굴통해 갱신되었는가?
 #pragma endregion
 
     
     POINT TileIdx;			 //본인 타일 인덱스
-	CubeOfSet CubeIdx;		 //큐브측 좌표
-
 
     bool  isFind;			 //탐색을 했던 타일인가?
 
@@ -38,32 +36,13 @@ struct HexTile
     int state;				 //타일 상태
     Vector2 Pos;			 //타일의 위치 LB에서 떨어진
 
-	HexTile():state(TILE_NONE),vecIdx(0)
+	Tile():state(TILE_NONE),vecIdx(0)
     {
         ImgIdx.x = 0;
         ImgIdx.y = 0;
 		
     }
 
-
-	//큐브좌표를 오프셋으로
-	POINT CubeToOddr(CUBEOFSET Idx)
-	{
-		POINT var;
-		var.x = Idx.x + (Idx.z - (Idx.z & 1)) / 2;
-		var.y = Idx.z;
-		return var;
-	}
-
-	//오프셋 좌표를 큐브좌표로
-	CubeOfSet OddrToCube(POINT Idx)
-	{
-		CubeOfSet var;
-		var.x = Idx.x - (Idx.y - (Idx.y & 1)) / 2;
-		var.z = Idx.y;
-		var.y = -var.x -var.z;
-		return var;
-	}
 
 
 };
@@ -85,7 +64,7 @@ private:
     Vector2         LB;
    
 	//정보를 담아줄 타일
-	vector<vector<HexTile>>    Tiles;
+	vector<vector<Tile>>    Tiles;
 
 	//투명도 값
     float           Alpha = 1.0f;
@@ -111,15 +90,14 @@ public:
 	void ResizeTile();
 
     //길찾기
-    bool PathFinding(POINT from,POINT to,
-        vector<HexTile*>& way);
+    bool PathFinding(POINT from,POINT to, vector<Tile*>& way);
     
 	//참조형 겟 함수
     MAKEREFGET(Vector2 , TileSize)
     MAKEREFGET(POINT  ,TileMax)
     MAKEREFGET(Vector2  ,LB)
     MAKEREFGET(vector<Image*>  ,vecTile)
-    MAKEREFGET(vector<vector<HexTile>>  ,  Tiles)
+    MAKEREFGET(vector<vector<Tile>>  ,  Tiles)
     MAKEREFGET(float  ,Alpha)
 };
 

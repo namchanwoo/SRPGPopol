@@ -89,7 +89,7 @@ void TileMap::render()
             }
             else
             {
-                vecTile[vecindex]->color = Color(1,1,1,Alpha);
+                vecTile[vecindex]->color = Color(1,1,1,Alpha); 
                 vecTile[vecindex]->render();
             }
             vecTile[vecindex]->render();
@@ -162,7 +162,7 @@ void TileMap::ResizeTile()
 }
 
 //                            출발,       도착,        반환할 길
-bool TileMap::PathFinding(POINT from, POINT to, vector<HexTile*>& way)
+bool TileMap::PathFinding(POINT from, POINT to, vector<Tile*>& way)
 {
     //둘중에 하나가 벽이면 갈 수 있는길이 없다.
     if(Tiles[to.x][to.y].state == TILE_WALL||
@@ -195,7 +195,7 @@ bool TileMap::PathFinding(POINT from, POINT to, vector<HexTile*>& way)
     //비용탐색 시작
 
     //탐색 리스트 만들기
-    list<HexTile*> FindList;
+    list<Tile*> FindList;
     //출발지부터 먼저 리스트에 추가
     FindList.emplace_back(&Tiles[from.x][from.y]);
     
@@ -219,12 +219,12 @@ bool TileMap::PathFinding(POINT from, POINT to, vector<HexTile*>& way)
             return false;
         }
         //리스트에서 F값이 가장 작은타일
-		HexTile* MinF;
+		Tile* MinF;
         //처음엔 맨 앞값으로 받기
         MinF = FindList.front();
 
 		//지워줄 대상
-		list<HexTile*>::iterator it;
+		list<Tile*>::iterator it;
 		it = FindList.begin();
 
         //리스트 끝까지 탐색
@@ -367,7 +367,7 @@ bool TileMap::PathFinding(POINT from, POINT to, vector<HexTile*>& way)
 	FindList.clear();
 
     //도착지에서부터 출발지까지 way에 pushback
-	HexTile* TileWay = &Tiles[to.x][to.y];
+	Tile* TileWay = &Tiles[to.x][to.y];
     while(1)
     {
         //종료조건

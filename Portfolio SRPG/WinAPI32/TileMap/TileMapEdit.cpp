@@ -143,35 +143,7 @@ vector<Hex> TileMapEdit::hex_linedraw(Hex a, Hex b) {
 	return results;
 }
 
-void TileMapEdit::MapCreaterHexagons()
-{
-	/*for (int q = -map_radius; q <= map_radius; q++) {
-		int r1 = max(-map_radius, -q - map_radius);
-		int r2 = min(map_radius, -q + map_radius);
-		for (int r = r1; r <= r2; r++) {
-			map.insert(Hex(q, r, -q - r));
-		}
-	}*/
-}
 
-void TileMapEdit::MapCreaterRectangles()
-{
-	//핵사 맵 만들기 직사각형
-	//for (int r = 0; r < map_height; r++) {
-	//	int r_offset = floor(r / 2); // or r>>1
-	//	for (int q = -r_offset; q < map_width - r_offset; q++) {
-	//		map.insert(Hex(q, r, -q - r));
-	//	}
-	//}
-
-
-	/*for (int r = 0; r < height; r++) {
-		int r_offset = floor(r / 2);
-		for (int q = -r_offset; q < width - r_offset; q++) {
-			map.insert(Hex(q, r, -q - r));
-		}
-	}*/
-}
 
 ////핵사 라인 그리기 (러프의 오류를 막아주는 것
 //vector<Hex> TileMapEdit::hex_linedraw(Hex a, Hex b) {
@@ -216,4 +188,144 @@ Hex TileMapEdit::qoffset_to_cube(int offset, OffsetCoord h) {
 	int r = h.row - int((h.col + offset * (h.col & 1)) / 2);
 	int s = -q - r;
 	return Hex(q, r, s);
+}
+
+//오프셋 좌표로 변환
+OffsetCoord TileMapEdit::roffset_from_cube(int offset, Hex h)
+{	
+	assert(offset == EVEN || offset == ODD);
+	int col = h.q + int((h.r + offset * (h.r & 1)) / 2);
+	int row = h.r;
+	return OffsetCoord(col, row);
+}
+
+//큐브좌표로 변환
+Hex TileMapEdit::roffset_to_cube(int offset, OffsetCoord h)
+{	
+	assert(offset == EVEN || offset == ODD);
+	int q = h.col - int((h.row + offset * (h.row & 1)) / 2);
+	int r = h.row;
+	int s = -q - r;
+	return Hex(q, r, s);
+}
+
+void TileMapEdit::Init()
+{
+
+	map.width = 10;
+	map.height = 10;
+
+	map.LB.x = 0.0f;
+	map.LB.y = 0.0f;
+
+	map.Origin = Point{ 0.0,0.0 };
+	map.TileSize = Point{ 0.0,0.0 };
+
+	//타일 재조정
+	map.ResizeTile();
+
+	//타일들 위치와 
+	map.InitPosition();
+
+
+}
+
+
+void RectangularPointyTopMap::AddImage(_tstring file, UINT MaxFrameX, UINT MaxFrameY, string vs, string ps)
+{
+	Image* temp = new Image();
+	temp->init(file, vs, ps);
+	temp->Scale.x = TileSize.x;
+	temp->Scale.y = TileSize.y;
+
+	temp->MaxFrameX = MaxFrameX;
+	temp->MaxFrameY = MaxFrameY;
+	tileImg.emplace_back(temp);
+}
+
+void RectangularPointyTopMap::ResizeTile()
+{
+	//벡터크기를 맥스 사이즈만큼 잡는다
+	Tiles.resize(width);
+	for (LONG i = 0; i < width; i++)
+	{
+		Tiles[i].resize(height);
+	}
+
+}
+
+void RectangularPointyTopMap::InitPosition()
+{
+
+	//오프셋과 핵사좌표를 잡아주기
+	for (int r = 0; r < height; r++) {
+		int r_offset = floor(r / 2); // or r>>1
+		for (int q = -r_offset; q < width - r_offset; q++)
+		{
+			OffsetCoord off(r, q);
+			int s = -q - r;
+			Hex hex(q, r, s);
+			hTiles.insert(make_pair(off,hex));
+		}
+	}
+
+
+	Vector2 halfScale;
+	halfScale.x= TileSize.x *0.5f;
+	halfScale.y = TileSize.x *0.5f;
+
+	/*for (int i = 0; i < width; i++)
+	{
+		for (int j = 0; j < height; j++)
+		{
+			if (i % 2 == 0)
+			{
+				Tiles[i][j].offCoord = &OffsetCoord(i, j);
+				Tiles[i][j].cubeCoord = &hTiles[*Tiles[i][j].offCoord];
+				Tiles[i][j].Pos.x = halfScale.x + (TileSize.x *i);
+				Tiles[i][j].Pos.y = halfScale.y + (TileSize.x *j);
+
+			}
+			else
+			{
+				Tiles[i][j].offCoord = &OffsetCoord(i, j);
+				Tiles[i][j].cubeCoord = &hTiles[*Tiles[i][j].offCoord];
+				Tiles[i][j].Pos.x = halfScale.x + (TileSize.x *i);
+				Tiles[i][j].Pos.y = halfScale.y + (TileSize.x *j);
+			}
+		}
+	}*/
+
+
+
+}
+
+void RectangularPointyTopMap::ClearTile()
+{
+
+	//벡터크기를 맥스 사이즈만큼 지운다
+	for (LONG i = 0; i < width; i++)
+	{
+		Tiles[i].clear();
+		Tiles[i].shrink_to_fit();
+	}
+	Tiles.clear();
+	Tiles.shrink_to_fit();
+
+}
+
+void RectangularPointyTopMap::Reneder()
+{
+	for (UINT i = 0; i < width; i++)
+	{
+		for (UINT j = 0; j < height; j++)
+		{
+			UINT vecindex = Tiles[i][j].vecIdx;
+			tileImg[vecindex]->Pos = Tiles[i][j].Pos + LB;
+			tileImg[vecindex]->update();
+			tileImg[vecindex]->CurrentFrameX =	Tiles[i][j].imgIdx.x;
+			tileImg[vecindex]->CurrentFrameY =	Tiles[i][j].imgIdx.y;
+			tileImg[vecindex]->render();
+		}
+	}
 }

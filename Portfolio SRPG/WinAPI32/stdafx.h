@@ -134,6 +134,7 @@ using namespace std;
 #include "Obect/Line.h"
 #include "Obect/Image.h"
 #include "TileMap/TileMap.h"
+#include "TileMap/TileMapEdit.h"
 
 #include "Util/ObjectCollision.h"
 

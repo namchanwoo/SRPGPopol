@@ -4,6 +4,9 @@
 class Scene2 :public Scene
 {
 private:
+
+	TileMapEdit* mapEdit;
+
     //Fade
     Color               Fade;
     ID3D11Buffer*		FadeBuffer;   

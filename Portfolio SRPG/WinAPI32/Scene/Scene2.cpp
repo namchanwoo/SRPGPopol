@@ -3,6 +3,8 @@
 
 Scene2::Scene2()
 {
+	
+
     Fade = Color(1.0f,1.0f,1.0f,1.0f);
     //CreateConstantBuffer
     {
@@ -28,7 +30,7 @@ Scene2::~Scene2()
 
 HRESULT Scene2::init()
 {
-  
+	mapEdit = new TileMapEdit();
    
 
     return S_OK;

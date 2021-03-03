@@ -6,10 +6,10 @@
 //큐브 좌표
 struct Hex
 {
-	const int q, r, s;
+	int q, r, s;
 	Hex(int q_, int r_, int s_) :q(q_), r(r_), s(s_)
 	{
-		assert(q + r + s == 0,"q+r+s는 0이상이어야합니다.");
+		assert(q + r + s == 0);
 	}
 
 };
@@ -24,7 +24,7 @@ struct FractionalHex
 
 struct OffsetCoord
 {
-	const int col, row;
+	int col, row;
 	OffsetCoord(int col_, int row_) : col(col_), row(row_) {}
 };
 
@@ -44,8 +44,8 @@ bool operator !=(Hex a, Hex b)
 
 struct Point
 {
-	const double x, y;
-	Point(double x_, double y_) : x(x_), y(y_) {}
+	float x, y;
+	Point(float x_, float y_) : x(x_), y(y_) {}
 };
 
 
@@ -81,32 +81,87 @@ namespace std {
 }
 
 
-//
-////직사각형 뾰족한형태의 맵
-//template<class T> 
-//class RectangularPointyTopMap
-//{
-//
-//private:
-//
-//	vector<vector<T>> map;
-//	int width;
-//	int height;
-//
-//
-//public:
-//	map(int _width, int _height) : width(_width),height(_height)
-//	{
-//		for (int r = 0; r < height; r++)
-//		{
-//			map.emplace_back(width);
-//		}
-//	}
-//
-//	inline T& at(int q, int r) {
-//		return map[r][q + (r >> 1)];
-//	}
-//};
+struct HexTile
+{
+
+	//큐브좌표
+	Hex* cubeCoord;
+
+	//오프셋 좌표
+	OffsetCoord* offCoord;
+
+	//타일의 좌표
+	Vector2 Pos;
+
+	//이미지 번호
+	UINT vecIdx = 0;
+
+	//이미지 인덱스
+	POINT imgIdx = POINT{ 0,0 };
+
+	//타일 스테이트(상태)
+
+
+#pragma region A* 알고리즘에 필요한 변수들
+
+	//UINT F;					 //예상비용 + 현재까지비용
+	//UINT G;					 //현재까지비용
+	//UINT H;					 //예상비용
+	//Tile* P;				 //누굴통해 갱신되었는가?
+
+#pragma endregion
+
+};
+
+
+//직사각형 뾰족한형태의 맵
+class RectangularPointyTopMap
+{
+
+private:
+
+
+	//여러장의 이미지를 사용할수 있으므로
+	vector<Image*>  tileImg;
+
+public:
+
+	//타일의 시작점 위치
+	Vector2 LB;
+
+	//타일사이즈
+	Point TileSize;
+
+	//타일 중심
+	Point Origin;
+
+	vector<vector<HexTile>> Tiles;
+
+	unordered_map<OffsetCoord,Hex> hTiles;
+
+	//가로
+	UINT width;
+	//세로
+	UINT height;
+	
+
+	//이미지 가져오기	
+	void AddImage(_tstring file, UINT MaxFrameX, UINT MaxFrameY, string vs = "VS", string ps = "PS");
+
+	//타일 할당
+	void ResizeTile();
+
+	//타일들 위치 잡기
+	void InitPosition();
+
+	//벡터 지우기
+	void ClearTile();
+
+	//타일 그리기
+	void Reneder();
+
+
+};
 
 
 class TileMapEdit
@@ -114,17 +169,23 @@ class TileMapEdit
 
 private:
 
+
+
 	//6가지 방향
 	const vector<Hex> hex_directions = {
 	Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
 	Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
 	};
 
+
 	//뾰족한 방향
 	const Orientation layout_pointy = Orientation(sqrt(3.0), sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0, sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0, 0.5);
 	//평평한 방향
 	const Orientation layout_flat = Orientation(3.0 / 2.0, 0.0, sqrt(3.0) / 2.0, sqrt(3.0), 2.0 / 3.0, 0.0, -1.0 / 3.0, sqrt(3.0) / 3.0, 0.0);
 
+	Layout lay_pointy = Layout{ layout_pointy ,Point{80,80},Point{0,0} };
+
+#
 	//핵사 모서리 구하기
 	Point hex_corner_offset(Layout layout, int corner);
 
@@ -162,6 +223,7 @@ private:
 
 	//부동소수 핵사를 선형보간하고 반환하는 함수
 	FractionalHex hex_lerp(Hex a, Hex b, double t);
+
 	////핵사 라인 그리기 (러프의 오류를 막아주는 것)
 	//FractionalHex hex_lerp(FractionalHex a, FractionalHex b, double t);
 
@@ -170,8 +232,10 @@ private:
 public:
 
 
-	//RectangularPointyTopMap<Hex> map;
+	//직각사각형 캡슐화하는 변수
+	RectangularPointyTopMap map;
 	
+
 	//헥사를 픽셀화면으로
 	Point hex_to_pixel(Layout layout, Hex h);
 
@@ -182,18 +246,23 @@ public:
 	//핵사 라인 그리기
 	vector<Hex> hex_linedraw(Hex a, Hex b);
 
-	//핵사 맵 만들기 육각형
-	void MapCreaterHexagons();
 
-	//핵사 맵 만들기 직사각형
-	void MapCreaterRectangles();
-
-	//오프셋 좌표로 변환
+	//오프셋 q좌표로 변환
 	OffsetCoord qoffset_from_cube(int offset, Hex h);
 
 	//큐브좌표로 변환
 	Hex qoffset_to_cube(int offset, OffsetCoord h);
 
+	//오프셋 r좌표로 변환
+	OffsetCoord roffset_from_cube(int offset, Hex h);
+
+	//큐브r좌표로 변환
+	Hex roffset_to_cube(int offset, OffsetCoord h);
+
+	//초기화
+	void Init();
+	
+	
 
 };
 
