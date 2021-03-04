@@ -14,6 +14,7 @@ struct Point
 //cube 좌표
 struct Hex
 {
+	// x , y ,z 
 	int q, r, s;
 	Hex(int q_, int r_, int s_) :q(q_), r(r_), s(s_)
 	{
@@ -24,14 +25,10 @@ struct Hex
 	}
 
 	friend std::hash<Hex>;
-	//constexpr bool operator()(const Hex& a, const Hex& b) const
-	//{	// apply operator== to operands
-	//	return a.q == b.q && a.r == b.r && a.s == b.s;
-	//}
-	/*bool operator ==(Hex& b)
-	{
-		return q == b.q && r == b.r && s == b.s;
-	}*/
+
+	friend bool operator==(const Hex& a, const Hex& b);
+	friend bool operator!=(const Hex& p1, const Hex& p2);
+
 };
 
 //멤버 타입이 cube 좌표
@@ -51,50 +48,26 @@ struct OffsetCoord
 	OffsetCoord() {}
 	friend std::hash<OffsetCoord>;
 	friend bool operator==(const OffsetCoord& p1, const OffsetCoord& p2);
-	/* bool operator (const OffsetCoord& b)
-	{
-		return col == b.col && row == b.row;
-	}
-	 bool operator !=(const OffsetCoord& b)
-	{
-		return col != b.col || row != b.row;
-	}*/
-	//constexpr bool operator()(const OffsetCoord& a, const OffsetCoord& b) const
-	//{	// apply operator== to operands
-	//	return a.col == b.col && a.row == b.row;
-	//}
+
 };
 
-//
-//#pragma endregion
-//
-//
-//#pragma region operator 재정의
-//
-////연산자 정의 ==
-//bool operator ==(Hex a, Hex b)
-//{
-//	return a.q == b.q && a.r == b.r && a.s == b.s;
-//}
-//
-////연산자 정의 !=
-//bool operator !=(Hex a, Hex b)
-//{
-//	return !(a == b);
-//}
-//
-//#pragma endregion
+
+#pragma endregion
 
 
 
-namespace std {                                           
-	template <>                                           
+
+
+#pragma region 해시함수
+
+namespace std {
+	template <>
 	class hash<OffsetCoord> {
 	public:
-		size_t operator()(const OffsetCoord &x2) const {  
+		size_t operator()(const OffsetCoord &x2) const {
 			using std::hash;
 
-			return		hash<int>()(x2.col) ^ hash<float>()(x2.row) << 1;               
+			return		hash<int>()(x2.col) ^ hash<float>()(x2.row) << 1;
 		}
 	};
 };
@@ -110,6 +83,10 @@ namespace std {
 	};
 }
 
+#pragma endregion
+
+
+
 
 
 //2*2 순방향 행렬, 2*2 역행렬 및 시작각도를 정하기 위해 만든 도우미클래스
@@ -123,9 +100,9 @@ struct Orientation {
 };
 
 struct Layout {
-	const Orientation orientation;
-	const Point size;
-	const Point origin;
+	Orientation orientation;
+	Point size;
+	Point origin;
 	Layout(Orientation orientation_, Point size_, Point origin_)
 		: orientation(orientation_), size(size_), origin(origin_) {}
 	Layout() {}
@@ -147,13 +124,17 @@ struct HexTile
 	Vector2 Pos;
 
 	//이미지 번호
-	UINT vecIdx = 0;
+	UINT vecIdx;
 
 	//이미지 인덱스
-	POINT imgIdx = POINT{ 0,0 };
+	POINT imgIdx;
 
 	//타일 스테이트(상태)
-	HexTile(){}
+	HexTile() :vecIdx(0)
+	{
+		imgIdx.x = 0;
+		imgIdx.y = 0;
+	}
 
 #pragma region A* 알고리즘에 필요한 변수들
 
@@ -176,9 +157,13 @@ private:
 
 	//여러장의 이미지를 사용할수 있으므로
 	vector<Image*>  tileImg;
+	
 
 public:
+	
+
 	RectangularPointyTopMap() {};
+
 	//타일의 시작점 위치
 	Vector2 LB;
 
@@ -192,14 +177,16 @@ public:
 
 	unordered_map<OffsetCoord,Hex> hTiles;
 	
-	//가로
+	//가로 크기
 	UINT width;
-	//세로
-	UINT height;
-	
+	//세로 크기
+	UINT height;	
 
 	//이미지 가져오기	
 	void AddImage(_tstring file, UINT MaxFrameX, UINT MaxFrameY, string vs = "VS", string ps = "PS");
+
+	//초기화
+	void Init();
 
 	//타일 할당
 	void ResizeTile();
@@ -213,7 +200,6 @@ public:
 	//타일 그리기
 	void Reneder();
 
-
 };
 
 
@@ -221,8 +207,6 @@ class TileMapEdit
 {
 
 private:
-
-
 
 	//6가지 방향
 	const vector<Hex> hex_directions = {
@@ -283,14 +267,26 @@ private:
 public:
 
 	TileMapEdit() {};
+
 	//직각사각형 캡슐화하는 변수
 	RectangularPointyTopMap map;
 	
+	//오프셋을 픽셀로
+	Point oddr_offset_to_pixel(OffsetCoord a,float size)
+	{
+		float x = size * sqrt(3) * (a.col + 0.5 * (a.row & 1));
+		float y = size * 3 / 2 * a.row;
+		return Point(x, y);
+	}
+
+
 	//헥사를 픽셀화면으로
 	Point hex_to_pixel(Layout layout, Hex h);
 
 	//픽셀을 핵사화면으로
 	FractionalHex pixel_to_hex(Layout layout, Point p);
+
+
 
 	//핵사 라인 그리기
 	vector<Hex> hex_linedraw(Hex a, Hex b);
@@ -303,8 +299,16 @@ public:
 
 
 	//초기화
-	void Init();
+	HRESULT Init();
 	
+	//삭제 시 호출
+	void Release();
+
+	//업데이트
+	void Update();
+
+	//렌더
+	void Render();
 	
 
 };

@@ -8,6 +8,7 @@ class Scene1 :public Scene
 private:
 	//접근하여 바꿔줄 타일맵
     TileMap* bg;
+	
 
     //타일맵으로 쓸 배경이미지
     Image*   bg2;

@@ -52,64 +52,65 @@ void TileMap::update()
 
 void TileMap::render()
 {
-	//창 왼쪽 아래, 오른쪽 위 월드좌표
-	Vector2 lb = MAINCAM->Pos;
-	Vector2 rt;
-	rt.x = lb.x + WINSIZEX;
-	rt.y = lb.y + WINSIZEY;
 
-	POINT LBIdx;
-	PtInTile(this, lb, LBIdx);
-	LBIdx.x = Saturate(LBIdx.x, 0L, TileMax.x - 1L);
-	LBIdx.y = Saturate(LBIdx.y, 0L, TileMax.y - 1L);
+	////창 왼쪽 아래, 오른쪽 위 월드좌표
+	//Vector2 lb = MAINCAM->Pos;
+	//Vector2 rt;
+	//rt.x = lb.x + WINSIZEX;
+	//rt.y = lb.y + WINSIZEY;
+
+	//POINT LBIdx;
+	//PtInTile(this, lb, LBIdx);
+	//LBIdx.x = Saturate(LBIdx.x, 0L, TileMax.x - 1L);
+	//LBIdx.y = Saturate(LBIdx.y, 0L, TileMax.y - 1L);
 
 
-	POINT RTIdx;
-	PtInTile(this, rt, RTIdx);
+	//POINT RTIdx;
+	//PtInTile(this, rt, RTIdx);
 
-	RTIdx.x = Saturate(RTIdx.x, 0L, TileMax.x - 1L);
-	RTIdx.y = Saturate(RTIdx.y, 0L, TileMax.y - 1L);
+	//RTIdx.x = Saturate(RTIdx.x, 0L, TileMax.x - 1L);
+	//RTIdx.y = Saturate(RTIdx.y, 0L, TileMax.y - 1L);
 
-	for (LONG i = LBIdx.x; i <= RTIdx.x; i++)
-	{
-		for (LONG j = LBIdx.y; j <= RTIdx.y; j++)
-		{
-            UINT vecindex = Tiles[i][j].vecIdx;
-            vecTile[vecindex]->Scale = TileSize;
-            vecTile[vecindex]->Pos = Tiles[i][j].Pos + LB;
-            vecTile[vecindex]->update();
-            vecTile[vecindex]->CurrentFrameX =
-                Tiles[i][j].ImgIdx.x;
-            vecTile[vecindex]->CurrentFrameY =
-                Tiles[i][j].ImgIdx.y;
-            if(Tiles[i][j].state == TILE_WALL)
-            {
-                vecTile[vecindex]->color = Color(0.7f,0,0,Alpha);
-                vecTile[vecindex]->render();
-            }
-            else
-            {
-                vecTile[vecindex]->color = Color(1,1,1,Alpha); 
-                vecTile[vecindex]->render();
-            }
-            vecTile[vecindex]->render();
-        }
-    }
-
-	//for (UINT i = 0; i < TileMax.x; i++)
+	//for (LONG i = LBIdx.x; i <= RTIdx.x; i++)
 	//{
-	//	for (UINT j = 0; j < TileMax.y; j++)
+	//	for (LONG j = LBIdx.y; j <= RTIdx.y; j++)
 	//	{
-	//		UINT vecindex = Tiles[i][j].vecIdx;
-	//		vecTile[vecindex]->Pos = Tiles[i][j].Pos + LB;
-	//		vecTile[vecindex]->update();
-	//		vecTile[vecindex]->CurrentFrameX =
-	//			Tiles[i][j].ImgIdx.x;
-	//		vecTile[vecindex]->CurrentFrameY =
-	//			Tiles[i][j].ImgIdx.y;
-	//		vecTile[vecindex]->render();
-	//	}
-	//}
+ //           UINT vecindex = Tiles[i][j].vecIdx;
+ //           vecTile[vecindex]->Scale = TileSize;
+ //           vecTile[vecindex]->Pos = Tiles[i][j].Pos + LB;
+ //           vecTile[vecindex]->update();
+ //           vecTile[vecindex]->CurrentFrameX =
+ //               Tiles[i][j].ImgIdx.x;
+ //           vecTile[vecindex]->CurrentFrameY =
+ //               Tiles[i][j].ImgIdx.y;
+ //           if(Tiles[i][j].state == TILE_WALL)
+ //           {
+ //               vecTile[vecindex]->color = Color(0.7f,0,0,Alpha);
+ //               vecTile[vecindex]->render();
+ //           }
+ //           else
+ //           {
+ //               vecTile[vecindex]->color = Color(1,1,1,Alpha); 
+ //               vecTile[vecindex]->render();
+ //           }
+ //           vecTile[vecindex]->render();
+ //       }
+ //   }
+
+	for (UINT i = 0; i < TileMax.x; i++)
+	{
+		for (UINT j = 0; j < TileMax.y; j++)
+		{
+			UINT vecindex = Tiles[i][j].vecIdx;
+			vecTile[vecindex]->Pos = Tiles[i][j].Pos + LB;
+			vecTile[vecindex]->update();
+			vecTile[vecindex]->CurrentFrameX =
+				Tiles[i][j].ImgIdx.x;
+			vecTile[vecindex]->CurrentFrameY =
+				Tiles[i][j].ImgIdx.y;
+			vecTile[vecindex]->render();
+		}
+	}
 }
 
 void TileMap::AddImage(_tstring file, UINT MaxFrameX, UINT MaxFrameY, string vs, string ps)

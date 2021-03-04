@@ -201,22 +201,58 @@ static bool PtInTile(TileMap* tile, Vector2 Pt, OUT POINT& index)//밖에 나가서 �
 	//왼쪽점이 이동한만큼 빼주기
 	Pt -= tile->GetRefLB();
 
-	for (int i = 0; i < tile->GetRefTileMax().x; i++)
-	{
-		for (int j = 0; j < tile->GetRefTileMax().y; j++)
-		{
-			if (PtInHexTile(Pt,tile->GetRefTiles()[i][j],*tile))
-			{
-				index.x = tile->GetRefTiles()[i][j].TileIdx.x;
-				index.y = tile->GetRefTiles()[i][j].TileIdx.y;
-					break;
-			}
-		}
-	}
+	
 
 	//인덱스 잡기
 	index.x = (LONG)(Pt.x / tile->GetRefTileSize().x);
 	index.y = (LONG)(Pt.y / tile->GetRefTileSize().y);
+
+	if (!PtinRect(Pt, col))
+	{
+		//타일 밖에 있는거다.
+		return false;
+	}
+
+
+	return true;
+}
+
+
+
+//점이 헥사타일 안에 있는가?
+static bool PtInTile(TileMapEdit* edit, Vector2 Pt, OUT POINT& index)//밖에 나가서 바뀔값
+{
+
+	COL_RECT col;
+	col.left = edit->map.LB.x;
+	col.bottom = edit->map.LB.y;
+	col.right = col.left + edit->map.width * edit->map.TileSize.x;
+	col.top = col.bottom + edit->map.height * edit->map.TileSize.y;
+
+	//아니라면 안에 있다.z`
+
+	////왼쪽점이 이동한만큼 빼주기
+	//Pt -= edit->map.LB;
+
+	//for (int i = 0; i < tile->GetRefTileMax().x; i++)
+	//{
+	//	for (int j = 0; j < tile->GetRefTileMax().y; j++)
+	//	{
+	//		if (PtInHexTile(Pt, tile->GetRefTiles()[i][j], *tile))
+	//		{
+	//			index.x = tile->GetRefTiles()[i][j].TileIdx.x;
+	//			index.y = tile->GetRefTiles()[i][j].TileIdx.y;
+	//			break;
+	//		}
+	//	}
+	//}
+
+	////인덱스 잡기
+	//index.x = (LONG)(Pt.x / tile->GetRefTileSize().x);
+	//index.y = (LONG)(Pt.y / tile->GetRefTileSize().y);
+
+
+
 
 	if (!PtinRect(Pt, col))
 	{

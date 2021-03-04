@@ -191,26 +191,27 @@ Hex TileMapEdit::qoffset_to_cube(int offset, OffsetCoord h) {
 }
 
 
+HRESULT TileMapEdit::Init()
+{
+	map.Init();
 
-void TileMapEdit::Init()
+	return S_OK;
+}
+
+void TileMapEdit::Release()
+{
+	map.ClearTile();
+}
+
+void TileMapEdit::Update()
 {
 
-	map.width = 10;
-	map.height = 10;
 
-	map.LB.x = 0.0f;
-	map.LB.y = 0.0f;
+}
 
-	map.Origin = Point{ 0.0,0.0 };
-	map.TileSize = Point{ 0.0,0.0 };
-
-	//타일 재조정
-	map.ResizeTile();
-
-	//타일들 위치와 
-	map.InitPosition();
-
-
+void TileMapEdit::Render()
+{
+	map.Reneder();
 }
 
 
@@ -224,6 +225,27 @@ void RectangularPointyTopMap::AddImage(_tstring file, UINT MaxFrameX, UINT MaxFr
 	temp->MaxFrameX = MaxFrameX;
 	temp->MaxFrameY = MaxFrameY;
 	tileImg.emplace_back(temp);
+}
+
+void RectangularPointyTopMap::Init()
+{
+
+	width = 10;
+	height = 10;
+
+	LB.x = 0.0f;
+	LB.y = 0.0f;
+
+	Origin = Point{ 0.0,0.0 };
+	TileSize.x = 60.5f;
+	TileSize.y = 70.0f;
+
+	//타일 재조정
+	ResizeTile();
+
+	//타일들 위치와 
+	InitPosition();
+
 }
 
 void RectangularPointyTopMap::ResizeTile()
@@ -252,37 +274,37 @@ void RectangularPointyTopMap::InitPosition()
 		}
 	}
 
+	float size = TileSize.y *0.5f;
 
-	Vector2 halfScale;
-	halfScale.x= TileSize.x *0.5f;
-	halfScale.y = TileSize.x *0.5f;
+	//수평거리
+	float w = sqrt(3)*size;
+	//수직거리
+	float h = sqrt(2)*size;
 
+	//전체적으로 타일 위치 다시잡기
+	for (LONG i = 0; i < width; i++)
+	{
+		for (LONG j = 0; j < height; j++)
+		{
+			//홀수 행일때
+			if (j % 2 != 0)
+			{
+				Tiles[i][j].Pos.x = TileSize.x + (w * i);
+				Tiles[i][j].Pos.y = size + (h * j);
 
+				Tiles[i][j].offCoord = OffsetCoord(i, j);
+				Tiles[i][j].cubeCoord = hTiles[Tiles[i][j].offCoord];
+			}
+			else
+			{
+				Tiles[i][j].Pos.x = TileSize.x*0.5f + (w * i);
+				Tiles[i][j].Pos.y = size + (h  * j);
 
-	//for (int i = 0; i < width; i++)
-	//{
-
-	//	//짝수행일 때
-	//	for (int j = 0; j < height; j++)
-	//	{
-	//		if (i % 2 == 0)
-	//		{
-	//			Tiles[i][j].offCoord = &OffsetCoord(i, j);
-	//			Tiles[i][j].cubeCoord = &hTiles[*Tiles[i][j].offCoord];
-	//			Tiles[i][j].Pos.x = halfScale.x + (TileSize.x *i);
-	//			Tiles[i][j].Pos.y = halfScale.y + (TileSize.x *j);
-
-	//		}
-	//		//홀수 행일 때
-	//		else
-	//		{
-	//			Tiles[i][j].offCoord = &OffsetCoord(i, j);
-	//			Tiles[i][j].cubeCoord = &hTiles[*Tiles[i][j].offCoord];
-	//			Tiles[i][j].Pos.x = halfScale.x + (TileSize.x *i);
-	//			Tiles[i][j].Pos.y = halfScale.y + (TileSize.x *j);
-	//		}
-	//	}
-	//}
+				Tiles[i][j].offCoord = OffsetCoord(i, j);
+				Tiles[i][j].cubeCoord = hTiles[Tiles[i][j].offCoord];
+			}			
+		}
+	}
 
 
 
@@ -290,6 +312,7 @@ void RectangularPointyTopMap::InitPosition()
 
 void RectangularPointyTopMap::ClearTile()
 {
+
 	//벡터크기를 맥스 사이즈만큼 지운다
 	for (LONG i = 0; i < width; i++)
 	{
@@ -298,6 +321,17 @@ void RectangularPointyTopMap::ClearTile()
 	}
 	Tiles.clear();
 	Tiles.shrink_to_fit();
+
+
+	//벡터에 추가한 이미지 지우기
+	for (UINT i = 0; i < tileImg.size(); i++)
+	{
+		SAFE_DELETE(tileImg[i]);
+	}
+	//clear 했을때 내부버퍼(capacity)가 안지워짐
+	tileImg.clear();
+	//그걸지워주는함수
+	tileImg.shrink_to_fit();
 }
 
 void RectangularPointyTopMap::Reneder()
@@ -309,9 +343,12 @@ void RectangularPointyTopMap::Reneder()
 		
 			UINT vecindex = Tiles[i][j].vecIdx;
 			tileImg[vecindex]->Pos = Tiles[i][j].Pos + LB;
+			tileImg[vecindex]->Scale.x = TileSize.x;
+			tileImg[vecindex]->Scale.y = TileSize.y;
+
 			tileImg[vecindex]->update();
-			tileImg[vecindex]->CurrentFrameX =	Tiles[i][j].imgIdx.x;
-			tileImg[vecindex]->CurrentFrameY =	Tiles[i][j].imgIdx.y;
+			tileImg[vecindex]->CurrentFrameX = Tiles[i][j].imgIdx.x;
+			tileImg[vecindex]->CurrentFrameY = Tiles[i][j].imgIdx.y;
 			tileImg[vecindex]->render();
 		}
 	}
@@ -363,6 +400,22 @@ void RectangularPointyTopMap::Reneder()
 //}
 #pragma endregion
 
+
+#pragma region  연산자 재정의
+
+bool operator==(const Hex & a, const Hex & b)
+{
+	return a.q == b.q && a.r == b.r && a.s == b.s;
+}
+
+bool operator!=(const Hex & a, const Hex & b)
+{
+	return !(a == b);
+}
+
 bool operator==(const OffsetCoord& p1, const OffsetCoord& p2) {
 	return p1.col == p2.col && p1.row == p2.row;
 }
+
+#pragma endregion
+

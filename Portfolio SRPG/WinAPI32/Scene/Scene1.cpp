@@ -6,7 +6,6 @@ int Scene1::LoadCount = 0;
 Scene1::Scene1()
 {
 	   
-
     bg2 = new Image();
     bg2->init(_T("Dugeon.jpg"));
     bg2->Pos = Vector2(400.0f,300.0f);
@@ -21,7 +20,7 @@ Scene1::~Scene1()
 HRESULT Scene1::init()
 {
     Fade = Color(1.0f, 1.0f, 1.0f, 1.0f);
-    LoadCount++;
+
     //CreateConstantBuffer
     {
         D3D11_BUFFER_DESC desc = { 0 };
@@ -47,7 +46,7 @@ HRESULT Scene1::init()
 
     bg->AddImage(_T("Tile2.png"), 11, 7);
 
-	bg->AddImage(_T("HexTile1.png"), 1, 1);
+	bg->AddImage(_T("HexTile.png"), 1, 1);
 
 
 
