@@ -40,7 +40,7 @@ HRESULT MainGame::init()
     //현재씬은 씬1이다.
     //SCENEMANAGER->CurrentScene = SCENEMANAGER->SceneArray[0];
     //SCENEMANAGER->ChageScene("TileMapEditor");
-    SCENEMANAGER->ChageScene("TileMapEditor");
+    SCENEMANAGER->ChageScene("SCENE2");
 
 	return S_OK;
 }

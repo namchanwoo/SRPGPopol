@@ -14,10 +14,15 @@ struct Point
 //cube 좌표
 struct Hex
 {
-	// x , y ,z 
+	// x , z ,y 
 	int q, r, s;
 	Hex(int q_, int r_, int s_) :q(q_), r(r_), s(s_)
 	{
+		assert(q + r + s == 0);
+	}
+	Hex(int q_, int r_) :q(q_), r(r_)
+	{
+		s = -q - r;
 		assert(q + r + s == 0);
 	}
 	Hex()
@@ -101,9 +106,9 @@ struct Orientation {
 
 struct Layout {
 	Orientation orientation;
-	Point size;
-	Point origin;
-	Layout(Orientation orientation_, Point size_, Point origin_)
+	Vector2 size;
+	Vector2 origin;
+	Layout(Orientation orientation_, Vector2 size_, Vector2 origin_)
 		: orientation(orientation_), size(size_), origin(origin_) {}
 	Layout() {}
 };
@@ -155,32 +160,32 @@ class RectangularPointyTopMap
 
 private:
 
+	
+	
+
+public:	
+
 	//여러장의 이미지를 사용할수 있으므로
 	vector<Image*>  tileImg;
-	
 
-public:
-	
-
-	RectangularPointyTopMap() {};
+	RectangularPointyTopMap()
+	{};
 
 	//타일의 시작점 위치
 	Vector2 LB;
 
 	//타일사이즈
-	Point TileSize;
-
-	//타일 중심
-	Point Origin;
+	Vector2 TileSize;
+	
 
 	vector<vector<HexTile>> Tiles;
 
 	unordered_map<OffsetCoord,Hex> hTiles;
 	
 	//가로 크기
-	UINT width;
+	int width;
 	//세로 크기
-	UINT height;	
+	int height;	
 
 	//이미지 가져오기	
 	void AddImage(_tstring file, UINT MaxFrameX, UINT MaxFrameY, string vs = "VS", string ps = "PS");
@@ -207,6 +212,7 @@ class TileMapEdit
 {
 
 private:
+	
 
 	//6가지 방향
 	const vector<Hex> hex_directions = {
@@ -222,10 +228,10 @@ private:
 
 	
 	//핵사 모서리 구하기
-	Point hex_corner_offset(Layout layout, int corner);
+	Vector2 hex_corner_offset(Layout layout, int corner);
 
 	//벡터포인트 반환 코너구해주는 함수
-	vector<Point> polygon_corners(Layout layout, Hex h);
+	vector<Vector2> polygon_corners(Layout layout, Hex h);
 
 	//헥사 더하기
 	Hex hex_add(Hex a, Hex b);
@@ -245,8 +251,7 @@ private:
 	//헥사의 이웃구하기
 	Hex hex_neighbor(Hex hex, int direction);
 
-	//분수핵사를 반올림해주는 함수
-	Hex hex_round(FractionalHex h);
+
 
 	//왼쪽회전
 	Hex hex_rotate_left(Hex a);
@@ -270,33 +275,43 @@ public:
 
 	//직각사각형 캡슐화하는 변수
 	RectangularPointyTopMap map;
-	
+
+	//레이아웃
+	Layout layout;
+
 	//오프셋을 픽셀로
-	Point oddr_offset_to_pixel(OffsetCoord a,float size)
+	Vector2 oddr_offset_to_pixel(OffsetCoord a,float size)
 	{
 		float x = size * sqrt(3) * (a.col + 0.5 * (a.row & 1));
 		float y = size * 3 / 2 * a.row;
-		return Point(x, y);
+		return Vector2(x, y);
 	}
 
 
 	//헥사를 픽셀화면으로
-	Point hex_to_pixel(Layout layout, Hex h);
+	Vector2 hex_to_pixel(Layout layout, Hex h);
 
 	//픽셀을 핵사화면으로
-	FractionalHex pixel_to_hex(Layout layout, Point p);
+	FractionalHex pixel_to_hex(Layout layout, Vector2 p);
 
-
+	//분수핵사를 반올림해주는 함수
+	Hex hex_round(FractionalHex h);
 
 	//핵사 라인 그리기
 	vector<Hex> hex_linedraw(Hex a, Hex b);
 
 	//오프셋 q좌표로 변환
-	OffsetCoord qoffset_from_cube(int offset, Hex h);
+	OffsetCoord cube_to_roffset(int offset, Hex h);
 
 	//큐브좌표로 변환
-	Hex qoffset_to_cube(int offset, OffsetCoord h);
+	Hex roffset_to_cube(int offset, OffsetCoord h);
 
+	//검증된 오프셋좌표 변환
+	OffsetCoord cube_to_oddr(Hex a);
+	
+	
+
+	
 
 	//초기화
 	HRESULT Init();
@@ -315,3 +330,26 @@ public:
 
 
 
+#pragma region 보류클래스/*
+template<class T> class HexMap {
+
+	vector<vector<T>> map;
+
+
+public:
+
+
+	void Map(int width_, int height_)
+	{
+		map.resize(height_);
+		for (int r = 0; r < height_; r++) {
+			map.emplace_back(width_);
+		}
+	}
+
+	inline T& at(int q, int r) {
+		return map[r][q + (r >> 1)];
+	}
+
+};*/
+#pragma endregion

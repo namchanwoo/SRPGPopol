@@ -1,1 +1,5 @@
-﻿E:\Microsoft Visual Studio\IDE\Common7\IDE\VC\VCTargets\Microsoft.CppCommon.targets(314,5): error MSB6003: 지정한 작업 실행 파일 "CL.exe"을(를) 실행할 수 없습니다. 'C:\USERS\NAMCHANWOO\DESKTOP\PORTFOLIOSRPG\PORTFOLIO SRPG\WINAPI32\DEBUG\WINAPI32.PCH' 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.
+﻿  Scene2.cpp
+c:\users\namchanwoo\desktop\srpgpopol\portfolio srpg\winapi32\tilemap\tilemapedit.h(75): warning C4244: '인수': 'const int'에서 'const float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\namchanwoo\desktop\srpgpopol\portfolio srpg\winapi32\tilemap\tilemapedit.h(285): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\namchanwoo\desktop\srpgpopol\portfolio srpg\winapi32\util\objectcollision.h(145): warning C4244: '초기화 중': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  WinAPI32.vcxproj -> C:\Users\namchanwoo\Desktop\SRPGPoPol\Portfolio SRPG\Debug\WinAPI32.exe

@@ -11,8 +11,6 @@ Hex TileMapEdit::hex_subtract(Hex a, Hex b)
 	return Hex(a.q - b.q, a.r - b.r, a.s - b.s);
 }
 
-
-
 //헥스 곱하기
 Hex TileMapEdit::hex_multiply(Hex a, int k)
 {
@@ -31,6 +29,7 @@ int TileMapEdit::hex_distance(Hex a, Hex b)
 	return hex_length(hex_subtract(a, b));
 }
 
+
 //방향을 갖고오는 함수
 Hex TileMapEdit::hex_direction(int direction /* 0 to 5 */)
 {
@@ -47,20 +46,20 @@ Hex TileMapEdit::hex_neighbor(Hex hex, int direction) {
 
 
 //헥사를 픽셀화면으로
-Point TileMapEdit::hex_to_pixel(Layout layout, Hex h)
+Vector2 TileMapEdit::hex_to_pixel(Layout layout, Hex h)
 {
 	const Orientation& M = layout.orientation;
 	double x = (M.f0 * h.q + M.f1 * h.r) * layout.size.x;
 	double y = (M.f2 * h.q + M.f3 * h.r) * layout.size.y;
-	return Point(x + layout.origin.x, y + layout.origin.y);
+	return Vector2(x + layout.origin.x, y + layout.origin.y);
 }
 
 //픽셀을 핵사화면으로
-FractionalHex TileMapEdit::pixel_to_hex(Layout layout, Point p)
+FractionalHex TileMapEdit::pixel_to_hex(Layout layout, Vector2 p)
 {
-	
+
 	const Orientation& M = layout.orientation;
-	Point pt = Point((p.x - layout.origin.x) / layout.size.x, (p.y - layout.origin.y) / layout.size.y);
+	Vector2 pt = Vector2((p.x - layout.origin.x) / layout.size.x, (p.y - layout.origin.y) / layout.size.y);
 	double q = M.b0 * pt.x + M.b1 * pt.y;
 	double r = M.b2 * pt.x + M.b3 * pt.y;
 	return FractionalHex(q, r, -q - r);
@@ -68,21 +67,21 @@ FractionalHex TileMapEdit::pixel_to_hex(Layout layout, Point p)
 }
 
 //핵사 모서리 구하기
-Point TileMapEdit::hex_corner_offset(Layout layout, int corner) {
-	Point size = layout.size;
+Vector2 TileMapEdit::hex_corner_offset(Layout layout, int corner) {
+	Vector2 size = layout.size;
 	double angle = 2.0 * M_PI *	(layout.orientation.start_angle + corner) / 6;
-	return Point(size.x * cos(angle), size.y * sin(angle));
+	return Vector2(size.x * cos(angle), size.y * sin(angle));
 }
 
 //벡터포인트 반환 코너구해주는 함수
-vector<Point> TileMapEdit::polygon_corners(Layout layout, Hex h)
+vector<Vector2> TileMapEdit::polygon_corners(Layout layout, Hex h)
 {
-	vector<Point> corners = {};
-	Point center = hex_to_pixel(layout, h);
+	vector<Vector2> corners = {};
+	Vector2 center = hex_to_pixel(layout, h);
 	for (int i = 0; i < 6; i++)
 	{
-		Point offset = hex_corner_offset(layout, i);
-		corners.push_back(Point(center.x + offset.x, center.y + offset.y));
+		Vector2 offset = hex_corner_offset(layout, i);
+		corners.push_back(Vector2(center.x + offset.x, center.y + offset.y));
 	}
 	return corners;
 }
@@ -122,7 +121,7 @@ float TileMapEdit::lerp(double a, double b, double t)
 
 //부동소수 핵사를 선형보간하고 반환하는 함수
 FractionalHex TileMapEdit::hex_lerp(Hex a, Hex b, double t) {
-	return FractionalHex(lerp(a.q, b.q, t),	lerp(a.r, b.r, t),	lerp(a.s, b.s, t));
+	return FractionalHex(lerp(a.q, b.q, t), lerp(a.r, b.r, t), lerp(a.s, b.s, t));
 }
 
 ////부동소수 핵사를 선형보간하고 반환하는 함수
@@ -144,7 +143,6 @@ vector<Hex> TileMapEdit::hex_linedraw(Hex a, Hex b) {
 }
 
 
-
 ////핵사 라인 그리기 (러프의 오류를 막아주는 것
 //vector<Hex> TileMapEdit::hex_linedraw(Hex a, Hex b) {
 //	int N = hex_distance(a, b);
@@ -158,7 +156,6 @@ vector<Hex> TileMapEdit::hex_linedraw(Hex a, Hex b) {
 //	}
 //	return results;
 //}
-
 
 //왼쪽회전
 Hex TileMapEdit::hex_rotate_left(Hex a)
@@ -174,26 +171,38 @@ Hex TileMapEdit::hex_rotate_right(Hex a)
 
 
 //오프셋 좌표로 변환
-OffsetCoord TileMapEdit::qoffset_from_cube(int offset, Hex h) {
-	assert(offset == EVEN || offset == ODD,"offset은 EVEN(+1) 또는 ODD(-1)이여야 합니다.");
-	int col = h.q;
-	int row = h.r + int((h.q + offset * (h.q & 1)) / 2);
+OffsetCoord TileMapEdit::cube_to_roffset(int offset, Hex h) {
+	assert(offset == EVEN || offset == ODD);
+	int col = h.q + int((h.r + offset * (h.r & 1)) / 2);
+	int row = h.r;
 	return OffsetCoord(col, row);
 }
 
 //큐브좌표로 변환
-Hex TileMapEdit::qoffset_to_cube(int offset, OffsetCoord h) {
-	assert(offset == EVEN || offset == ODD, "offset은 EVEN(+1) 또는 ODD(-1)이여야 합니다.");
-	int q = h.col;
-	int r = h.row - int((h.col + offset * (h.col & 1)) / 2);
+Hex TileMapEdit::roffset_to_cube(int offset, OffsetCoord h) {
+	assert(offset == EVEN || offset == ODD);
+	int q = h.col - int((h.row + offset * (h.row & 1)) / 2);
+	int r = h.row;
 	int s = -q - r;
 	return Hex(q, r, s);
+}
+
+//검증된 오프셋좌표변환
+OffsetCoord TileMapEdit::cube_to_oddr(Hex a)
+{
+	int col = a.q + (a.r - (a.r & 1)) / 2;
+	int row = a.r;
+	return OffsetCoord(col, row);
 }
 
 
 HRESULT TileMapEdit::Init()
 {
 	map.Init();
+
+	layout.orientation = layout_pointy;
+	layout.size = Vector2(35.0f, 35.0f);
+	layout.origin = Vector2(30.25, 35);
 
 	return S_OK;
 }
@@ -229,16 +238,11 @@ void RectangularPointyTopMap::AddImage(_tstring file, UINT MaxFrameX, UINT MaxFr
 
 void RectangularPointyTopMap::Init()
 {
+	width = 15;
+	height = 15;
 
-	width = 10;
-	height = 10;
-
-	LB.x = 0.0f;
-	LB.y = 0.0f;
-
-	Origin = Point{ 0.0,0.0 };
-	TileSize.x = 60.5f;
-	TileSize.y = 70.0f;
+	LB = Vector2(0.0f, 0.0f);
+	TileSize = Vector2(60.5f, 70.0f);
 
 	//타일 재조정
 	ResizeTile();
@@ -251,10 +255,10 @@ void RectangularPointyTopMap::Init()
 void RectangularPointyTopMap::ResizeTile()
 {
 	//벡터크기를 맥스 사이즈만큼 잡는다
-	Tiles.resize(width);
-	for (LONG i = 0; i < width; i++)
+	Tiles.resize(height);
+	for (LONG i = 0; i < height; i++)
 	{
-		Tiles[i].resize(height);
+		Tiles[i].resize(width);
 	}
 
 }
@@ -264,49 +268,45 @@ void RectangularPointyTopMap::InitPosition()
 
 	//오프셋과 핵사좌표를 잡아주기
 	for (int r = 0; r < height; r++) {
-		int r_offset = floor(r / 2); // or r>>1
+		int r_offset = floor((r) / 2); // or r>>1
 		for (int q = -r_offset; q < width - r_offset; q++)
 		{
-			OffsetCoord off(r, q);
+			OffsetCoord off(q + (r >> 1), r);
 			int s = -q - r;
 			Hex hex(q, r, s);
-			hTiles.insert(make_pair(off,hex));
+			hTiles.insert(make_pair(off, hex));
 		}
 	}
 
 	float size = TileSize.y *0.5f;
-
 	//수평거리
 	float w = sqrt(3)*size;
 	//수직거리
-	float h = sqrt(2)*size;
+	float h = 2 * size;
 
 	//전체적으로 타일 위치 다시잡기
-	for (LONG i = 0; i < width; i++)
+	for (LONG i = 0; i < height; i++)
 	{
-		for (LONG j = 0; j < height; j++)
+		for (LONG j = 0; j < width; j++)
 		{
-			//홀수 행일때
+			//홀수 행 일때 포지션 잡아주기
 			if (j % 2 != 0)
 			{
-				Tiles[i][j].Pos.x = TileSize.x + (w * i);
-				Tiles[i][j].Pos.y = size + (h * j);
-
+				Tiles[i][j].Pos.x = 0 + (w * i);
+				Tiles[i][j].Pos.y = size + (h * 3 / 4 * j);
 				Tiles[i][j].offCoord = OffsetCoord(i, j);
 				Tiles[i][j].cubeCoord = hTiles[Tiles[i][j].offCoord];
 			}
+			//짝수 행 일때 포지션 잡아주기
 			else
 			{
 				Tiles[i][j].Pos.x = TileSize.x*0.5f + (w * i);
-				Tiles[i][j].Pos.y = size + (h  * j);
-
+				Tiles[i][j].Pos.y = size + (h * 3 / 4 * j);
 				Tiles[i][j].offCoord = OffsetCoord(i, j);
 				Tiles[i][j].cubeCoord = hTiles[Tiles[i][j].offCoord];
-			}			
+			}
 		}
 	}
-
-
 
 }
 
@@ -340,7 +340,6 @@ void RectangularPointyTopMap::Reneder()
 	{
 		for (UINT j = 0; j < height; j++)
 		{
-		
 			UINT vecindex = Tiles[i][j].vecIdx;
 			tileImg[vecindex]->Pos = Tiles[i][j].Pos + LB;
 			tileImg[vecindex]->Scale.x = TileSize.x;

@@ -152,7 +152,7 @@ static Vector2 HexCorner(Vector2 center,float size,int i)
 }
 
 //핵사타일과 점의 충돌
-static bool PtInHexTile(Vector2 pt,Tile& p,TileMap& tm) 
+static bool PtInHex(Vector2 pt,Tile& p,TileMap& tm) 
 {
 	//6개의 꼭지점 변수
 	Vector2 polygon[6];
@@ -220,39 +220,27 @@ static bool PtInTile(TileMap* tile, Vector2 Pt, OUT POINT& index)//밖에 나가서 �
 
 
 //점이 헥사타일 안에 있는가?
-static bool PtInTile(TileMapEdit* edit, Vector2 Pt, OUT POINT& index)//밖에 나가서 바뀔값
+static bool PtInHexTile(TileMapEdit* edit, Vector2 Pt, OUT OffsetCoord& coord)//밖에 나가서 바뀔값
 {
 
 	COL_RECT col;
 	col.left = edit->map.LB.x;
 	col.bottom = edit->map.LB.y;
-	col.right = col.left + edit->map.width * edit->map.TileSize.x;
-	col.top = col.bottom + edit->map.height * edit->map.TileSize.y;
+	col.right = col.left + edit->map.width * edit->map.TileSize.x+20;
+	col.top = col.bottom + edit->map.height * edit->map.TileSize.y+20;
 
-	//아니라면 안에 있다.z`
+	//왼쪽점이 이동한만큼 빼주기
+	Pt -= edit->map.LB;
 
-	////왼쪽점이 이동한만큼 빼주기
-	//Pt -= edit->map.LB;
+	//마우스의 포인트를 핵사좌표로 변환 (변환 과정에서 double타입의 헥사로 변환)
+	FractionalHex curHex = edit->pixel_to_hex(edit->layout, Pt);
+	//플롯타입의 헥사를 인트타입의 헥사로 변환
+	Hex curHex2 = edit->hex_round(curHex);
 
-	//for (int i = 0; i < tile->GetRefTileMax().x; i++)
-	//{
-	//	for (int j = 0; j < tile->GetRefTileMax().y; j++)
-	//	{
-	//		if (PtInHexTile(Pt, tile->GetRefTiles()[i][j], *tile))
-	//		{
-	//			index.x = tile->GetRefTiles()[i][j].TileIdx.x;
-	//			index.y = tile->GetRefTiles()[i][j].TileIdx.y;
-	//			break;
-	//		}
-	//	}
-	//}
+	//해당 큐브좌표를 오프셋좌표 변환 후 입력
+	coord = edit->cube_to_roffset(+1,curHex2);
 
-	////인덱스 잡기
-	//index.x = (LONG)(Pt.x / tile->GetRefTileSize().x);
-	//index.y = (LONG)(Pt.y / tile->GetRefTileSize().y);
-
-
-
+	//q = x , r=z ,s =y
 
 	if (!PtinRect(Pt, col))
 	{

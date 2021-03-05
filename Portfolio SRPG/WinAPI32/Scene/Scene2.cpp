@@ -36,6 +36,8 @@ HRESULT Scene2::init()
 
 	//init후에 들어가는 이미지 순서로 인덱스가 매겨진다.
 	edit->map.AddImage(_T("HexTile.png"), 1, 1);
+	edit->map.AddImage(_T("Tile.png"), 8, 6);
+
 
 
 	//타일맵으로 쓸 배경
@@ -82,6 +84,15 @@ void Scene2::update()
 		MAINCAM->Pos.x += 100.0f*DeltaTime;
 	}
 
+	
+	if (KEYMANAGER->StayKeyDown(VK_LBUTTON))
+	{
+		OffsetCoord curCoord;
+		if (PtInHexTile(edit, g_MousePt, curCoord))
+		{
+			edit->map.Tiles[curCoord.col][curCoord.row].vecIdx = 1;
+		}
+	}
 
 	edit->Update();
 
