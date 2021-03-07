@@ -59,9 +59,9 @@ FractionalHex TileMapEdit::pixel_to_hex(Layout layout, Vector2 p)
 {
 
 	const Orientation& M = layout.orientation;
-	Vector2 pt = Vector2((p.x - layout.origin.x) / layout.size.x, (p.y - layout.origin.y) / layout.size.y);
+	Vector2 pt = Vector2((p.x - layout.origin.x)  / layout.size.x, (p.y - layout.origin.y)  / layout.size.y);
 	double q = M.b0 * pt.x + M.b1 * pt.y;
-	double r = M.b2 * pt.x + M.b3 * pt.y;
+	double r = M.b2 * pt.x + M.b3 * pt.y ;
 	return FractionalHex(q, r, -q - r);
 
 }
@@ -199,10 +199,15 @@ OffsetCoord TileMapEdit::cube_to_oddr(Hex a)
 HRESULT TileMapEdit::Init()
 {
 	map.Init();
+	mapManager = new EditManager(&map);
+	mapManager->width = mapManager->map->width;
+	mapManager->height = mapManager->map->height;
+	mapManager->TileSize = mapManager->map->TileSize;
+
 
 	layout.orientation = layout_pointy;
 	layout.size = Vector2(35.0f, 35.0f);
-	layout.origin = Vector2(30.25, 35);
+	layout.origin = Vector2(map.TileSize.x*0.5f,map.TileSize.y*0.5f);
 
 	return S_OK;
 }
@@ -214,7 +219,7 @@ void TileMapEdit::Release()
 
 void TileMapEdit::Update()
 {
-
+	
 
 }
 
@@ -238,8 +243,8 @@ void RectangularPointyTopMap::AddImage(_tstring file, UINT MaxFrameX, UINT MaxFr
 
 void RectangularPointyTopMap::Init()
 {
-	width = 15;
-	height = 15;
+	width = 10;
+	height = 7;
 
 	LB = Vector2(0.0f, 0.0f);
 	TileSize = Vector2(60.5f, 70.0f);
@@ -252,13 +257,21 @@ void RectangularPointyTopMap::Init()
 
 }
 
+void RectangularPointyTopMap::Update()
+{
+
+
+
+
+}
+
 void RectangularPointyTopMap::ResizeTile()
 {
 	//벡터크기를 맥스 사이즈만큼 잡는다
-	Tiles.resize(height);
-	for (LONG i = 0; i < height; i++)
+	Tiles.resize(width);
+	for (LONG i = 0; i < width; i++)
 	{
-		Tiles[i].resize(width);
+		Tiles[i].resize(height);
 	}
 
 }
@@ -285,23 +298,23 @@ void RectangularPointyTopMap::InitPosition()
 	float h = 2 * size;
 
 	//전체적으로 타일 위치 다시잡기
-	for (LONG i = 0; i < height; i++)
+	for (LONG i = 0; i < width; i++)
 	{
-		for (LONG j = 0; j < width; j++)
+		for (LONG j = 0; j < height; j++)
 		{
 			//홀수 행 일때 포지션 잡아주기
 			if (j % 2 != 0)
 			{
-				Tiles[i][j].Pos.x = 0 + (w * i);
-				Tiles[i][j].Pos.y = size + (h * 3 / 4 * j);
+				Tiles[i][j].Pos.x = 0 + (w * i)+ LB.x;
+				Tiles[i][j].Pos.y = size + (h * 3 / 4 * j)+ LB.y;
 				Tiles[i][j].offCoord = OffsetCoord(i, j);
 				Tiles[i][j].cubeCoord = hTiles[Tiles[i][j].offCoord];
 			}
 			//짝수 행 일때 포지션 잡아주기
 			else
 			{
-				Tiles[i][j].Pos.x = TileSize.x*0.5f + (w * i);
-				Tiles[i][j].Pos.y = size + (h * 3 / 4 * j);
+				Tiles[i][j].Pos.x = TileSize.x*0.5f + (w * i)+LB.x;
+				Tiles[i][j].Pos.y = size + (h * 3 / 4 * j)+ LB.y;
 				Tiles[i][j].offCoord = OffsetCoord(i, j);
 				Tiles[i][j].cubeCoord = hTiles[Tiles[i][j].offCoord];
 			}
@@ -341,27 +354,31 @@ void RectangularPointyTopMap::Reneder()
 		for (UINT j = 0; j < height; j++)
 		{
 			UINT vecindex = Tiles[i][j].vecIdx;
-			tileImg[vecindex]->Pos = Tiles[i][j].Pos + LB;
+			tileImg[vecindex]->Pos = Tiles[i][j].Pos;
 			tileImg[vecindex]->Scale.x = TileSize.x;
 			tileImg[vecindex]->Scale.y = TileSize.y;
 
 			tileImg[vecindex]->update();
 			tileImg[vecindex]->CurrentFrameX = Tiles[i][j].imgIdx.x;
 			tileImg[vecindex]->CurrentFrameY = Tiles[i][j].imgIdx.y;
-			tileImg[vecindex]->render();
+			//tileImg[vecindex]->render();
+
+			if (Tiles[i][j].tileState == TILESTATE::TILE_WALL)
+			{
+				tileImg[vecindex]->color = Color(0.7f, 0, 0, Alpha);
+				tileImg[vecindex]->render();
+			}
+			else
+			{
+				tileImg[vecindex]->color = Color(1, 1, 1, Alpha);
+				tileImg[vecindex]->render();
+			}
+				          
+
+
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -418,3 +435,72 @@ bool operator==(const OffsetCoord& p1, const OffsetCoord& p2) {
 
 #pragma endregion
 
+
+
+void EditManager::TileIndexResize()
+{
+		//늘려야 되고
+		if (map->width < width)
+		{					
+			map->Tiles.emplace_back();
+			map->Tiles[width - 1].resize(height);
+			map->width = width;
+			map->InitPosition();
+		}
+
+		//줄여야 됨
+		if (map->width > width)
+		{
+			map->Tiles[width].clear();
+			map->Tiles[width].shrink_to_fit();
+			map->Tiles.pop_back();
+			map->width = width;
+		}
+
+		//늘려야 되고
+		if (map->height < height)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				map->Tiles[i].emplace_back();				
+			}
+			map->height = height;
+			map->InitPosition();
+		}
+		//줄여야 됨
+		if (map->height > height)
+		{
+			for (int i = 0; i < width; i++)
+			{
+				map->Tiles[i].pop_back();
+			}
+			map->height = height;
+		}
+}
+
+void EditManager::TileInitPosition()
+{
+	map->InitPosition();
+}
+
+
+
+void EditManager::TileScaleResize()
+{
+	//늘려야 되고
+	if (map->TileSize != TileSize)
+	{	
+		map->TileSize = TileSize;
+		map->InitPosition();
+	}
+}
+
+void EditManager::TileStateChange()
+{
+
+}
+
+void EditManager::TileImgChange()
+{
+
+}

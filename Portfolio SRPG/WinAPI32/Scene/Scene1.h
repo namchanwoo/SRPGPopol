@@ -2,6 +2,8 @@
 #define MAXPOSITION 5000.0f
 #define MAXSCALE 500.0f
 
+//C:\Program Files\Common Files\Adobe\fonts
+
 //¿Â∏È
 class Scene1 :public Scene
 {
