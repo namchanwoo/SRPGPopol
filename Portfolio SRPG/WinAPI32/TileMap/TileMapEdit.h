@@ -120,6 +120,7 @@ struct HexTile
 	UINT vecIdx;				//이미지 번호
 	POINT imgIdx;				//이미지 인덱스
 	TILESTATE tileState;		//타일의 상태
+	bool check = false;			//타일이 선택되어 있는 상태
 
 	//타일 스테이트(상태)
 	HexTile() :vecIdx(0)
@@ -129,6 +130,10 @@ struct HexTile
 		tileState = TILESTATE::TILE_NONE;
 	}
 
+	void CheckSwiching()
+	{
+		check = !check;
+	}
 #pragma region A* 알고리즘에 필요한 변수들
 	//UINT F;					 //예상비용 + 현재까지비용
 	//UINT G;					 //현재까지비용
@@ -150,7 +155,6 @@ private:
 
 	unordered_map<OffsetCoord, Hex> hTiles;
 
-	
 
 public:	
 
@@ -190,42 +194,6 @@ public:
 
 };
 
-class EditManager
-{
-
-private:
-
-
-public:
-
-	int width;
-	int height;
-
-	Vector2 TileSize;
-
-
-	RectangularPointyTopMap* map;
-
-
-	EditManager(RectangularPointyTopMap* map_):map(map_){}
-
-	//타일 갯수 조절
-	void TileIndexResize();
-
-	//타일 위치 조절
-	void TileInitPosition();
-
-	//타일 사이즈 조절
-	void TileScaleResize();
-
-	//타일 상태 변경
-	void TileStateChange();
-
-	//타일 이미지 변경
-	void TileImgChange();
-
-
-};
 
 
 class TileMapEdit
@@ -292,7 +260,6 @@ public:
 	//직각사각형 캡슐화하는 변수
 	RectangularPointyTopMap map;
 
-	EditManager* mapManager;
 
 	//레이아웃
 	Layout layout;
@@ -327,8 +294,6 @@ public:
 	//검증된 오프셋좌표 변환
 	OffsetCoord cube_to_oddr(Hex a);
 	
-	
-
 	
 
 	//초기화

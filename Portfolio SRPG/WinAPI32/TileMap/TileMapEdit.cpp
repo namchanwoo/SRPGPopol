@@ -199,11 +199,6 @@ OffsetCoord TileMapEdit::cube_to_oddr(Hex a)
 HRESULT TileMapEdit::Init()
 {
 	map.Init();
-	mapManager = new EditManager(&map);
-	mapManager->width = mapManager->map->width;
-	mapManager->height = mapManager->map->height;
-	mapManager->TileSize = mapManager->map->TileSize;
-
 
 	layout.orientation = layout_pointy;
 	layout.size = Vector2(35.0f, 35.0f);
@@ -357,25 +352,29 @@ void RectangularPointyTopMap::Reneder()
 			tileImg[vecindex]->Pos = Tiles[i][j].Pos;
 			tileImg[vecindex]->Scale.x = TileSize.x;
 			tileImg[vecindex]->Scale.y = TileSize.y;
-
 			tileImg[vecindex]->update();
-			tileImg[vecindex]->CurrentFrameX = Tiles[i][j].imgIdx.x;
-			tileImg[vecindex]->CurrentFrameY = Tiles[i][j].imgIdx.y;
-			//tileImg[vecindex]->render();
-
-			if (Tiles[i][j].tileState == TILESTATE::TILE_WALL)
+			
+			if (Tiles[i][j].check == true)
 			{
-				tileImg[vecindex]->color = Color(0.7f, 0, 0, Alpha);
-				tileImg[vecindex]->render();
+				tileImg[vecindex]->color = Color(0.9f,0.15f,0.11f, Alpha);
 			}
 			else
 			{
 				tileImg[vecindex]->color = Color(1, 1, 1, Alpha);
-				tileImg[vecindex]->render();
 			}
-				          
 
+			if (Tiles[i][j].tileState == TILESTATE::TILE_WALL)
+			{
+				tileImg[vecindex]->CurrentFrameX = 1;
+				tileImg[vecindex]->CurrentFrameY = Tiles[i][j].imgIdx.y;
+			}
+			else
+			{				
+				tileImg[vecindex]->CurrentFrameX = Tiles[i][j].imgIdx.x;
+				tileImg[vecindex]->CurrentFrameY = Tiles[i][j].imgIdx.y;
+			}    
 
+			tileImg[vecindex]->render();
 		}
 	}
 }
@@ -436,71 +435,63 @@ bool operator==(const OffsetCoord& p1, const OffsetCoord& p2) {
 #pragma endregion
 
 
+//
+//void EditManager::TileIndexResize()
+//{
+//
+//		//´Ã·Á¾ß µÇ°í
+//		if (map->width < width)
+//		{					
+//			map->Tiles.emplace_back();
+//			map->Tiles[width - 1].resize(height);
+//			map->width = width;
+//			map->InitPosition();
+//		}
+//
+//		//ÁÙ¿©¾ß µÊ
+//		if (map->width > width)
+//		{
+//			map->Tiles[width].clear();
+//			map->Tiles[width].shrink_to_fit();
+//			map->Tiles.pop_back();
+//			map->width = width;
+//		}
+//
+//		//´Ã·Á¾ß µÇ°í
+//		if (map->height < height)
+//		{
+//			for (int i = 0; i < width; i++)
+//			{
+//				map->Tiles[i].emplace_back();				
+//			}
+//			map->height = height;
+//			map->InitPosition();
+//		}
+//		//ÁÙ¿©¾ß µÊ
+//		if (map->height > height)
+//		{
+//			for (int i = 0; i < width; i++)
+//			{
+//				map->Tiles[i].pop_back();
+//			}
+//			map->height = height;
+//		}
+//}
+//
+//void EditManager::TileInitPosition()
+//{
+//	map->InitPosition();
+//}
+//
+//
+//
+//void EditManager::TileScaleResize()
+//{
+//	//´Ã·Á¾ß µÇ°í
+//	if (map->TileSize != TileSize)
+//	{	
+//		map->TileSize = TileSize;
+//		map->InitPosition();
+//	}
+//}
 
-void EditManager::TileIndexResize()
-{
-		//´Ã·Á¾ß µÇ°í
-		if (map->width < width)
-		{					
-			map->Tiles.emplace_back();
-			map->Tiles[width - 1].resize(height);
-			map->width = width;
-			map->InitPosition();
-		}
-
-		//ÁÙ¿©¾ß µÊ
-		if (map->width > width)
-		{
-			map->Tiles[width].clear();
-			map->Tiles[width].shrink_to_fit();
-			map->Tiles.pop_back();
-			map->width = width;
-		}
-
-		//´Ã·Á¾ß µÇ°í
-		if (map->height < height)
-		{
-			for (int i = 0; i < width; i++)
-			{
-				map->Tiles[i].emplace_back();				
-			}
-			map->height = height;
-			map->InitPosition();
-		}
-		//ÁÙ¿©¾ß µÊ
-		if (map->height > height)
-		{
-			for (int i = 0; i < width; i++)
-			{
-				map->Tiles[i].pop_back();
-			}
-			map->height = height;
-		}
-}
-
-void EditManager::TileInitPosition()
-{
-	map->InitPosition();
-}
-
-
-
-void EditManager::TileScaleResize()
-{
-	//´Ã·Á¾ß µÇ°í
-	if (map->TileSize != TileSize)
-	{	
-		map->TileSize = TileSize;
-		map->InitPosition();
-	}
-}
-
-void EditManager::TileStateChange()
-{
-
-}
-
-void EditManager::TileImgChange()
-{
-
-}
