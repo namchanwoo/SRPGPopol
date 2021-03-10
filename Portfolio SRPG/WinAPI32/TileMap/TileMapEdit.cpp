@@ -59,9 +59,9 @@ FractionalHex TileMapEdit::pixel_to_hex(Layout layout, Vector2 p)
 {
 
 	const Orientation& M = layout.orientation;
-	Vector2 pt = Vector2((p.x - layout.origin.x) / layout.size.x, (p.y - layout.origin.y) / layout.size.y);
+	Vector2 pt = Vector2((p.x - layout.origin.x)  / layout.size.x, (p.y - layout.origin.y)  / layout.size.y);
 	double q = M.b0 * pt.x + M.b1 * pt.y;
-	double r = M.b2 * pt.x + M.b3 * pt.y;
+	double r = M.b2 * pt.x + M.b3 * pt.y ;
 	return FractionalHex(q, r, -q - r);
 
 }
@@ -201,8 +201,11 @@ HRESULT TileMapEdit::Init()
 	map.Init();
 
 	layout.orientation = layout_pointy;
-	layout.size = Vector2(35.0f, 35.0f);
-	layout.origin = Vector2(30.25, 35);
+	layout.size = Vector2(35, 35);
+	layout.origin = Vector2(map.TileSize.x*0.5f, map.TileSize.y*0.5f);
+
+
+
 
 	return S_OK;
 }
@@ -213,8 +216,7 @@ void TileMapEdit::Release()
 }
 
 void TileMapEdit::Update()
-{
-
+{	
 
 }
 
@@ -238,75 +240,90 @@ void RectangularPointyTopMap::AddImage(_tstring file, UINT MaxFrameX, UINT MaxFr
 
 void RectangularPointyTopMap::Init()
 {
-	width = 15;
-	height = 15;
+	width = 5;
+	height = 5;
 
 	LB = Vector2(0.0f, 0.0f);
 	TileSize = Vector2(60.5f, 70.0f);
 
+	
+	for (int r = 0; r < 30; r++) {
+		int r_offset = floor(r / 2); // or r>>1
+		for (int q = -r_offset; q < 30 - r_offset; q++) 
+		{
+			
+			Hex cHex = Hex(q, r, -q - r);
+			OffsetCoord cofset = OffsetCoord{ r,q + (r >> 1) };
+			map.insert(make_pair(cofset, cHex));
+		}
+	}
+
+
+	
+
 	//타일 재조정
 	ResizeTile();
 
-	//타일들 위치와 
-	InitPosition();
+	//타일들 위치
+	TilePositoinInit();
 
 }
+
+
 
 void RectangularPointyTopMap::ResizeTile()
 {
 	//벡터크기를 맥스 사이즈만큼 잡는다
-	Tiles.resize(height);
-	for (LONG i = 0; i < height; i++)
+	for (int r = 0; r < height; r++)
 	{
-		Tiles[i].resize(width);
+		tiles.emplace_back(width);
 	}
+
+	/*for (auto it = map.begin(); it != map.end(); it++)
+	{
+		int q = (*it).q;
+		int r = (*it).r;
+		tiles[r][q + (r >> 1)] = *it;
+	}*/
+
+
 
 }
 
-void RectangularPointyTopMap::InitPosition()
+void RectangularPointyTopMap::TilePositoinInit()
 {
-
-	//오프셋과 핵사좌표를 잡아주기
-	for (int r = 0; r < height; r++) {
-		int r_offset = floor((r) / 2); // or r>>1
-		for (int q = -r_offset; q < width - r_offset; q++)
-		{
-			OffsetCoord off(q + (r >> 1), r);
-			int s = -q - r;
-			Hex hex(q, r, s);
-			hTiles.insert(make_pair(off, hex));
-		}
-	}
-
+	   
 	float size = TileSize.y *0.5f;
 	//수평거리
 	float w = sqrt(3)*size;
 	//수직거리
 	float h = 2 * size;
 
+	
+
 	//전체적으로 타일 위치 다시잡기
-	for (LONG i = 0; i < height; i++)
+	for (int i = 0; i < height; i++)
 	{
-		for (LONG j = 0; j < width; j++)
+		for (int j = 0; j < width; j++)
 		{
-			//홀수 행 일때 포지션 잡아주기
-			if (j % 2 != 0)
-			{
-				Tiles[i][j].Pos.x = 0 + (w * i);
-				Tiles[i][j].Pos.y = size + (h * 3 / 4 * j);
-				Tiles[i][j].offCoord = OffsetCoord(i, j);
-				Tiles[i][j].cubeCoord = hTiles[Tiles[i][j].offCoord];
+			//홀수 행
+			if (i % 2 != 0)
+			{				
+				tiles[i][j] = map[OffsetCoord(i, j)];
+				tiles[i][j].Pos.x = TileSize.x + (w * j) + LB.x;
+				tiles[i][j].Pos.y = size + (h * 3 / 4 * i) + LB.y;
 			}
-			//짝수 행 일때 포지션 잡아주기
+			//짝수 행
 			else
 			{
-				Tiles[i][j].Pos.x = TileSize.x*0.5f + (w * i);
-				Tiles[i][j].Pos.y = size + (h * 3 / 4 * j);
-				Tiles[i][j].offCoord = OffsetCoord(i, j);
-				Tiles[i][j].cubeCoord = hTiles[Tiles[i][j].offCoord];
+				tiles[i][j] = map[OffsetCoord(i, j)];
+				tiles[i][j].Pos.x = TileSize.x *0.5f + (w * j) + LB.x;
+				tiles[i][j].Pos.y = size + (h * 3 / 4 *i) + LB.y;				
 			}
 		}
 	}
+
+	
 
 }
 
@@ -314,14 +331,13 @@ void RectangularPointyTopMap::ClearTile()
 {
 
 	//벡터크기를 맥스 사이즈만큼 지운다
-	for (LONG i = 0; i < width; i++)
+	for (int i = 0; i < height; i++)
 	{
-		Tiles[i].clear();
-		Tiles[i].shrink_to_fit();
+		tiles[i].clear();
+		tiles[i].shrink_to_fit();
 	}
-	Tiles.clear();
-	Tiles.shrink_to_fit();
-
+	tiles.clear();
+	tiles.shrink_to_fit();
 
 	//벡터에 추가한 이미지 지우기
 	for (UINT i = 0; i < tileImg.size(); i++)
@@ -336,19 +352,39 @@ void RectangularPointyTopMap::ClearTile()
 
 void RectangularPointyTopMap::Reneder()
 {
-	for (UINT i = 0; i < width; i++)
+	for (UINT i = 0; i < height; i++)
 	{
-		for (UINT j = 0; j < height; j++)
+		for (UINT j = 0; j < width; j++)
 		{
-			UINT vecindex = Tiles[i][j].vecIdx;
-			tileImg[vecindex]->Pos = Tiles[i][j].Pos + LB;
+			UINT vecindex = 0;
+			tileImg[vecindex]->Pos = tiles[i][j].Pos;
 			tileImg[vecindex]->Scale.x = TileSize.x;
 			tileImg[vecindex]->Scale.y = TileSize.y;
+			tileImg[vecindex]->update();			
+			
 
-			tileImg[vecindex]->update();
-			tileImg[vecindex]->CurrentFrameX = Tiles[i][j].imgIdx.x;
-			tileImg[vecindex]->CurrentFrameY = Tiles[i][j].imgIdx.y;
+			if (tiles[i][j].check == true)
+			{
+				tileImg[vecindex]->color = Color(0.9f,0.15f,0.11f, Alpha);
+			}
+			else
+			{
+				tileImg[vecindex]->color = Color(1, 1, 1, Alpha);
+			}
+
+			if (tiles[i][j].tileState == TILESTATE::TILE_WALL)
+			{
+				tileImg[vecindex]->CurrentFrameX = 1;
+				tileImg[vecindex]->CurrentFrameY = tiles[i][j].imgIdx.y;
+			}
+			else
+			{				
+				tileImg[vecindex]->CurrentFrameX = tiles[i][j].imgIdx.x;
+				tileImg[vecindex]->CurrentFrameY = tiles[i][j].imgIdx.y;
+			}    
+
 			tileImg[vecindex]->render();
+
 		}
 	}
 }
@@ -356,48 +392,77 @@ void RectangularPointyTopMap::Reneder()
 
 
 
+//점이 헥사타일 안에 있는가?
+bool TileMapEdit::PtInHexTile(Vector2 Pt, OUT OffsetCoord& coord)//밖에 나가서 바뀔값
+{
+
+	COL_RECT col;
+	col.left = 0;
+	col.bottom = 0;
+	col.right = col.left + map.width * (map.TileSize.x + map.LB.x) + map.TileSize.x;
+	col.top = col.bottom + map.height * (map.TileSize.y + map.LB.y) + map.TileSize.y;
+	
 
 
+	//왼쪽점이 이동한만큼 빼주기
+	Pt -= map.LB;
 
 
+	/*Vector2 testPos = hex_to_pixel(layout, Hex(1, 1, -2));
+	Vector2 resultPos = map.tiles[1][1].Pos;
 
+	Vector2 testPos2 = hex_to_pixel(layout, Hex(1, 2, -3));
+	Vector2 resultPos2 = map.tiles[2][2].Pos;
 
+	Vector2 testPos3 = hex_to_pixel(layout, Hex(4, 8, -12));
+	Vector2 resultPos3 = map.tiles[8][8].Pos;
 
+	Vector2 testPos4 = hex_to_pixel(layout, Hex(7, 14, -21));
+	Vector2 resultPos4 = map.tiles[14][14].Pos;*/
 
+	//마우스의 포인트를 핵사좌표로 변환 (변환 과정에서 double타입의 헥사로 변환)
+	FractionalHex curHex = pixel_to_hex(layout, Pt);
+	//플롯타입의 헥사를 인트타입의 헥사로 변환
+	Hex curHex2 = hex_round(curHex);
 
+	//coord = edit->cube_to_roffset(+1, curHex2);
 
+	//해당 큐브좌표를 오프셋좌표 변환 후 입력
+	OffsetCoord curCoord = cube_to_roffset(-1, curHex2);
 
-#pragma region 일단 보류중인 함수들
-//
-/// 오프셋 좌표로 변환
-//OffsetCoord TileMapEdit::roffset_from_cube(int offset, Hex h)
-//{
-//	assert(offset == EVEN || offset == ODD);
-//	int col = h.q + int((h.r + offset * (h.r & 1)) / 2);
-//	int row = h.r;
-//	return OffsetCoord(col, row);
-//}
-//
-////큐브좌표로 변환
-//Hex TileMapEdit::roffset_to_cube(int offset, OffsetCoord h)
-//{
-//	assert(offset == EVEN || offset == ODD);
-//	int q = h.col - int((h.row + offset * (h.row & 1)) / 2);
-//	int r = h.row;
-//	int s = -q - r;
-//	return Hex(q, r, s);
-////}
-//namespace std {
-//	template <> struct hash<Hex> {
-//		size_t operator()(const Hex& h) const {
-//			hash<int> int_hash;
-//			size_t hq = int_hash(h.q);
-//			size_t hr = int_hash(h.r);
-//			return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
-//		}
-//	};
-//}
-#pragma endregion
+	//로우가 행 콜이 열
+
+	if (curCoord.col > map.height - 1 || curCoord.row > map.width - 1)
+	{
+		coord = OffsetCoord();
+	}
+	else
+	{
+		coord = curCoord;
+		map.tiles[coord.col][coord.row].CheckSwiching();
+		if (map.tiles[coord.col][coord.row].check == true)
+		{
+			selectTiles.insert(make_pair(coord, &map.tiles[coord.col][coord.row]));
+		}
+		else
+		{
+			//펄스인데 만약 존재한다면
+			if (selectTiles.find(coord) != selectTiles.end())
+			{
+				selectTiles.erase(coord);
+			}
+		}
+	}
+
+	if (!PtinRect(Pt, col))
+	{
+		//타일 밖에 있는거다.
+		return false;
+	}
+	//q = x , r=z ,s =y
+	return true;
+}
+
 
 
 #pragma region  연산자 재정의

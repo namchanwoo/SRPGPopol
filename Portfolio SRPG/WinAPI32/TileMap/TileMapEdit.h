@@ -1,19 +1,29 @@
 #pragma once
+#define NULLNUMBER 9898
 #define EVEN 1
 #define ODD -1
 
-#pragma region Hex Coord
 
-struct Point
+
+
+enum class TILESTATE
 {
-	float x, y;
-	Point(float x_, float y_) : x(x_), y(y_) {}
-	Point() {}
+	TILE_NONE,
+	TILE_WALL,
 };
 
+#pragma region Hex Coord
+
+
 //cube 좌표
-struct Hex
+class Hex
 {
+	friend std::hash<Hex>;
+	friend bool operator==(const Hex& a, const Hex& b);
+	friend bool operator!=(const Hex& p1, const Hex& p2);
+
+public:
+
 	// x , z ,y 
 	int q, r, s;
 	Hex(int q_, int r_, int s_) :q(q_), r(r_), s(s_)
@@ -25,16 +35,19 @@ struct Hex
 		s = -q - r;
 		assert(q + r + s == 0);
 	}
-	Hex()
-	{
-	}
 
-	friend std::hash<Hex>;
+	Hex(){}
 
-	friend bool operator==(const Hex& a, const Hex& b);
-	friend bool operator!=(const Hex& p1, const Hex& p2);
+	Vector2 Pos;
+	UINT vecIdx = 0;										//이미지 번호
+	POINT imgIdx = POINT{ 0,0 };							//이미지 인덱스
+	TILESTATE tileState = TILESTATE::TILE_NONE;				//타일의 상태
+	bool check = false;										//타일이 선택되어 있는 상태
+	void CheckSwiching(){check = !check;}					//상태스위치
 
 };
+
+
 
 //멤버 타입이 cube 좌표
 struct FractionalHex
@@ -49,8 +62,8 @@ struct FractionalHex
 struct OffsetCoord
 {
 	int col, row;
-	OffsetCoord(int col_, int row_) : col(col_), row(row_) {}
-	OffsetCoord() {}
+	OffsetCoord(int col_, int row_) : col(row_), row(col_) {}
+	OffsetCoord() { col = NULLNUMBER; row = NULLNUMBER; }
 	friend std::hash<OffsetCoord>;
 	friend bool operator==(const OffsetCoord& p1, const OffsetCoord& p2);
 
@@ -58,9 +71,6 @@ struct OffsetCoord
 
 
 #pragma endregion
-
-
-
 
 
 #pragma region 해시함수
@@ -92,8 +102,6 @@ namespace std {
 
 
 
-
-
 //2*2 순방향 행렬, 2*2 역행렬 및 시작각도를 정하기 위해 만든 도우미클래스
 struct Orientation {
 	 double f0, f1, f2, f3;
@@ -113,99 +121,70 @@ struct Layout {
 	Layout() {}
 };
 
-
-
-
-struct HexTile
+//직사각형의 뾰죡한 맵 클래스 
+class RectangularPointyTopMap 
 {
-
-	//큐브좌표
-	Hex cubeCoord;
-
-	//오프셋 좌표
-	OffsetCoord offCoord;
-
-	//타일의 좌표
-	Vector2 Pos;
-
-	//이미지 번호
-	UINT vecIdx;
-
-	//이미지 인덱스
-	POINT imgIdx;
-
-	//타일 스테이트(상태)
-	HexTile() :vecIdx(0)
-	{
-		imgIdx.x = 0;
-		imgIdx.y = 0;
-	}
-
-#pragma region A* 알고리즘에 필요한 변수들
-
-	//UINT F;					 //예상비용 + 현재까지비용
-	//UINT G;					 //현재까지비용
-	//UINT H;					 //예상비용
-	//Tile* P;				 //누굴통해 갱신되었는가?
-
-#pragma endregion
-
-};
-
-
-
-//직사각형 뾰족한형태의 맵
-class RectangularPointyTopMap
-{
-
 private:
 
-	
-	
+public:
 
-public:	
+	int width;									//맵의 너비
+	int height;									//맵의 높이
+	float Alpha = 0.5f;							//타일투명도
+	Vector2 LB;									//타일의 시작점 위치
+	Vector2 TileSize;							//타일 사이즈
 
-	//여러장의 이미지를 사용할수 있으므로
-	vector<Image*>  tileImg;
 
-	RectangularPointyTopMap()
-	{};
-
-	//타일의 시작점 위치
-	Vector2 LB;
-
-	//타일사이즈
-	Vector2 TileSize;
+	vector<Image*> tileImg;						//타일 이미지들
+	vector<vector<Hex>> tiles;					//타일들
+	//unordered_set<Hex> map;
+	unordered_map<OffsetCoord, Hex> map;
 	
 
-	vector<vector<HexTile>> Tiles;
 
-	unordered_map<OffsetCoord,Hex> hTiles;
-	
-	//가로 크기
-	int width;
-	//세로 크기
-	int height;	
+	//생성자
+	RectangularPointyTopMap(){}
 
-	//이미지 가져오기	
-	void AddImage(_tstring file, UINT MaxFrameX, UINT MaxFrameY, string vs = "VS", string ps = "PS");
-
-	//초기화
 	void Init();
 
 	//타일 할당
 	void ResizeTile();
-	
-	//타일들 위치 잡기
-	void InitPosition();
 
-	//벡터 지우기
+	//타을의 위치
+	void TilePositoinInit();
+
+	//맵이 소멸할 때 소멸을 시켜주는 함수
 	void ClearTile();
 
-	//타일 그리기
+	//타일을 그리는 함수
 	void Reneder();
 
+	
+	//void CreateMap()
+	//{
+	//	for (int r = -10; r < height; r++) {
+	//		int r_offset = floor(r / 2); // or r>>1
+	//		for (int q = -r_offset; q < width - r_offset; q++) {
+	//			map.insert(Hex(q, r, -q - r));
+	//		}
+	//	}
+	//}
+
+
+	/*inline Hex& at(int q, int r) {
+		return tiles[r][q + (r >> 1)];
+	}*/
+						
+	inline Hex& at(int q, int r) {
+		return tiles[r][q + (r >> 1)];
+	}
+
+	//이미지 가져오기	
+	void AddImage(_tstring file, UINT MaxFrameX, UINT MaxFrameY, string vs = "VS", string ps = "PS");
+
 };
+
+
 
 
 class TileMapEdit
@@ -213,6 +192,8 @@ class TileMapEdit
 
 private:
 	
+	//vector<HexTile*> selectTiles;
+
 
 	//6가지 방향
 	const vector<Hex> hex_directions = {
@@ -220,12 +201,10 @@ private:
 	Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
 	};
 
-
 	//뾰족한 방향
 	const Orientation layout_pointy = Orientation(sqrt(3.0), sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0, sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0, 0.5);
 	//평평한 방향
 	const Orientation layout_flat = Orientation(3.0 / 2.0, 0.0, sqrt(3.0) / 2.0, sqrt(3.0), 2.0 / 3.0, 0.0, -1.0 / 3.0, sqrt(3.0) / 3.0, 0.0);
-
 	
 	//핵사 모서리 구하기
 	Vector2 hex_corner_offset(Layout layout, int corner);
@@ -242,9 +221,7 @@ private:
 
 	//헥사 거리구하기
 	int hex_length(Hex hex);
-	//헥사 사이 거리 구하기
-	int hex_distance(Hex a, Hex b);
-
+	
 	//방향을 갖고오는 함수
 	Hex hex_direction(int direction /* 0 to 5 */);
 
@@ -268,13 +245,19 @@ private:
 	//FractionalHex hex_lerp(FractionalHex a, FractionalHex b, double t);
 
 
-
 public:
 
 	TileMapEdit() {};
 
 	//직각사각형 캡슐화하는 변수
 	RectangularPointyTopMap map;
+	//unordered_set<Hex> hexs;			실험
+
+	
+
+	//선택된 타일들
+	unordered_map<OffsetCoord, Hex*> selectTiles;
+
 
 	//레이아웃
 	Layout layout;
@@ -310,8 +293,12 @@ public:
 	OffsetCoord cube_to_oddr(Hex a);
 	
 	
+	//헥사 사이 거리 구하기
+	int hex_distance(Hex a, Hex b);
 
-	
+	//타일 충돌
+	bool PtInHexTile(Vector2 Pt, OUT OffsetCoord& coord);
+
 
 	//초기화
 	HRESULT Init();
@@ -328,28 +315,3 @@ public:
 
 };
 
-
-
-#pragma region 보류클래스/*
-template<class T> class HexMap {
-
-	vector<vector<T>> map;
-
-
-public:
-
-
-	void Map(int width_, int height_)
-	{
-		map.resize(height_);
-		for (int r = 0; r < height_; r++) {
-			map.emplace_back(width_);
-		}
-	}
-
-	inline T& at(int q, int r) {
-		return map[r][q + (r >> 1)];
-	}
-
-};*/
-#pragma endregion

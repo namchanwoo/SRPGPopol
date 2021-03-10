@@ -109,33 +109,7 @@ static bool intersectCircle(Circle* cc1,Circle* cc2)
 {
     return intersectCircle(cc1->Col,cc2->Col);
 }
-//
-////점이 타일 안에 있는가?
-//static bool PtInTile(TileMap* tile,Vector2 Pt,OUT POINT& index)//밖에 나가서 바뀔값
-//{
-//    COL_RECT col;
-//    col.left = tile->GetRefLB().x;
-//    col.bottom = tile->GetRefLB().y;
-//    col.right = col.left+ tile->GetRefTileMax().x * tile->GetRefTileSize().x;
-//    col.top = col.bottom+ tile->GetRefTileMax().y * tile->GetRefTileSize().y;
-//
-//    //아니라면 안에 있다.
-//
-//    //왼쪽점이 이동한만큼 빼주기
-//    Pt -= tile->GetRefLB();
-//    //인덱스 잡기
-//    index.x = (LONG)(Pt.x / tile->GetRefTileSize().x);
-//    index.y = (LONG)(Pt.y / tile->GetRefTileSize().y);
-//
-//    if(!PtinRect(Pt,col))
-//    {
-//        //타일 밖에 있는거다.
-//        return false;
-//    }
-//    
-//
-//    return true;
-//}
+
 
 
 //핵사타일의 모서리6개 구하기
@@ -185,8 +159,6 @@ static bool PtInHex(Vector2 pt,Tile& p,TileMap& tm)
 	return crosses % 2 > 0;
 }
 
-
-
 //점이 헥사타일 안에 있는가?
 static bool PtInTile(TileMap* tile, Vector2 Pt, OUT POINT& index)//밖에 나가서 바뀔값
 {
@@ -217,37 +189,53 @@ static bool PtInTile(TileMap* tile, Vector2 Pt, OUT POINT& index)//밖에 나가서 �
 	return true;
 }
 
-
-
-//점이 헥사타일 안에 있는가?
-static bool PtInHexTile(TileMapEdit* edit, Vector2 Pt, OUT OffsetCoord& coord)//밖에 나가서 바뀔값
-{
-
-	COL_RECT col;
-	col.left = edit->map.LB.x;
-	col.bottom = edit->map.LB.y;
-	col.right = col.left + edit->map.width * edit->map.TileSize.x+20;
-	col.top = col.bottom + edit->map.height * edit->map.TileSize.y+20;
-
-	//왼쪽점이 이동한만큼 빼주기
-	Pt -= edit->map.LB;
-
-	//마우스의 포인트를 핵사좌표로 변환 (변환 과정에서 double타입의 헥사로 변환)
-	FractionalHex curHex = edit->pixel_to_hex(edit->layout, Pt);
-	//플롯타입의 헥사를 인트타입의 헥사로 변환
-	Hex curHex2 = edit->hex_round(curHex);
-
-	//해당 큐브좌표를 오프셋좌표 변환 후 입력
-	coord = edit->cube_to_roffset(+1,curHex2);
-
-	//q = x , r=z ,s =y
-
-	if (!PtinRect(Pt, col))
-	{
-		//타일 밖에 있는거다.
-		return false;
-	}
-
-
-	return true;
-}
+//
+////점이 헥사타일 안에 있는가?
+//static bool PtInHexTile(TileMapEdit* edit, Vector2 Pt, OUT OffsetCoord& coord)//밖에 나가서 바뀔값
+//{
+//
+//	COL_RECT col;
+//	col.left = 0;
+//	col.bottom = 0;
+//
+//	
+//	col.right = col.left + edit->map.width * (edit->map.TileSize.x + edit->map.LB.x) + edit->map.TileSize.x;
+//	col.top = col.bottom + edit->map.height * (edit->map.TileSize.y + edit->map.LB.y) + edit->map.TileSize.y;
+//
+//
+//
+//	
+//
+//	//왼쪽점이 이동한만큼 빼주기
+//	Pt -= edit->map.LB;
+//
+//	//마우스의 포인트를 핵사좌표로 변환 (변환 과정에서 double타입의 헥사로 변환)
+//	FractionalHex curHex = edit->pixel_to_hex(edit->layout, Pt);
+//	//플롯타입의 헥사를 인트타입의 헥사로 변환
+//	Hex curHex2 = edit->hex_round(curHex);
+//
+//	//coord = edit->cube_to_roffset(+1, curHex2);
+//
+//	//해당 큐브좌표를 오프셋좌표 변환 후 입력
+//	OffsetCoord curCoord = edit->cube_to_roffset(+1, curHex2);
+//	if (curCoord.col > edit->map.width - 1 || curCoord.row > edit->map.height - 1)
+//	{
+//		coord = OffsetCoord();
+//	}
+//	else
+//	{
+//		coord = curCoord;
+//		edit->map.Tiles[coord.col][coord.row].CheckSwiching();
+//	}
+//
+//
+//	if (!PtinRect(Pt, col))
+//	{
+//		//타일 밖에 있는거다.
+//		return false;
+//	}
+//
+//	//q = x , r=z ,s =y
+//
+//	return true;
+//}

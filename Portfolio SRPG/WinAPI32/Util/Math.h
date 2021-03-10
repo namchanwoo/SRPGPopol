@@ -59,6 +59,7 @@ static float Saturate(const float in, const float min = 0.0f, const float max = 
 	return in;
 }
 
+
 //saturate                 -0.1
 static long Saturate(const long in, const long min = 0.0f, const long max = 1.0f)
 {
@@ -92,10 +93,39 @@ static float GetRadian(Vector2 dir)
     }
 }
 
+static float Linear(float from, float to, float g)
+{
+	return from + (to - from) * g;
+}
+
+
+
+static float InverseLerp(float a, float b, float value)
+{
+	if (a != b)
+		return Saturate((value - a) / (b - a),0,1.0);
+	else
+		return 0.0f;
+}
+
+
+
 static Vector2 Linear(Vector2 from ,Vector2 to,float g)
 {
     return from + (to - from) * g;
 }
+
+
+
+static float lerp(double a, double b, double t)
+{
+	return a * (1 - t) + b * t;
+	/* better for floating point precision than
+	   a + (b - a) * t, which is what I usually write */
+	   /*부동 소수점 정밀도가 더 좋습니다.
+		   a + (b - a) * t, 내가 보통 쓰는 것 */
+}
+
 
 static Vector2 ScreenToWorld(Vector2 src)
 {

@@ -79,8 +79,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>./;./Lib;E:\boost_1_75_0;</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
