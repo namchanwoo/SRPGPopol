@@ -12,7 +12,7 @@ Scene2::Scene2()
 	for (int i = 0; i < 14; i++)
 	{
 		bts.emplace_back(new UIButton());
-	}	
+	}
 
 }
 
@@ -24,7 +24,7 @@ Scene2::~Scene2()
 HRESULT Scene2::init()
 {
 
-	
+
 
 	Fade = Color(1.0f, 1.0f, 1.0f, 1.0f);
 	//CreateConstantBuffer
@@ -63,10 +63,10 @@ HRESULT Scene2::init()
 #pragma region UI Initialize
 
 	//버튼에 필요한 이미지 추가
-	AddImage(_T("/MapEditUI/UiCanvas1.png"), 60,1);				//버튼캔버스 배경
+	AddImage(_T("/MapEditUI/UiCanvas1.png"), 60, 1);				//버튼캔버스 배경
 	AddImage(_T("/MapEditUI/ButtonUI.png"), 5, 5);				//버튼 이미지들
-	AddImage(_T("/MapEditUI/ButtonAplha1.png"), 1,1);			//알파값 버튼배경
-	AddImage(_T("/MapEditUI/ButtonAplha2.png"), 1,1);			//알파값 버튼
+	AddImage(_T("/MapEditUI/ButtonAplha1.png"), 1, 1);			//알파값 버튼배경
+	AddImage(_T("/MapEditUI/ButtonAplha2.png"), 1, 1);			//알파값 버튼
 
 
 	///////////////////////////////////////////////////////////////UI 이미지 초기화////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ HRESULT Scene2::init()
 	///////////////////////////////////////////////////////////////버튼 UI 초기화//////////////////////////////////////////////////////////////
 
 
-	
+
 
 
 	//버튼들의 공통적인 스케일 값
@@ -111,7 +111,7 @@ HRESULT Scene2::init()
 
 
 		//버튼 5 6 7 8 LB위치 조정 함수
-		bts[i + 5]->parent = bts[0];	
+		bts[i + 5]->parent = bts[0];
 		bts[i + 5]->ButtonImageInit(1, POINT{ i,1 });
 		bts[i + 5]->Scale = btScale;
 		bts[i + 5]->Pos = Vector2((bts[0]->col.left + btScale.x * 0.5f) + btScale.x* i, WINSIZEY*0.7f);
@@ -130,12 +130,12 @@ HRESULT Scene2::init()
 	//알파 값 조정하는 버튼
 	bts[13]->parent = bts[0];
 	bts[13]->ButtonImageInit(3, POINT{ 1,1 });
-	bts[13]->Scale = Vector2(50,40);
-	bts[13]->Pos = Vector2((bts[0]->Pos.x) , WINSIZEY * 0.1f);
+	bts[13]->Scale = Vector2(50, 40);
+	bts[13]->Pos = Vector2((bts[0]->Pos.x), WINSIZEY * 0.1f);
 	bts[13]->ScreenPos = bts[13]->Pos;
 	bts[13]->col = CreateColRect(bts[13]->Pos, bts[13]->Scale);
 
-	
+
 
 #pragma endregion
 
@@ -152,6 +152,8 @@ void Scene2::release()
 	SAFE_DELETE(bg);
 
 }
+
+
 void Scene2::update()
 {
 
@@ -183,7 +185,7 @@ void Scene2::update()
 		}
 	}
 
-	
+
 	if (KEYMANAGER->isKeyDown(VK_LBUTTON))
 	{
 		//마우스가 UI에 있지 않다면
@@ -191,27 +193,32 @@ void Scene2::update()
 		{
 			//반환할 인덱스
 			OffsetCoord Coord;
-			if (PtInHexTile(edit, g_MousePt, Coord))
+			if (edit->PtInHexTile(g_MousePt, Coord))
 			{
-				if (edit->map.Tiles[Coord.col][Coord.row].check == true)
-				{
-					curTiles.push(&edit->map.Tiles[Coord.col][Coord.row]);
-				}
-				
-			}			
-		}		
+			}
+		}
+	}
+
+	if (!edit->selectTiles.empty())
+	{
+		if (edit->selectTiles.size() == 2)
+		{																					
+			hexDistance = edit->hex_distance(*edit->selectTiles.begin()->second, *(--(edit->selectTiles.end()))->second);
+			cout << "두 타일의 핵사의 거리는" << hexDistance << endl;
+		}
+		
 	}
 
 
-
+	
 
 	edit->Update();						//에디트 업데이트
 	bg->update();						//배경 업데이트
 	for (int i = 0; i < UIButton::btsCount; i++)		//버튼 업데이트
 		bts[i]->Update();
-	
 
-	
+
+
 }
 
 void Scene2::render()
@@ -224,8 +231,8 @@ void Scene2::render()
 
 	bg->render();			//배경이미지 렌더
 	edit->Render();			//에디트의 맵 타일 렌더
-	
-	
+
+
 
 	//UICanvas 렌더
 	int vecindex = bts[0]->numIdx;
@@ -234,7 +241,7 @@ void Scene2::render()
 	uiImg[vecindex]->update();
 	uiImg[vecindex]->PlayAnimation(ANI_LOOP, true, 0.05f);
 	uiImg[vecindex]->render();
-	
+
 	//알파 값 슬라이더 이미지 백그라운드
 	uiImg[2]->Pos = SettingPos(AlphaUiPos);
 	uiImg[2]->update();
@@ -252,14 +259,14 @@ void Scene2::render()
 			uiImg[vecindex]->CurrentFrameX = bts[i]->imgIdx.x;
 			uiImg[vecindex]->CurrentFrameY = bts[i]->imgIdx.y;
 			uiImg[vecindex]->update();
-			uiImg[vecindex]->render();		
+			uiImg[vecindex]->render();
 		}
 	}
 
 
 	//D3DXVec2Lerp
-	
-		
+	//요거다잇!!!!!!!!!!!!!이게 성공작이다잉!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 }
 
@@ -286,45 +293,49 @@ void Scene2::TileIndexResize()
 	//늘려야 되고
 	if (edit->map.width < width)
 	{
-		edit->map.Tiles.emplace_back();
-		edit->map.Tiles[width - 1].resize(height);
+		for (int i = 0; i < height; i++)
+		{
+			edit->map.tiles[i].emplace_back();
+		}
 		edit->map.width = width;
-		edit->map.InitPosition();
+		edit->map.TilePositoinInit();
+
 	}
 	//줄여야 됨
 	if (edit->map.width > width)
 	{
-		edit->map.Tiles[width].clear();
-		edit->map.Tiles[width].shrink_to_fit();
-		edit->map.Tiles.pop_back();
+		for (int i = 0; i < height; i++)
+		{
+			edit->map.tiles[i].pop_back();
+		}
 		edit->map.width = width;
-		edit->map.InitPosition();
+
+	
 	}
 	//늘려야 되고
 	if (edit->map.height < height)
 	{
-		for (int i = 0; i < width; i++)
-		{
-			edit->map.Tiles[i].emplace_back();
-		}
+		edit->map.tiles.emplace_back();
+		edit->map.tiles[height - 1].resize(width);
 		edit->map.height = height;
-		edit->map.InitPosition();
+		edit->map.TilePositoinInit();
 	}
 	//줄여야 됨
 	if (edit->map.height > height)
 	{
-		for (int i = 0; i < width; i++)
-		{
-			edit->map.Tiles[i].pop_back();
-		}
+		edit->map.tiles[height].clear();
+		edit->map.tiles[height].shrink_to_fit();
+		edit->map.tiles.pop_back();
 		edit->map.height = height;
+		edit->map.TilePositoinInit(); 
+
 	}
 
 }
 
 void Scene2::TileInitPosition()
 {
-	edit->map.InitPosition();
+	edit->map.TilePositoinInit();
 }
 
 void Scene2::TileScaleResize()
@@ -333,7 +344,7 @@ void Scene2::TileScaleResize()
 	if (edit->map.TileSize != TileSize)
 	{
 		edit->map.TileSize = TileSize;
-		edit->map.InitPosition();
+		edit->map.TilePositoinInit();
 	}
 }
 
@@ -373,9 +384,9 @@ void Scene2::ButtonIsKeyDown()
 		}
 		//3번 버튼
 		else if (PtinRect(g_MousePt, bts[3]->col))
-		{
+		{		
 			height++;
-			TileIndexResize();
+			TileIndexResize();			
 		}
 		//4번버튼
 		else if (PtinRect(g_MousePt, bts[4]->col))
@@ -389,28 +400,23 @@ void Scene2::ButtonIsKeyDown()
 		//11번 버튼
 		else if (PtinRect(g_MousePt, bts[11]->col))
 		{
-			while (!curTiles.empty())
+			for (auto it = edit->selectTiles.begin(); it != edit->selectTiles.end(); it++)
 			{
-				if (curTiles.front()->check == true)
-				{
-					curTiles.front()->CheckSwiching();
-					curTiles.front()->tileState = TILESTATE::TILE_NONE;
-				}				
-				curTiles.pop();
+				
+				it->second->tileState = TILESTATE::TILE_NONE;
+				it->second->CheckSwiching();
 			}
+			edit->selectTiles.clear();
 		}
 		//12번 버튼
 		else if (PtinRect(g_MousePt, bts[12]->col))
 		{
-			while (!curTiles.empty())
+			for (auto it = edit->selectTiles.begin(); it != edit->selectTiles.end(); it++)
 			{
-				if (curTiles.front()->check == true)
-				{
-					curTiles.front()->CheckSwiching();
-					curTiles.front()->tileState = TILESTATE::TILE_WALL;
-				}
-				curTiles.pop();
+				it->second->tileState = TILESTATE::TILE_WALL;
+				it->second->CheckSwiching();
 			}
+			edit->selectTiles.clear();
 		}
 
 
@@ -471,19 +477,18 @@ void Scene2::ButtonStayKeyDown()
 
 		else if (PtinRect(g_MousePt, bts[13]->col))
 		{
-			
-			float fromX = bts[0]->col.left + bts[13]->Scale.x *0.5f;	
+
+			float fromX = bts[0]->col.left + bts[13]->Scale.x *0.5f;
 			float toX = bts[0]->col.right - bts[13]->Scale.x *0.5f;
 
 			if (g_MousePt.x >= fromX && g_MousePt.x <= toX)
 			{
-				bts[13]->ScreenPos.x = Saturate(g_MousePt.x, fromX, toX);
+				bts[13]->ScreenPos.x = Saturate(g_MousePt.x, fromX, toX) - MAINCAM->Pos.x;
 			}
 
-			alphaColor = InverseLerp(fromX, toX, bts[13]->ScreenPos.x);
+			edit->map.Alpha = InverseLerp(fromX, toX, bts[13]->ScreenPos.x);
 
-			edit->map.Alpha = alphaColor;
-			
+
 		}
 	}
 }
@@ -502,7 +507,7 @@ void UIButton::ButtonImageInit(int numIdx_, POINT imgIdx_)
 
 
 void UIButton::Update()
-{	
+{
 	Pos.x = ScreenPos.x + MAINCAM->Pos.x;		//메인캠이 이동해도 고정좌표
 	Pos.y = ScreenPos.y + MAINCAM->Pos.y;		//메인캠이 이동해도 고정좌표
 	col = CreateColRect(Pos, Scale);

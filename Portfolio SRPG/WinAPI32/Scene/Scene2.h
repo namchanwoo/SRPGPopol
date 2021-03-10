@@ -6,7 +6,7 @@ class UIButton
 {
 
 public:
-	
+
 	int numIdx;										//참조할 이미지 인덱스
 	POINT imgIdx;									//이미지 인덱스
 	Vector2 Pos;									//이미지가 배치될 위치
@@ -50,16 +50,17 @@ private:
 
 	int width;							//맵 가로
 	int height;							//맵 세로
-	float alphaColor;
+
+
+	int hexDistance;					//핵사거리 값
+
 
 	Vector2 TileSize;					//x타일 사이즈
-	
+
 
 	Vector2 AlphaUiPos;					//알파 슬라이더 스크린위치
 
 
-	
-	queue<HexTile*> curTiles;			//선택된 핵사타일들을 담을 보관
 
 	//Fade
 	Color Fade;
@@ -88,7 +89,7 @@ private:
 	void ButtonStayKeyDown();
 
 
-	
+
 
 public:
 
@@ -100,9 +101,7 @@ public:
 	void update()override;
 	void render()override;
 
-	
 
-	
 
 };
 

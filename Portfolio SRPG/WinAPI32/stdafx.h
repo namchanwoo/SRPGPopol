@@ -118,7 +118,7 @@ using namespace std;
 #define     WINSIZEX 1600
 #define     WINSIZEY 900
 
-#define     FIXFRAME 60
+#define     FIXFRAME 200
 
 #include "Scene/Scene.h"
 #include "Obect/Vertex.h"
