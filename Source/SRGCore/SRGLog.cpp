@@ -1,0 +1,3 @@
+#include "SRGLog.h"
+
+DEFINE_LOG_CATEGORY(SRPGLOG);
