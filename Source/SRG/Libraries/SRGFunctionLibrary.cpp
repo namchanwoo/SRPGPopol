@@ -3,7 +3,25 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "SRG/Characters/ExploreHeroBase.h"
 #include "SRG/Equipment/EquipmentBase.h"
+#include "SRG/Interactables/InteractionDetector.h"
 
+
+void USRGFunctionLibrary::DisableActor(AActor* Actor, bool IsDisabled)
+{
+	Actor->SetActorHiddenInGame(IsDisabled);
+	Actor->SetActorEnableCollision(!IsDisabled);
+	Actor->SetActorTickEnabled(!IsDisabled);
+
+	UChildActorComponent* ChildActorComponent = Actor->FindComponentByClass<UChildActorComponent>();
+	if (ChildActorComponent && ChildActorComponent->GetChildActor())
+	{
+		AInteractionDetector* InteractionDetector = Cast<AInteractionDetector>(ChildActorComponent->GetChildActor());
+		if (InteractionDetector)
+		{
+			InteractionDetector->SetActorHiddenInGame(IsDisabled);
+		}
+	}
+}
 
 int32 USRGFunctionLibrary::GetHeroStat(int32 Level, int32 MaxLevel, int32 InitialStat, int32 FirstLevelStat, int32 LastLevelStat)
 {

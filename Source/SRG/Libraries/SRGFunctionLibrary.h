@@ -15,6 +15,11 @@ class SRG_API USRGFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintCallable, Category="SRG Function Library")
+	static void DisableActor(AActor* Actor,bool IsDisabled);
+	
+	
 	UFUNCTION(BlueprintCallable, Category="SRG Function Library")
 	static int32 GetHeroStat(int32 Level, int32 MaxLevel, int32 InitialStat, int32 FirstLevelStat, int32 LastLevelStat);
 	

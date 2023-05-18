@@ -1,5 +1,4 @@
-﻿
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "UnitBase.h"
@@ -21,4 +20,17 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+#pragma region   	Field Members
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CharacterBase")
+	FText Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CharacterBase")
+	UTexture2D* Image;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CharacterBase")
+	int32 Stack = 1;
+#pragma endregion	Field Members
 };

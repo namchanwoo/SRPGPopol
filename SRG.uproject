@@ -15,7 +15,8 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"UMG"
+				"UMG",
+				"AIModule"
 			]
 		}
 	],
@@ -56,6 +57,11 @@
 			"Name": "TranslationToolkit",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/5e6f7666417b4b579248925f1a3edef9"
+		},
+		{
+			"Name": "UAssetBrowser",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/648d582688654f7db09939af111c45b5"
 		}
 	]
 }

@@ -12,6 +12,7 @@ public class SRGTarget : TargetRules
 		// IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
 		// ExtraModuleNames.Add("SRG");
 		
+		
 		ExtraModuleNames.AddRange( new string[]
 		{
 			"SRGCore","SRG"

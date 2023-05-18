@@ -10,8 +10,10 @@
 
 
 #define DT_DATA_TABLE_PATH TEXT("DataTable'/Game/Game_/AssetRef/DT_DatableRef.DT_DatableRef'")
-#define DT_ASSET_PATH TEXT("DataTable'/Game/Game_/AssetRef/DT_AssetRef.DT_AssetRef'")
-#define DT_BLUEPRINT_PATH TEXT("DataTable'/Game/Game_/AssetRef/DT_BlueprintRef.DT_BlueprintRef'")
+
+
+#define DT_ASSET_PATH TEXT("DataTable'/Game/Game_/AssetRef/AssetRef_Asset.AssetRef_Asset'")
+#define DT_BLUEPRINT_PATH TEXT("DataTable'/Game/Game_/AssetRef/AssetRef_BluePrints.AssetRef_BluePrints'")
 
 
 USTRUCT()
@@ -35,7 +37,8 @@ public:
 		FUObjectThreadContext& ThreadContext = FUObjectThreadContext::Get();
 		if (ThreadContext.IsInConstructor <= 0)
 		{
-			SRPG_LOG_ERROR(TEXT("%s: Called outside of constructor"), *ASSERTION_FAILED);
+			// SRPG_LOG_ERROR(TEXT("%s: Called outside of constructor"), *ASSERTION_FAILED);
+			SRPG_LOG_ERROR(TEXT("%s: 생성자 외부에서 호출되었습니다."), *ASSERTION_FAILED);
 			return FString();
 		}
 
@@ -43,7 +46,8 @@ public:
 		UDataTable* DataTable = LoadObject<UDataTable>(nullptr, *DataTablePath);
 		if (!DataTable)
 		{
-			SRPG_LOG_ERROR(TEXT("%s: Failed to load DataTable '%s'"), *ASSERTION_FAILED, *DataTablePath);
+			// SRPG_LOG_ERROR(TEXT("%s: Failed to load DataTable '%s'"), *ASSERTION_FAILED, *DataTablePath);
+			SRPG_LOG_ERROR(TEXT("%s: 데이터 테이블 '%s'을(를) 로드하지 못했습니다."), *ASSERTION_FAILED, *DataTablePath);
 			return FString();
 		}
 
@@ -51,7 +55,8 @@ public:
 		FAssetRefTableRow* Row = DataTable->FindRow<FAssetRefTableRow>(RowName, FString(), false);
 		if (!Row)
 		{
-			SRPG_LOG_ERROR(TEXT("%s: Failed to find row '%s' in DataTable '%s'"), *ASSERTION_FAILED, *RowName.ToString(), *DataTablePath);
+			// SRPG_LOG_ERROR(TEXT("%s: Failed to find row '%s' in DataTable '%s'"), *ASSERTION_FAILED, *RowName.ToString(), *DataTablePath);
+			SRPG_LOG_ERROR(TEXT("%s: 데이터 테이블 '%s'에서 '%s' 행을 찾지 못했습니다."), *ASSERTION_FAILED, *DataTablePath, *RowName.ToString());
 			return FString();
 		}
 
@@ -59,7 +64,8 @@ public:
 		FString AssetPath = Row->AssetRef.ToSoftObjectPath().GetAssetPathString();
 		if (!AssetPath.EndsWith(RowName.ToString()))
 		{
-			SRPG_LOG_ERROR(TEXT("Asset path '%s' does not match row name '%s'"), *AssetPath, *RowName.ToString());
+			// SRPG_LOG_ERROR(TEXT("Asset path '%s' does not match row name '%s'"), *AssetPath, *RowName.ToString());
+			SRPG_LOG_ERROR(TEXT("자산 경로 '%s'가 행 이름 '%s'와 일치하지 않습니다."), *AssetPath, *RowName.ToString());
 			return FString();
 		}
 
@@ -80,14 +86,17 @@ public:
 		FString AssetPath = GetAssetPath(DataTablePath, RowName);
 		if (AssetPath.IsEmpty())
 		{
-			SRPG_LOG_ERROR(TEXT("Failed to find object with row name '%s' in DataTable '%s'"), *RowName.ToString(), *DataTablePath);
+			// SRPG_LOG_ERROR(TEXT("Failed to find object with row name '%s' in DataTable '%s'"), *RowName.ToString(), *DataTablePath);
+			SRPG_LOG_ERROR(TEXT("데이터 테이블 '%s'에서 행 이름이 '%s'인 개체를 찾지 못했습니다."), *DataTablePath, *RowName.ToString());
 			return nullptr;
 		}
 		T* Result = LoadAsset<T>(AssetPath);
 		if (!Result)
 		{
-			SRPG_LOG_ERROR(TEXT("Failed to load object of type '%s' with row name '%s' from DataTable '%s'"), *T::StaticClass()->GetName(),
-			               *RowName.ToString(), *DataTablePath);
+			// SRPG_LOG_ERROR(TEXT("Failed to load object of type '%s' with row name '%s' from DataTable '%s'"), *T::StaticClass()->GetName(),
+			//                *RowName.ToString(), *DataTablePath);
+			SRPG_LOG_ERROR(TEXT("데이터 테이블 '%s'에서 행 이름이 '%s'인 '%s' 형식의 개체를 로드하지 못했습니다."),
+			               *DataTablePath, *RowName.ToString(), *T::StaticClass()->GetName());
 		}
 		return Result;
 	}
@@ -98,7 +107,8 @@ public:
 		FString AssetPath = GetAssetPath(DataTablePath, RowName);
 		if (AssetPath.IsEmpty())
 		{
-			SRPG_LOG_ERROR(TEXT("Failed to find class with row name '%s' in DataTable '%s'"), *RowName.ToString(), *DataTablePath);
+			// SRPG_LOG_ERROR(TEXT("Failed to find class with row name '%s' in DataTable '%s'"), *RowName.ToString(), *DataTablePath);
+			SRPG_LOG_ERROR(TEXT("데이터 테이블 '%s'에서 행 이름이 '%s'인 클래스를 찾지 못했습니다."), *DataTablePath, *RowName.ToString());
 			return TSubclassOf<T>();
 		}
 
@@ -107,8 +117,10 @@ public:
 
 		if (!LoadedClass)
 		{
-			SRPG_LOG_ERROR(TEXT("Failed to load class of type '%s' with row name '%s' from DataTable '%s'"), *T::StaticClass()->GetName(),
-			               *RowName.ToString(), *DataTablePath);
+			// SRPG_LOG_ERROR(TEXT("Failed to load class of type '%s' with row name '%s' from DataTable '%s'"), *T::StaticClass()->GetName(),
+			//                *RowName.ToString(), *DataTablePath);
+			SRPG_LOG_ERROR(TEXT("데이터 테이블 '%s'에서 행 이름이 '%s'인 '%s' 형식의 클래스를 로드하지 못했습니다."), *DataTablePath, *RowName.ToString(),
+			               *T::StaticClass()->GetName());
 		}
 
 		return TSubclassOf<T>(LoadedClass);

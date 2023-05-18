@@ -1,22 +1,88 @@
 #include "SRG/Characters/ExploreHeroBase.h"
 
+#include "DetourCrowdAIController.h"
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavAreas/NavArea_Obstacle.h"
 #include "SRG/Controllers/ExplorePlayerController.h"
 #include "SRG/Interactables/InteractionDetector.h"
 #include "SRG/Libraries/SRGFunctionLibrary.h"
 #include "SRG/Misc/ExploreNavigationPath.h"
-#include "SRG/Widgets/UW_ExploreCursor.h"
+#include "SRG/Widgets/ExploreWidgets/UW_ExploreCursor.h"
 #include "SRGCore/SRGLog.h"
-#include "SRG/Widgets/UW_QuestNotificationUI.h"
+#include "SRG/Widgets/ExploreWidgets/UW_QuestNotificationUI.h"
+#include "SRGCore/AssetTableRef.h"
 
 AExploreHeroBase::AExploreHeroBase()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	bUseControllerRotationYaw = false;
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Custom"));
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
+	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	GetMesh()->SetCollisionProfileName(TEXT("Custom"));
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArm->SetRelativeRotation(FRotator(-65.0f, 0.0f, 0.0f));
+	SpringArm->TargetArmLength = 600.0f;
+	SpringArm->bDoCollisionTest = false;
+	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->bInheritPitch = false;
+	SpringArm->bInheritRoll = false;
+	SpringArm->bInheritYaw = true;
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->bEnableCameraRotationLag = true;
+	SpringArm->CameraLagSpeed = 7.0f;
+	SpringArm->CameraRotationLagSpeed = 5.0f;
+	SpringArm->SetupAttachment(GetCapsuleComponent());
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(SpringArm);
+
+
+	RightClickDetector = CreateDefaultSubobject<UBoxComponent>(TEXT("RightClickDetector"));
+	RightClickDetector->SetRelativeScale3D(FVector(1.0f, 1.0f, 2.75f));
+
+	RightClickDetector->SetAreaClassOverride(UNavArea_Obstacle::StaticClass());
+
+	RightClickDetector->BodyInstance.SetInstanceSimulatePhysics(true);
+	RightClickDetector->SetNotifyRigidBodyCollision(true);
+
+	RightClickDetector->SetCollisionProfileName(TEXT("Custom"));
+	RightClickDetector->SetCollisionResponseToAllChannels(ECR_Overlap);
+	RightClickDetector->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
+	RightClickDetector->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	RightClickDetector->SetupAttachment(GetCapsuleComponent());
+
+
+	InteractionDetector = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionDetector"));
+	InteractionDetector->InitSphereRadius(200.0f);
+	RightClickDetector->SetAreaClassOverride(UNavArea_Obstacle::StaticClass());
+	InteractionDetector->SetupAttachment(GetCapsuleComponent());
+
+	auto WBP_QuestNotificationUISrc = DT::FindClass<UUserWidget>(DT_BLUEPRINT_PATH, FName(TEXT("WBP_QuestNotificationUI")));
+	if (WBP_QuestNotificationUISrc)
+	{
+		QuestNotificationUIClass = WBP_QuestNotificationUISrc;
+	}
 }
 
 void AExploreHeroBase::BeginPlay()
@@ -114,7 +180,7 @@ void AExploreHeroBase::DetectInteraction(AActor* Actor, UPrimitiveComponent* Pri
 	LocalInteractionDetector->SetExploreHero(this);
 	if (LocalInteractionDetector->bIsForceInteraction)
 	{
-		LocalInteractionDetector->OnInteractButtonClicked(0);
+		LocalInteractionDetector->OnInteractClicked_InteractButton(0);
 	}
 	else
 	{
@@ -143,6 +209,40 @@ void AExploreHeroBase::RemoveGold(int32 Amount)
 	Gold -= Amount;
 }
 
+void AExploreHeroBase::UpdateInteractionQuest(AActor* Actor)
+{
+}
+
+EQuestStatus AExploreHeroBase::GetQuestStatus(TSubclassOf<AQuestBase> InQuest)
+{
+	return {};
+}
+
+void AExploreHeroBase::AddQuest(AQuestBase* NewQuest)
+{
+}
+
+void AExploreHeroBase::LoadQuests(AQuestBase* InQuest)
+{
+}
+
+void AExploreHeroBase::DeliverQuest(AQuestBase* InQuest)
+{
+}
+
+ABattleQuestBase* AExploreHeroBase::UpdateBattleQuest(AEnemyExplorePawnBase* EnemyPawn)
+{
+	return nullptr;
+}
+
+void AExploreHeroBase::UpdateQuest(AQuestBase* InQuest, int StepsProgress, bool OverrideProgress, bool IgnoreNotification)
+{
+}
+
+void AExploreHeroBase::AddExp(int32 InExperience)
+{
+}
+
 void AExploreHeroBase::ShowPath(FVector TargetLocation)
 {
 	if (IsValid(NavigationPath))
@@ -163,9 +263,9 @@ void AExploreHeroBase::ShowPath(FVector TargetLocation)
 	FTransform SpawnTransform = FTransform::Identity;
 	SpawnTransform.SetLocation(GetActorLocation());
 	SpawnTransform.SetRotation(GetActorRotation().Quaternion());
-	
+
 	NavigationPath = world->SpawnActor<AExploreNavigationPath>(AExploreNavigationPath::StaticClass(), SpawnTransform, SpawnParams);
-	NavigationPath->ShowPath(GetActorLocation(),TargetLocation);
+	NavigationPath->ShowPath(GetActorLocation(), TargetLocation);
 }
 
 void AExploreHeroBase::OnInteractionDetectorBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

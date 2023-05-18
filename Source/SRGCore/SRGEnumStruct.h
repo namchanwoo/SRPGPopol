@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "SRGEnumStruct.generated.h"
 
+class AEquipmentBase;
 class ACharacterBase;
 
 UENUM(BlueprintType)
@@ -11,6 +12,17 @@ enum class EExploreCursorType : uint8
 	Default,
 	Inventory,
 	Enemy
+};
+
+
+UENUM(BlueprintType)
+enum class EQuestStatus : uint8
+{
+	Unavailable,
+	New,
+	Active,
+	ReadyToDeliver,
+	Completed
 };
 
 UENUM(BlueprintType)
@@ -98,4 +110,93 @@ struct FPlayerCharacterData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Character Data")
 	int32 Stack = 1;
+
+	FPlayerCharacterData()
+	{
+	}
+
+	FPlayerCharacterData(TSubclassOf<ACharacterBase> NewCharacter, int32 NewStack) : Character(NewCharacter), Stack(NewStack)
+	{
+	}
+};
+
+
+USTRUCT(BlueprintType)
+struct FQuestStepData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest Step Data")
+	int32 CurrentStep;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest Step Data")
+	int32 TotalSteps;
+};
+
+USTRUCT(BlueprintType)
+struct FQuestSounds
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest Sounds")
+	USoundBase* NewQuestSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest Sounds")
+	USoundBase* QuestUpdateSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest Sounds")
+	USoundBase* QuestCompletedSound;
+};
+
+USTRUCT(BlueprintType)
+struct FQuestRewards
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="QuestRewards")
+	TArray<FPlayerCharacterData> Characters;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="QuestRewards")
+	TArray<TSubclassOf<AEquipmentBase>> Equipment;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="QuestRewards")
+	int32 Gold;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="QuestRewards")
+	int32 Exp;
+};
+
+USTRUCT(BlueprintType)
+struct FEnemyCharacterData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Character Data")
+	TSubclassOf<ACharacterBase> Character;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Character Data")
+	int32 MinStack = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Character Data")
+	int32 MaxStack = 1;
+};
+
+
+USTRUCT(BlueprintType)
+struct FShopRecruitmentList
+{
+	GENERATED_BODY()
+
+	/*모집 목록*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shop Recruitment List")
+	TArray<FPlayerCharacterData> RecruitmentList;
+};
+
+USTRUCT(BlueprintType)
+struct FShopEquipmentList
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shop Equipment List")
+	TArray<TSubclassOf<AEquipmentBase>> Equipment;
 };

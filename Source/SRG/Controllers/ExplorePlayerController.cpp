@@ -6,7 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "SRG/Widgets/UW_ExploreCursor.h"
+#include "SRG/Widgets/ExploreWidgets/UW_ExploreCursor.h"
 
 AExplorePlayerController::AExplorePlayerController()
 {
