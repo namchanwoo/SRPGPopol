@@ -7,6 +7,8 @@
 
 class AQuestBase;
 class AExploreHeroBase;
+class AEquipmentBase;
+
 /**
  * 
  */

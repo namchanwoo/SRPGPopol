@@ -98,6 +98,14 @@ struct FHeroStats
 		Knowledge += Other.Knowledge;
 		return *this;
 	}
+
+	bool operator==(const FHeroStats& Other) const
+	{
+		return Attack == Other.Attack
+			&& Defense == Other.Defense
+			&& Power == Other.Power
+			&& Knowledge == Other.Knowledge;
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -115,7 +123,8 @@ struct FPlayerCharacterData
 	{
 	}
 
-	FPlayerCharacterData(TSubclassOf<ACharacterBase> NewCharacter, int32 NewStack) : Character(NewCharacter), Stack(NewStack)
+	FPlayerCharacterData(TSubclassOf<ACharacterBase> NewCharacter, int32 NewStack) : Character(NewCharacter),
+		Stack(NewStack)
 	{
 	}
 };
@@ -131,6 +140,14 @@ struct FQuestStepData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest Step Data")
 	int32 TotalSteps;
+
+	FQuestStepData(): CurrentStep(0), TotalSteps(0)
+	{
+	}
+
+	FQuestStepData(int32 NewCurrentStep, int32 NewTotalSteps) : CurrentStep(NewCurrentStep), TotalSteps(NewTotalSteps)
+	{
+	}
 };
 
 USTRUCT(BlueprintType)

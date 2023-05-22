@@ -58,7 +58,7 @@ public:
 
 public:
 	UFUNCTION()
-	void OnInteractClicked_InteractButton(int32 ButtonIndex);
+	void OnInteractClicked_InteractionUI(int32 ButtonIndex);
 
 #pragma endregion	Delegate On Function
 

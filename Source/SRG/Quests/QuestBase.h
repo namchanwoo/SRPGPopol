@@ -113,7 +113,7 @@ public:
 	FQuestSounds QuestSounds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest")
-	FQuestRewards FQuestRewards;
+	FQuestRewards QuestRewards;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest")
 	TArray<TSubclassOf<AQuestBase>> RequiredQuests;

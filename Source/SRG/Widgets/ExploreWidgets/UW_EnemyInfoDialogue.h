@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UW_ExploreWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "SRGCore/SRGEnumStruct.h"
 #include "UW_EnemyInfoDialogue.generated.h"
@@ -19,13 +20,13 @@ class UUW_MenuButton;
 class UImage;
 class UHorizontalBox;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnContinueClicked);
+
 
 /**
  * 
  */
 UCLASS()
-class SRG_API UUW_EnemyInfoDialogue : public UUserWidget
+class SRG_API UUW_EnemyInfoDialogue : public UUW_ExploreWidget
 {
 	GENERATED_BODY()
 

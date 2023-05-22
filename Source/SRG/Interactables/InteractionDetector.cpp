@@ -64,7 +64,7 @@ void AInteractionDetector::BeginPlay()
 
 	InteractionUI->SetInteractionTexts(InteractionTexts);
 	InteractionUI->InstantHide();
-	InteractionUI->OnInteractClicked.AddDynamic(this, &AInteractionDetector::OnInteractClicked_InteractButton);
+	InteractionUI->OnInteractClicked.AddDynamic(this, &AInteractionDetector::OnInteractClicked_InteractionUI);
 }
 
 
@@ -109,7 +109,7 @@ void AInteractionDetector::HideInteractionUI()
 		OnInteractionDisappeared.Broadcast();
 }
 
-void AInteractionDetector::OnInteractClicked_InteractButton(int32 ButtonIndex)
+void AInteractionDetector::OnInteractClicked_InteractionUI(int32 ButtonIndex)
 {
 	bCanInteract = false;
 	InteractionUI->InstantHide();

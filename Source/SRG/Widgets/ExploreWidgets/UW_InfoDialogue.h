@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UW_ExploreWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "UW_InfoDialogue.generated.h"
 
@@ -15,13 +16,13 @@ class UUW_MenuButton;
 class UTextBlock;
 class UButton;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOkClicked);
+
 
 /**
  * 
  */
 UCLASS()
-class SRG_API UUW_InfoDialogue : public UUserWidget
+class SRG_API UUW_InfoDialogue : public UUW_ExploreWidget
 {
 	GENERATED_BODY()
 

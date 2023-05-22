@@ -1,5 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
+﻿
 #pragma once
 
 #include "CoreMinimal.h"
@@ -24,9 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-
-#pragma region   	Field Members
-
+	/*******************************************
+	 * Map Operations
+	 *******************************************/
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Equipment")
 	FName Name;
@@ -48,6 +47,5 @@ public:
 
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Equipment")
 	// TArray<TSubclassOf<SpellBase>> Spells;
-
-#pragma endregion	Field Members
+	
 };
