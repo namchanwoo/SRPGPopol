@@ -10,38 +10,46 @@
 
 AInteractionDetector::AInteractionDetector()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SetupDefaultSceneRoot();
+	SetupInteractionSphere();
+	SetupInteractionWidget();
+}
+
+void AInteractionDetector::SetupDefaultSceneRoot()
+{
+	// 기본 씬 루트 생성 및 설정
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	SetRootComponent(DefaultSceneRoot);
+}
 
-	// SphereComponent 생성
+void AInteractionDetector::SetupInteractionSphere()
+{
+	// 상호작용 구체 생성 및 설정
 	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
-	// AreaClass 속성 설정
 	InteractionSphere->SetAreaClassOverride(UNavArea_Obstacle::StaticClass());
 	InteractionSphere->SetupAttachment(RootComponent);
+}
 
-
-	// WidgetComponent 생성
+void AInteractionDetector::SetupInteractionWidget()
+{
+	// 상호작용 위젯 생성 및 설정
 	InteractionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
-	// 공간 속성 설정
 	InteractionWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
-	//Widget 클래스 설정
-	TSubclassOf<UUW_InteractionUI> WBP_InteractionUI = DT::FindClass<UUW_InteractionUI>(DT_BLUEPRINT_PATH,TEXT("WBP_InteractionUI"));
-	if (WBP_InteractionUI)
+	// 상호작용 UI 설정
+	if (TSubclassOf<UUW_InteractionUI> WBP_InteractionUIClass =
+		DT::FindClass<UUW_InteractionUI>(DT_BLUEPRINT_PATH,TEXT("WBP_InteractionUI")))
 	{
-		InteractionWidget->SetWidgetClass(WBP_InteractionUI);
+		InteractionWidget->SetWidgetClass(WBP_InteractionUIClass);
 	}
-	// DrawSize 속성 설정	
+
 	InteractionWidget->SetDrawSize(FVector2D(200.f, 50.f));
-	// bDrawAtDesiredSize 속성 설정
 	InteractionWidget->SetDrawAtDesiredSize(true);
 	InteractionWidget->SetupAttachment(RootComponent);
 
 	InteractionUILocation = FVector(0.0f, 0.0f, 50.0f);
-
 	InteractionTexts.Add(FText::FromString(TEXT("Interact")));
 }
 
@@ -66,7 +74,6 @@ void AInteractionDetector::BeginPlay()
 	InteractionUI->InstantHide();
 	InteractionUI->OnInteractClicked.AddDynamic(this, &AInteractionDetector::OnInteractClicked_InteractionUI);
 }
-
 
 void AInteractionDetector::SetExploreHero(AExploreHeroBase* InExploreHero)
 {
@@ -98,6 +105,7 @@ void AInteractionDetector::Load(bool IsShouldLoadEnemyPawns)
 void AInteractionDetector::ShowInteractionUI()
 {
 	InteractionUI->ShowInteractionUI();
+
 	if (OnInteractionAppeared.IsBound())
 		OnInteractionAppeared.Broadcast();
 }
@@ -105,25 +113,38 @@ void AInteractionDetector::ShowInteractionUI()
 void AInteractionDetector::HideInteractionUI()
 {
 	InteractionUI->HideInteractionUI();
+
 	if (OnInteractionDisappeared.IsBound())
 		OnInteractionDisappeared.Broadcast();
 }
 
 void AInteractionDetector::OnInteractClicked_InteractionUI(int32 ButtonIndex)
 {
+	// 상호작용 가능성을 비활성화 합니다.
 	bCanInteract = false;
+
+	// 상호작용 UI를 즉시 숨깁니다.
 	InteractionUI->InstantHide();
 
+	// 게임 인스턴스를 얻고 SRGGameInstance로 캐스팅합니다.
 	USRGGameInstance* SRGGameInstance = Cast<USRGGameInstance>(UGameplayStatics::GetGameInstance(this));
+
+	// 캐스팅에 실패하면 오류 로그를 출력하고 함수를 종료합니다.
 	if (!SRGGameInstance)
 	{
-		SRPG_LOG_SCREEN_ERROR(TEXT("USRGGameInstance 캐스팅에 실패했습니다"));
+		SRPG_LOG_SCREEN_ERROR(TEXT("Failed to cast USRGGameInstance"));
 		return;
 	}
 
+	// 상호작용을 추가합니다.
 	SRGGameInstance->AddInteractions(this);
+
+	// ExploreHero의 상호작용 퀘스트를 업데이트합니다.
 	ExploreHero->UpdateInteractionQuest(GetParentActor());
 
+	// OnInteracted 이벤트가 바인딩 되어 있으면 이를 방송합니다.
 	if (OnInteracted.IsBound())
+	{
 		OnInteracted.Broadcast(ButtonIndex);
+	}
 }

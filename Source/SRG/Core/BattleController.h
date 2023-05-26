@@ -1,13 +1,22 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SRGCore/SRGEnumStruct.h"
 #include "BattleController.generated.h"
 
+class AGrid;
 class ADeploymentController;
 class ACharacterBase;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBattleStateChanged, EBattleState, NewBattleState);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewTurn, int32, NewTurn);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAllPassiveAbilitiesUsed);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAllDOTsApplied);
+
 UCLASS()
 class SRG_API ABattleController : public AActor
 {
@@ -25,13 +34,34 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-#pragma region   	Field Members
+public:
+	AGrid* GetGrid() { return Grid; };
 
+
+	/*******************************************
+	 * Field Members
+	 *******************************************/
 public:
 	UPROPERTY(BlueprintReadWrite, Category="Battle Controller")
 	ADeploymentController* DeploymentController;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category="Battle Controller")
 	TArray<ACharacterBase*> PlayerCharacters;
-#pragma endregion	Field Members
+
+	UPROPERTY(BlueprintReadWrite, Category="Battle Controller")
+	AGrid* Grid;
+
+	/*---	      	    Delegate Event    	      	---*/
+public:
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Battle Controller|Delegate")
+	FOnBattleStateChanged OnBattleStateChanged;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Battle Controller|Delegate")
+	FOnNewTurn OnNewTurn;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Battle Controller|Delegate")
+	FOnAllPassiveAbilitiesUsed OnAllPassiveAbilitiesUsed;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Battle Controller|Delegate")
+	FOnAllDOTsApplied OnAllDOTsApplied;
 };

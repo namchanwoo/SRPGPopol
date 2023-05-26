@@ -26,6 +26,24 @@ enum class EQuestStatus : uint8
 };
 
 UENUM(BlueprintType)
+enum class EElement : uint8
+{
+	Normal,
+	Fire,
+	Earth,
+	Air,
+	Water
+};
+
+UENUM(BlueprintType)
+enum class EMovementType : uint8
+{
+	Walk,
+	Fly,
+	Immobilie
+};
+
+UENUM(BlueprintType)
 enum class EEquipmenet : uint8
 {
 	None,
@@ -36,6 +54,21 @@ enum class EEquipmenet : uint8
 	Shoes,
 	Necklace,
 	Misc
+};
+
+UENUM(BlueprintType)
+enum class EBattleState : uint8
+{
+	Initialization,
+	DeploymentPhase,
+	WaitingForPlayerAction,
+	PlayerIsCastingSpell,
+	PlayerIsPlaying,
+	WaitingForEnemyAction,
+	EnemyIsPlaying,
+	Victory,
+	Defeat,
+	Over
 };
 
 
@@ -126,6 +159,202 @@ struct FPlayerCharacterData
 	FPlayerCharacterData(TSubclassOf<ACharacterBase> NewCharacter, int32 NewStack) : Character(NewCharacter),
 		Stack(NewStack)
 	{
+	}
+};
+
+
+USTRUCT(BlueprintType)
+struct FCharacterStats
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats")
+	int32 MaxHealth = 5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats")
+	int32 MaxMana = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats")
+	int32 Attack = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats")
+	int32 Defense = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats")
+	int32 MinDamage = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats")
+	int32 MaxDamage = 2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats")
+	int32 Ammo = 5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats")
+	int32 MovementRange = 4;
+
+	// Default constructor
+	FCharacterStats() : MaxHealth(5), MaxMana(10), Attack(1), Defense(0),
+	                    MinDamage(1), MaxDamage(2), Ammo(5), MovementRange(4)
+	{
+	}
+
+	// Constructor with parameters
+	FCharacterStats(int32 InMaxHealth, int32 InMaxMana, int32 InAttack, int32 InDefense,
+	                int32 InMinDamage, int32 InMaxDamage, int32 InAmmo, int32 InMovementRange)
+		: MaxHealth(InMaxHealth)
+		  , MaxMana(InMaxMana)
+		  , Attack(InAttack)
+		  , Defense(InDefense)
+		  , MinDamage(InMinDamage)
+		  , MaxDamage(InMaxDamage)
+		  , Ammo(InAmmo)
+		  , MovementRange(InMovementRange)
+	{
+	}
+
+	// Copy constructor
+	FCharacterStats(const FCharacterStats& Other) : MaxHealth(Other.MaxHealth)
+	                                                , MaxMana(Other.MaxMana)
+	                                                , Attack(Other.Attack)
+	                                                , Defense(Other.Defense)
+	                                                , MinDamage(Other.MinDamage)
+	                                                , MaxDamage(Other.MaxDamage)
+	                                                , Ammo(Other.Ammo)
+	                                                , MovementRange(Other.MovementRange)
+	{
+	}
+
+	// Assignment operator
+	FCharacterStats& operator=(const FCharacterStats& Other)
+	{
+		if (this != &Other)
+		{
+			MaxHealth = Other.MaxHealth;
+			MaxMana = Other.MaxMana;
+			Attack = Other.Attack;
+			Defense = Other.Defense;
+			MinDamage = Other.MinDamage;
+			MaxDamage = Other.MaxDamage;
+			Ammo = Other.Ammo;
+			MovementRange = Other.MovementRange;
+		}
+		return *this;
+	}
+
+	// Addition operator
+	FCharacterStats operator+(const FCharacterStats& Other) const
+	{
+		FCharacterStats Sum;
+		Sum.MaxHealth = MaxHealth + Other.MaxHealth;
+		Sum.MaxMana = MaxMana + Other.MaxMana;
+		Sum.Attack = Attack + Other.Attack;
+		Sum.Defense = Defense + Other.Defense;
+		Sum.MinDamage = MinDamage + Other.MinDamage;
+		Sum.MaxDamage = MaxDamage + Other.MaxDamage;
+		Sum.Ammo = Ammo + Other.Ammo;
+		Sum.MovementRange = MovementRange + Other.MovementRange;
+		return Sum;
+	}
+
+
+	FCharacterStats operator+(const FHeroStats& Other) const
+	{
+		FCharacterStats Sum;
+		Sum.Attack = Attack + Other.Attack;
+		Sum.Defense = Defense + Other.Defense;
+		return Sum;
+	}
+
+	// Subtraction operator
+	FCharacterStats operator-(const FCharacterStats& Other) const
+	{
+		FCharacterStats Difference;
+		Difference.MaxHealth = MaxHealth - Other.MaxHealth;
+		Difference.MaxMana = MaxMana - Other.MaxMana;
+		Difference.Attack = Attack - Other.Attack;
+		Difference.Defense = Defense - Other.Defense;
+		Difference.MinDamage = MinDamage - Other.MinDamage;
+		Difference.MaxDamage = MaxDamage - Other.MaxDamage;
+		Difference.Ammo = Ammo - Other.Ammo;
+		Difference.MovementRange = MovementRange - Other.MovementRange;
+		return Difference;
+	}
+
+	FCharacterStats Negative()
+	{
+		// 모든 필드가 기본적으로 0이라고 가정합니다.
+		FCharacterStats ZeroStats = FCharacterStats(0, 0, 0, 0, 0, 0, 0, 0);
+		return ZeroStats - *this;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FCharacterStatsBuff
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats Buff")
+	float Attack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats Buff")
+	float Defense;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats Buff")
+	float MinDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats Buff")
+	float MaxDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats Buff")
+	float Ammo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats Buff")
+	float MovementRange;
+};
+
+
+USTRUCT(BlueprintType)
+struct FElementReductions
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Element Reductions")
+	float Normal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Element Reductions")
+	float Fire;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Element Reductions")
+	float Earth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Element Reductions")
+	float Air;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Element Reductions")
+	float Water;
+
+	FElementReductions(): Normal(0), Fire(0), Earth(0), Air(0), Water(0)
+	{
+	}
+
+	// Subtraction operator
+	FElementReductions operator-(const FElementReductions& Other) const
+	{
+		FElementReductions Difference;
+		Difference.Normal = Normal - Other.Normal;
+		Difference.Fire = Fire - Other.Fire;
+		Difference.Earth = Earth - Other.Earth;
+		Difference.Air = Air - Other.Air;
+		Difference.Water = Water - Other.Water;
+		return Difference;
+	}
+
+	FElementReductions Negative()
+	{
+		// 모든 필드가 기본적으로 0이라고 가정합니다.
+		FElementReductions ZeroElementReductions;
+		return ZeroElementReductions - *this;
 	}
 };
 

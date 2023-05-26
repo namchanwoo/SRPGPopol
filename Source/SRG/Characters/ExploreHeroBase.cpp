@@ -23,7 +23,7 @@
 #include "SRG/Quests/QuestBase.h"
 #include "SRG/Quests/BattleQuests/BattleQuestBase.h"
 #include "SRG/Quests/InteractionQuests/InteractionQuestBase.h"
-#include "SRG/Units/CharacterBase.h"
+#include "SRG/Units/Characters/CharacterBase.h"
 
 #include "SRG/Widgets/ExploreWidgets/UW_ClaimDialogue.h"
 #include "SRG/Widgets/ExploreWidgets/UW_ExploreCursor.h"
@@ -74,12 +74,9 @@ AExploreHeroBase::AExploreHeroBase()
 
 	RightClickDetector = CreateDefaultSubobject<UBoxComponent>(TEXT("RightClickDetector"));
 	RightClickDetector->SetRelativeScale3D(FVector(1.0f, 1.0f, 2.75f));
-
 	RightClickDetector->SetAreaClassOverride(UNavArea_Obstacle::StaticClass());
-
-	RightClickDetector->BodyInstance.SetInstanceSimulatePhysics(true);
+	/*RightClickDetector->BodyInstance.SetInstanceSimulatePhysics(true);*/
 	RightClickDetector->SetNotifyRigidBodyCollision(true);
-
 	RightClickDetector->SetCollisionProfileName(TEXT("Custom"));
 	RightClickDetector->SetCollisionResponseToAllChannels(ECR_Overlap);
 	RightClickDetector->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
@@ -117,6 +114,7 @@ void AExploreHeroBase::BeginPlay()
 
 	// 퀘스트 알림 UI 생성 및 구성
 	CreateQuestNotificationUI();
+	
 }
 
 void AExploreHeroBase::BindInteractions()
@@ -168,7 +166,7 @@ void AExploreHeroBase::CreateQuestNotificationUI()
 	// 퀘스트 알림 UI 위젯 생성 및 뷰포트에 추가
 	WBP_QuestNotificationUI = CreateWidget<UUW_QuestNotificationUI>(GetWorld(), WBP_QuestNotificationUIClass);
 	WBP_QuestNotificationUI->ExploreHero = this;
-	WBP_QuestNotificationUI->AddToViewport();
+	WBP_QuestNotificationUI->AddToViewport(999);
 }
 
 void AExploreHeroBase::Tick(float DeltaTime)
@@ -431,12 +429,13 @@ void AExploreHeroBase::DeliverQuest(AQuestBase* InQuest)
 
 void AExploreHeroBase::ShowQuestRewards(const FQuestRewards& QuestRewards)
 {
+	
 	if (!WBP_ClaimDialogueClass)
 	{
 		SRPG_LOG_SCREEN_ERROR(TEXT("WBP_ClaimDialogueClas 가 설정되지 않나 위젯을 생성할 수 없습니다."));
 		return;
 	}
-
+	
 	CurrentQuestRewards = QuestRewards;
 	WBP_ClaimDialogue = CreateWidget<UUW_ClaimDialogue>(GetWorld(), WBP_ClaimDialogueClass);
 	WBP_ClaimDialogue->ExploreHero = this;
@@ -787,26 +786,25 @@ void AExploreHeroBase::OnComponentEndOverlap_InteractionDetector(UPrimitiveCompo
                                                                  int32 OtherBodyIndex)
 {
 	AInteractionDetector* CastInteractionDetector = Cast<AInteractionDetector>(OtherActor);
-	if (!CastInteractionDetector)
+	if (CastInteractionDetector)
 	{
-		SRPG_LOG_WARNING(TEXT("OnComponentEndOverlap_InteractionDetector에서 액터를 AInteractionDetector로 캐스팅하는 데 실패했습니다."));
-		return;
-	}
-
-	if (CastInteractionDetector->InteractionSphere == OverlappedComponent && CastInteractionDetector->bCanInteract)
-	{
-		CastInteractionDetector->HideInteractionUI();
+		if (CastInteractionDetector->InteractionSphere == OverlappedComponent && CastInteractionDetector->bCanInteract)
+		{
+			CastInteractionDetector->HideInteractionUI();
+		}
 	}
 }
 
 void AExploreHeroBase::OnBeginCursorOver_RightClickDetector(UPrimitiveComponent* TouchedComponent)
 {
-	ExplorePlayerController->ExploreCursor->ChangeCursor(EExploreCursorType::Inventory);
+	SRPG_LOG_SCREEN(TEXT("커서가 들어왔습니다!~!!"));
+	ExplorePlayerController->GetExploreCursor()->ChangeCursor(EExploreCursorType::Inventory);
 }
 
 void AExploreHeroBase::OnEndCursorOver_RightClickDetector(UPrimitiveComponent* TouchedComponent)
 {
-	ExplorePlayerController->ExploreCursor->ChangeCursor(EExploreCursorType::Default);
+	SRPG_LOG_SCREEN(TEXT("커서가 나갔습니다!~!!"));
+	ExplorePlayerController->GetExploreCursor()->ChangeCursor(EExploreCursorType::Default);
 }
 
 void AExploreHeroBase::OnClicked_RightClickDetector(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)
@@ -871,3 +869,5 @@ void AExploreHeroBase::OnGarrisonListClosedHandler()
 		OnGarrisonListClosed.Broadcast();
 	}
 }
+
+

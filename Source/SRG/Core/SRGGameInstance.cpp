@@ -9,7 +9,7 @@
 #include "SRG/Interactables/InteractionDetector.h"
 #include "SRG/Interactables/Shop/ShopBase.h"
 #include "SRG/Quests/BattleQuests/BattleQuestBase.h"
-#include "SRG/Units/CharacterBase.h"
+#include "SRG/Units/Characters/CharacterBase.h"
 #include "SRGCore/SRGLog.h"
 
 USRGGameInstance::USRGGameInstance(const FObjectInitializer& ObjectInitializer)

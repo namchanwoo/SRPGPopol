@@ -23,19 +23,21 @@ void AExplorePlayerController::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
-
-
-	ExploreCursor = CreateWidget<UUW_ExploreCursor>(this, ExploreCursorClass);
-	SetMouseCursorWidget(EMouseCursor::Default, ExploreCursor);
+	
+	WBP_ExploreCursor = CreateWidget<UUW_ExploreCursor>(this, WBP_ExploreCursorClass);
+	SetMouseCursorWidget(EMouseCursor::Default, WBP_ExploreCursor);
 	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, nullptr, EMouseLockMode::DoNotLock, false);
+
+	
 }
 
 void AExplorePlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	// UStrategyEnhancedInputComponent* StrategyEnhancedInputComponent = Cast<UStrategyEnhancedInputComponent>(InputComponent);
-	// SRPG_CHECK(StrategyEnhancedInputComponent);
-
-	// StrategyEnhancedInputComponent->BindActionByTag(DefaultInputConfig,SRPGTAGS::Input,ETriggerEvent::Started,this,)
+	/*UStrategyEnhancedInputComponent* StrategyEnhancedInputComponent = Cast<UStrategyEnhancedInputComponent>(InputComponent);
+	SRPG_CHECK(StrategyEnhancedInputComponent);
+	StrategyEnhancedInputComponent->BindActionByTag(DefaultInputConfig,SRPGTAGS::Input,ETriggerEvent::Started,this,)*/
 }
+
+

@@ -1,6 +1,6 @@
 ﻿#include "QuestLogic.h"
-
 #include "QuestBase.h"
+#include "SRGCore/SRGLog.h"
 #include "SRG/Characters/ExploreHeroBase.h"
 
 
@@ -21,52 +21,81 @@ void AQuestLogic::BeginPlay()
 
 void AQuestLogic::CheckQuestStatus(AExploreHeroBase* InExploreHero, const TArray<AQuestBase*>& InQuests)
 {
+	SRPG_LOG_FUNCTION; // 기능 로깅 시작
+
+	if (InExploreHero == nullptr)
+	{
+		SRPG_LOG_ERROR(TEXT("InExploreHero는 null입니다."));
+		return;
+	}
+
+	if (InQuests.Num() == 0)
+	{
+		SRPG_LOG_ERROR(TEXT("InQuests가 비어 있습니다."));
+		return;
+	}
+
 	ExploreHero = InExploreHero;
 	Quests = InQuests;
 
 	AQuestBase* CurrentQuest = GetCurrentQuest();
-	EQuestStatus QuestStatus = ExploreHero->GetQuestStatus(CurrentQuest->GetClass());
 
-	if (QuestStatus == EQuestStatus::Unavailable)
+	if (CurrentQuest == nullptr)
 	{
-		if (OnQuestUnavailable.IsBound())
-			OnQuestUnavailable.Broadcast(CurrentQuest);
+		SRPG_LOG_ERROR(TEXT("CurrentQuest는 null입니다."));
+		return;
 	}
-	else if (QuestStatus == EQuestStatus::New)
+
+	const EQuestStatus QuestStatus = ExploreHero->GetQuestStatus(CurrentQuest->GetClass());
+
+	// 델리게이트 바인딩 및 방송을 위한 람다함수 생성
+	auto BroadcastIfBound = [](auto& Delegate, auto* Quest)
 	{
-		if (OnNewQuestReceived.IsBound())
-			OnNewQuestReceived.Broadcast(CurrentQuest);
-	}
-	else if (QuestStatus == EQuestStatus::Active)
+		if (Delegate.IsBound())
+			Delegate.Broadcast(Quest);
+	};
+
+	switch (QuestStatus)
 	{
-		if (OnQuestInProgress.IsBound())
-			OnQuestInProgress.Broadcast(CurrentQuest);
+	case EQuestStatus::Unavailable:
+		BroadcastIfBound(OnQuestUnavailable, CurrentQuest);
+		break;
+	case EQuestStatus::New:
+		BroadcastIfBound(OnNewQuestReceived, CurrentQuest);
+		break;
+	case EQuestStatus::Active:
+		BroadcastIfBound(OnQuestInProgress, CurrentQuest);
+		break;
+	case EQuestStatus::ReadyToDeliver:
+		BroadcastIfBound(OnQuestReadyToDeliver, CurrentQuest);
+		break;
+	case EQuestStatus::Completed:
+		BroadcastIfBound(OnQuestAlreadyCompleted, CurrentQuest);
+		break;
+	default:
+		SRPG_LOG_ERROR(TEXT("알 수 없는 퀘스트 상태."));
+		break;
 	}
-	else if (QuestStatus == EQuestStatus::ReadyToDeliver)
-	{
-		if (OnQuestReadyToDeliver.IsBound())
-			OnQuestReadyToDeliver.Broadcast(CurrentQuest);
-	}
-	else if (QuestStatus == EQuestStatus::Completed)
-	{
-		if (OnQuestAlreadyCompleted.IsBound())
-			OnQuestAlreadyCompleted.Broadcast(CurrentQuest);
-	}
-	
 }
+
 
 AQuestBase* AQuestLogic::GetCurrentQuest()
 {
-	AQuestBase* CurrentQuest = Quests[Quests.Num() - 1];
+	// 퀘스트가 있는지 확인
+	if (Quests.Num() == 0)
+	{
+		return nullptr; // 퀘스트가 없으면 null 반환
+	}
 
+	// ExploreHero가 아직 완료하지 않은 퀘스트를 찾습니다.
 	for (AQuestBase* Quest : Quests)
 	{
 		if (!ExploreHero->CompletedQuestData.Contains(Quest->GetClass()))
 		{
-			CurrentQuest = Quest;
-			break;
+			return Quest; // 완료하지 않은 첫 번째 퀘스트 반환
 		}
 	}
 
-	return CurrentQuest;
+	// 모든 퀘스트가 완료되면 목록의 마지막 퀘스트를 반환합니다.
+	return Quests.Last();
 }

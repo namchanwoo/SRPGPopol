@@ -26,8 +26,15 @@ void UUW_InfoDialogue::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-
 	Background->OnMouseButtonDownEvent.BindUFunction(this, FName("OnBackgroundMouseButtonDown"));
+	OkButton->OnButtonClicked.AddDynamic(this, &UUW_InfoDialogue::OnButtonClicked);
+}
+
+void UUW_InfoDialogue::SetUpInfoDialogue()
+{
+	Description->SetText(DialogueText);
+	Title->SetText(DialogueTitle);
+	OkButton->SetButtonText(YesButtonText);
 }
 
 void UUW_InfoDialogue::OnButtonClicked()
@@ -40,7 +47,6 @@ FEventReply UUW_InfoDialogue::OnBackgroundMouseButtonDown(FGeometry MyGeometry, 
 {
 	// Your logic for handling the mouse button down event goes here.
 	// UE_LOG(LogTemp, Warning, TEXT("Background OnMouseButtonDown triggered"));
-
 
 	FEventReply Reply;
 	Reply.NativeReply = FReply::Handled(); // Use FReply::Handled() if you want to consume the event.

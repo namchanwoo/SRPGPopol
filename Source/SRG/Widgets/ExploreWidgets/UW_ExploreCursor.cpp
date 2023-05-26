@@ -3,6 +3,11 @@
 #include "Components/Image.h"
 
 
+UUW_ExploreCursor::UUW_ExploreCursor(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
 void UUW_ExploreCursor::ChangeCursor(EExploreCursorType ExploreCursorType)
 {
 	if (ExploreCursorType == EExploreCursorType::Default)

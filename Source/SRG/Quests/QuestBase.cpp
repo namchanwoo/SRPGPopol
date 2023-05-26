@@ -10,17 +10,17 @@ AQuestBase::AQuestBase()
 
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	SetRootComponent(DefaultSceneRoot);
-}
-
-void AQuestBase::BeginPlay()
-{
-	Super::BeginPlay();
 
 	QuestUnavailableText = FText::FromString(TEXT("Quest is unavailable at the moment."));
 	NewQuestText = FText::FromString(TEXT("New Quest received!"));
 	QuestInProgressText = FText::FromString(TEXT("Quest is in progress."));
 	QuestReadyToDeliverText = FText::FromString(TEXT("Well done!"));
 	QuestAlreadyCompletedText = FText::FromString(TEXT("You have already completed this quest."));
+}
+
+void AQuestBase::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void AQuestBase::Tick(float DeltaTime)

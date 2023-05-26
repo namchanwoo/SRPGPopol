@@ -41,6 +41,7 @@ public:
 	AExploreHeroBase();
 
 protected:
+	
 	virtual void BeginPlay() override;
 	
 	// 상호 작용 이벤트를 해당 메서드에 바인딩합니다.
@@ -297,7 +298,8 @@ public:
 	*/
 	void BlockPlayerInput(bool IsBlocked);
 
-
+	
+	
 	/*******************************************
 	 * On Event
 	 *******************************************/
@@ -333,7 +335,7 @@ protected:
 
 	UFUNCTION()
 	void OnGarrisonListClosedHandler();
-
+	
 
 	/*******************************************
     * Field Members
@@ -520,3 +522,5 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category="Explore Hero|Delegate")
 	FOnGarrisonListClosed OnGarrisonListClosed;
 };
+
+

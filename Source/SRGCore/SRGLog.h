@@ -26,15 +26,14 @@ SRPG_LOG_ERROR(Format, ##__VA_ARGS__); \
 }
 
 
-// assert()와 거의 비슷한 용도로 사용가능한 매크로. ...에는 retval이 들어감.
 #define SRPG_CHECK(Expr, ...) {if(!(Expr)) {LOG(Error, TEXT("ASSERTION : %s"), TEXT("'"#Expr"'")); return __VA_ARGS__;}}
+#define SRPG_IF_CHECK(Expr, ErrorMsg, ...) {if(!(Expr)) {SRPG_LOG_ERROR(ErrorMsg); return __VA_ARGS__;}}
 
-// 조건부 로깅 매크로 추가
-#define SRPG_LOG_IF(Condition, Verbosity, Format, ...) if (Condition) { SRPG_LOG(Verbosity, Format, ##__VA_ARGS__); }
+
+
 
 // 시간 로깅 매크로 추가
 #define SRPG_LOG_TIME(Verbosity, Format, ...) UE_LOG(SRPGLOG, Verbosity, TEXT("%s %s %s"), *FDateTime::Now().ToString(TEXT("%Y-%m-%d %H:%M:%S")), *LOG_CALLINFO, *FString::Printf(Format, ##__VA_ARGS__))
-
 
 class FFunctionLogger
 {

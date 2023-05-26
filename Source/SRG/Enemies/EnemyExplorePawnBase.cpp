@@ -66,6 +66,7 @@ void AEnemyExplorePawnBase::CreateInteractionActor()
 	InteractionActor = CreateDefaultSubobject<UChildActorComponent>(TEXT("InteractionActor"));
 	InteractionActor->SetChildActorClass(AInteractionDetector::StaticClass());
 	InteractionActor->SetRelativeRotation(FRotator(0.0f, -0.00001f, 0.0f));
+	InteractionActor->SetupAttachment(GetRootComponent());
 }
 
 void AEnemyExplorePawnBase::CreateRightClickDetector()
@@ -78,6 +79,7 @@ void AEnemyExplorePawnBase::CreateRightClickDetector()
 	RightClickDetector->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	RightClickDetector->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
 	RightClickDetector->SetAreaClassOverride(UNavArea_Obstacle::StaticClass());
+	RightClickDetector->SetupAttachment(GetRootComponent());
 }
 
 void AEnemyExplorePawnBase::AssignAIControllerClass()
@@ -260,12 +262,12 @@ void AEnemyExplorePawnBase::OnLoaded_Handle(bool bShouldLoadEnemyPawns)
 
 void AEnemyExplorePawnBase::OnBeginCursorOver_RightClickDetector(UPrimitiveComponent* TouchedComponent)
 {
-	ExplorePlayerController->ExploreCursor->ChangeCursor(EExploreCursorType::Enemy);
+	ExplorePlayerController->GetExploreCursor()->ChangeCursor(EExploreCursorType::Enemy);
 }
 
 void AEnemyExplorePawnBase::OnEndCursorOver_RightClickDetector(UPrimitiveComponent* TouchedComponent)
 {
-	ExplorePlayerController->ExploreCursor->ChangeCursor(EExploreCursorType::Default);
+	ExplorePlayerController->GetExploreCursor()->ChangeCursor(EExploreCursorType::Default);
 }
 
 void AEnemyExplorePawnBase::OnClicked_RightClickDetector(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)

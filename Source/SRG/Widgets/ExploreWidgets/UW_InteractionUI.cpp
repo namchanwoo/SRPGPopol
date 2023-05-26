@@ -1,42 +1,56 @@
 #include "SRG/Widgets/ExploreWidgets/UW_InteractionUI.h"
 
+#include "SRGCore/AssetTableRef.h"
 #include "UW_InteractionButton.h"
 #include "Components/VerticalBox.h"
-#include "SRGCore/AssetTableRef.h"
 
 UUW_InteractionUI::UUW_InteractionUI(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	TSubclassOf<UUW_InteractionButton> InteractionButtonClassSrc = DT::FindClass<UUW_InteractionButton>(
-		DT_BLUEPRINT_PATH, FName(TEXT("WBP_InteractionButton")));
-
-	if (InteractionButtonClassSrc)
+	if (const TSubclassOf<UUW_InteractionButton> WBP_InteractionButtonClassSrc = DT::FindClass<UUW_InteractionButton>(
+		DT_BLUEPRINT_PATH, FName(TEXT("WBP_InteractionButton"))))
 	{
-		InteractionButtonClass = InteractionButtonClassSrc;
+		WBP_InteractionButtonClass = WBP_InteractionButtonClassSrc;
 	}
 }
 
 void UUW_InteractionUI::SetInteractionTexts(const TArray<FText>& InTexts)
 {
+	if (!WBP_InteractionButtonClass)
+	{
+		SRPG_LOG_SCREEN_ERROR(TEXT("WBP_InteractionButtolClass가 nullptr입니다. 위젯을 생성 할 수 없습니다."))
+		return;
+	}
+
+	InteractionButtonList->ClearChildren();
 	for (int32 i = 0; i < InTexts.Num(); i++)
 	{
-		UUW_InteractionButton* NewInteractionButton = CreateWidget<UUW_InteractionButton>(GetWorld(), InteractionButtonClass);
-		NewInteractionButton->ButtonIndex = i;
-		NewInteractionButton->ButtonText = InTexts[i];
-		InteractionButtonList->AddChild(NewInteractionButton);
+		UUW_InteractionButton* NewInteractionButton =
+			CreateWidget<UUW_InteractionButton>(GetWorld(), WBP_InteractionButtonClass);
+		if (!NewInteractionButton) return;
 
+		NewInteractionButton->ButtonIndex =i;
+		NewInteractionButton->ButtonText = InTexts[i];
 		NewInteractionButton->OnInteractionButtonClicked.AddDynamic(this, &UUW_InteractionUI::OnButtonClickedHandler);
+
+		InteractionButtonList->AddChild(NewInteractionButton);
 	}
 }
 
 void UUW_InteractionUI::ShowInteractionUI()
 {
-	PlayAnimationForward(ShowAnimation);
+	if (ShowAnimation)
+	{
+		PlayAnimation(ShowAnimation, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
+	}
 }
 
 void UUW_InteractionUI::HideInteractionUI()
 {
-	PlayAnimationReverse(ShowAnimation);
+	if (ShowAnimation)
+	{
+		PlayAnimation(ShowAnimation, 0.f, 1, EUMGSequencePlayMode::Reverse, 1.f);
+	}
 }
 
 void UUW_InteractionUI::InstantHide()
@@ -48,5 +62,7 @@ void UUW_InteractionUI::InstantHide()
 void UUW_InteractionUI::OnButtonClickedHandler(int32 ButtonIndex)
 {
 	if (OnInteractClicked.IsBound())
+	{
 		OnInteractClicked.Broadcast(ButtonIndex);
+	}
 }

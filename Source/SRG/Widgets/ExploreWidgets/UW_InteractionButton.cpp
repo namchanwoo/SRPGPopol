@@ -6,9 +6,7 @@
 void UUW_InteractionButton::NativeConstruct()
 {
 	Super::NativeConstruct();
-
 	InteractionText->SetText(ButtonText);
-
 	InteractionButton->OnClicked.AddDynamic(this, &UUW_InteractionButton::OnButtonClicked_InteractionButton);
 }
 

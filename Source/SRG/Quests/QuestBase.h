@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -29,9 +28,6 @@ public:
 	 * @brief 퀘스트를 로드하고 상태를 확인하고 영웅의 퀘스트 데이터를 기반으로 적절한 기능을 호출합니다.
 	 */
 	void Load();
-
-
-#pragma region   	Quest Base
 
 public:
 	/**
@@ -77,14 +73,19 @@ public:
 	 */
 	AExploreHeroBase* GetExploreHeroBase();
 
+	
 
-#pragma endregion	Quest Base
+	/*******************************************
+	 * Map Operations
+	 *******************************************/
 
-
-#pragma region   	Field Members
+	/*---	      	    Component    	      	---*/
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest|Component")
 	USceneComponent* DefaultSceneRoot;
 
+	/*---	      	    Quest    	      	---*/
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest")
 	bool bShowNotification = true;
 
@@ -117,6 +118,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Quest")
 	TArray<TSubclassOf<AQuestBase>> RequiredQuests;
-
-#pragma endregion	Field Members
 };

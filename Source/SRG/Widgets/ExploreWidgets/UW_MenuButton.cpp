@@ -1,6 +1,7 @@
 #include "SRG/Widgets/ExploreWidgets/UW_MenuButton.h"
 
 #include "Blueprint/WidgetLayoutLibrary.h"
+
 #include "Components/Button.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/TextBlock.h"
@@ -16,12 +17,18 @@ void UUW_MenuButton::NativePreConstruct()
 	Super::NativePreConstruct();
 
 	SetButtonText(Text);
-	
+
 	UWidgetLayoutLibrary::SlotAsCanvasSlot(MenuButton)->SetSize(ButtonSize);
-	
+
 	FSlateFontInfo NewFontInfo = ButtonText->GetFont();
 	NewFontInfo.Size = FontSize;
 	ButtonText->SetFont(NewFontInfo);
+}
+
+void UUW_MenuButton::NativeConstruct()
+{
+	Super::NativeConstruct();
+	MenuButton->OnClicked.AddDynamic(this, &UUW_MenuButton::OnClicked_MenuButton);
 }
 
 void UUW_MenuButton::SetButtonText(FText InText)
