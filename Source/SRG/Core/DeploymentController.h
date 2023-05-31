@@ -1,11 +1,13 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
+﻿
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "SRGCore/SRGEnumStruct.h"
 #include "DeploymentController.generated.h"
+
+class ABattleController;
+class AGrid;
 
 UCLASS()
 class SRG_API ADeploymentController : public AActor
@@ -23,12 +25,17 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+	void InitializeEvent();
+	
+	void SetNonDeployedCharacters();
 
-#pragma region   	Field Members
+	UPROPERTY()
+	ABattleController* BattleController;
+	
+	UPROPERTY()
+	AGrid* Grid;
 
-public:
-	UPROPERTY(BlueprintReadWrite, Category="DeploymentController")
+	UPROPERTY()
 	TArray<FPlayerCharacterData> NonDeployedCharacters;
-
-#pragma endregion	Field Members
 };

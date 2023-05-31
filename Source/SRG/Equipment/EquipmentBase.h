@@ -37,7 +37,7 @@ public:
 	int32 Cost = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Equipment")
-	EEquipmenet Equipment;
+	EEquipment Equipment;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Equipment")
 	FHeroStats HeroStats;

@@ -32,3 +32,12 @@ void ASlotBase::AddAura(AAuraBase* InAura, ACharacterBase* InAuraOwner)
 {
 }
 
+bool ASlotBase::IsEnemySlot(ACharacterBase* InCharacter, ACharacterBase*& EnemyCharacter)
+{
+	return false;
+}
+
+void ASlotBase::OnSpellDisabled()
+{
+}
+

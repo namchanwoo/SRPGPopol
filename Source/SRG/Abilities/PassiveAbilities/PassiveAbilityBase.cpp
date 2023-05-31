@@ -24,3 +24,12 @@ void APassiveAbilityBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void APassiveAbilityBase::UsePassiveAbility(const TArray<ACharacterBase*> InHitCharacters)
+{
+	
+}
+
+void APassiveAbilityBase::ClearPassiveAbilityUseCallback()
+{
+}
+

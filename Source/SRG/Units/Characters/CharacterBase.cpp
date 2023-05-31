@@ -799,36 +799,24 @@ void ACharacterBase::OnNewTurnHandler(int32 NewTurn)
 	ResetRetaliation(MaxRetaliationCount);
 }
 
-void ACharacterBase::AddBuff(ABuffBase* InBuff)
+void ACharacterBase::AddBuff(ABuffBase* NewBuff)
 {
-	CurrentBuffs.Add(InBuff);
-
-	if (OnStatusEffectsUpdated.IsBound())
-		OnStatusEffectsUpdated.Broadcast();
+	AddEffect(NewBuff, CurrentBuffs);
 }
 
-void ACharacterBase::RemoveBuff(ABuffBase* InBuff)
+void ACharacterBase::AddDeBuff(ADeBuffBase* NewDeBuff)
 {
-	CurrentBuffs.Remove(InBuff);
-
-	if (OnStatusEffectsUpdated.IsBound())
-		OnStatusEffectsUpdated.Broadcast();
+	AddEffect(NewDeBuff, CurrentDeBuffs);
 }
 
-void ACharacterBase::AddDeBuff(ADeBuffBase* InDeBuff)
+void ACharacterBase::RemoveBuff(ABuffBase* RemoveBuff)
 {
-	CurrentDeBuffs.Add(InDeBuff);
-
-	if (OnStatusEffectsUpdated.IsBound())
-		OnStatusEffectsUpdated.Broadcast();
+	RemoveEffect(RemoveBuff,CurrentBuffs);
 }
 
-void ACharacterBase::RemoveDeBuff(ADeBuffBase* InDeBuff)
+void ACharacterBase::RemoveDeBuff(ADeBuffBase* RemoveDeBuff)
 {
-	CurrentDeBuffs.Remove(InDeBuff);
-
-	if (OnStatusEffectsUpdated.IsBound())
-		OnStatusEffectsUpdated.Broadcast();
+	RemoveEffect(RemoveDeBuff,CurrentDeBuffs);
 }
 
 void ACharacterBase::SetDefending(bool IsDefending)
@@ -871,55 +859,14 @@ void ACharacterBase::PlayMeleeAttackAnimation()
 		PlayAnimationMontage(RandomMeleeMontage);
 }
 
-bool ACharacterBase::AlreadyGotBuff(ABuffBase* InBuff, ABuffBase*& ExistingBuff)
+void ACharacterBase::AlreadyGotBuff(ABuffBase* InBuff, ABuffBase*& ExistingBuff)
 {
-	// 입력된 버프가 유효하지 않은 경우, false를 반환
-	if (InBuff == nullptr)
-	{
-		ExistingBuff = nullptr;
-		return false;
-	}
-
-	// 현재 적용된 모든 버프를 확인
-	for (ABuffBase* CurrentBuff : CurrentBuffs)
-	{
-		// 버프의 클래스와 출처가 일치하는 경우, true를 반환
-		if ((CurrentBuff->GetClass() == InBuff->GetClass()) && (CurrentBuff->bIsFromAura == InBuff->bIsFromAura))
-		{
-			ExistingBuff = CurrentBuff;
-			return true;
-		}
-	}
-
-	// 일치하는 버프가 없는 경우, false를 반환
-	ExistingBuff = nullptr;
-	return false;
+	AlreadyGotEffect(InBuff,ExistingBuff,CurrentBuffs);
 }
 
-bool ACharacterBase::AlreadyGotDeBuff(ADeBuffBase* InDeBuff, ADeBuffBase*& ExistingDeBuff)
+void ACharacterBase::AlreadyGotDeBuff(ADeBuffBase* InDeBuff, ADeBuffBase*& ExistingDeBuff)
 {
-	// 입력된 디버프가 유효하지 않은 경우, false를 반환
-	if (InDeBuff == nullptr)
-	{
-		ExistingDeBuff = nullptr;
-		return false;
-	}
-
-	// 현재 적용된 모든 디버프를 확인
-	for (ADeBuffBase* CurrentDeBuff : CurrentDeBuffs)
-	{
-		// 디버프의 클래스와 출처가 일치하는 경우, true를 반환
-		if ((CurrentDeBuff->GetClass() == InDeBuff->GetClass()) && (CurrentDeBuff->bIsFromAura == InDeBuff->
-			bIsFromAura))
-		{
-			ExistingDeBuff = CurrentDeBuff;
-			return true;
-		}
-	}
-
-	// 일치하는 디버프가 없는 경우, false를 반환
-	ExistingDeBuff = nullptr;
-	return false;
+	AlreadyGotEffect(InDeBuff,ExistingDeBuff,CurrentDeBuffs);
 }
 
 void ACharacterBase::ClearMeleeAttackCallback()

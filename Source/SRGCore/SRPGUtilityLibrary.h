@@ -63,6 +63,19 @@ public:
 
 		return nullptr; // Return nullptr if the array is empty
 	}
+	
+	template <typename T>
+	static void ShuffleArray(TArray<T>& ArrayToShuffle)
+	{
+		for (int32 i = ArrayToShuffle.Num() - 1; i > 0; --i)
+		{
+			int32 swapIndex = FMath::RandRange(0, i);
+			if (i != swapIndex)
+			{
+				ArrayToShuffle.Swap(swapIndex, i);
+			}
+		}
+	}
 
 
 	/**

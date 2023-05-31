@@ -20,9 +20,10 @@ class USpringArmComponent;
 class UUW_CharacterHealth;
 class ACharacterBase;
 
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthSet, int32, NewHealth, bool, IsHeal);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaSet, int32, InMana);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaSet_Character, int32, InMana);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterMoveToSlot, ACharacterBase*, InCharacter);
 
@@ -36,7 +37,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterMoved);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStopAnimationMontage);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnimationEnded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnimationEnded_Character);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttacked);
 
@@ -359,29 +360,35 @@ public:
 	UFUNCTION()
 	void OnNewTurnHandler(int32 NewTurn);
 
-	/**
-	 * @brief 캐릭터에게 버프를 추가하는 함수
-	 * @param InBuff 추가할 버프
-	 */
-	void AddBuff(ABuffBase* InBuff);
+	template <class EffectType>
+	void AddEffect(EffectType* InEffect, TArray<EffectType*>& CurrentEffects)
+	{
+		CurrentEffects.Add(InEffect);
 
-	/**
-	 * @brief 캐릭터에서 버프를 제거하는 함수
-	 * @param InBuff 제거할 버프
-	 */
-	void RemoveBuff(ABuffBase* InBuff);
+		if (OnStatusEffectsUpdated.IsBound())
+			OnStatusEffectsUpdated.Broadcast();
+	}
 
-	/**
-	 * @brief 캐릭터에게 디버프를 추가하는 함수
-	 * @param InDeBuff 추가할 디버프
-	 */
-	void AddDeBuff(ADeBuffBase* InDeBuff);
+	template <class EffectType>
+	void RemoveEffect(EffectType* InEffect, TArray<EffectType*>& CurrentEffects)
+	{
+		CurrentEffects.Remove(InEffect);
 
-	/**
-	 * @brief 캐릭터에서 디버프를 제거하는 함수
-	 * @param InDeBuff 제거할 디버프
-	 */
-	void RemoveDeBuff(ADeBuffBase* InDeBuff);
+		if (OnStatusEffectsUpdated.IsBound())
+			OnStatusEffectsUpdated.Broadcast();
+	}
+
+	UFUNCTION(BlueprintCallable, Category="Character Event")
+	void AddBuff(ABuffBase* NewBuff);
+
+	UFUNCTION(BlueprintCallable, Category="Character Event")
+	void AddDeBuff(ADeBuffBase* NewDeBuff);
+
+	UFUNCTION(BlueprintCallable, Category="Character Event")
+	void RemoveBuff(ABuffBase* RemoveBuff);
+
+	UFUNCTION(BlueprintCallable, Category="Character Event")
+	void RemoveDeBuff(ADeBuffBase* RemoveDeBuff);
 
 	/**
 	 * @brief 캐릭터가 방어 상태인지 설정하는 함수
@@ -416,21 +423,47 @@ public:
 	 */
 	void PlayMeleeAttackAnimation();
 
-	/**
- 	* @brief 입력된 버프와 동일한 버프가 이미 적용되었는지 확인하는 함수
- 	* @param InBuff 확인할 버프
- 	* @param ExistingBuff 이미 존재하는 동일한 버프(있는 경우)
- 	* @return 동일한 버프가 이미 존재하면 true, 그렇지 않으면 false
- 	*/
-	bool AlreadyGotBuff(ABuffBase* InBuff, ABuffBase*& ExistingBuff);
 
 	/**
- 	* @brief 입력된 디버프와 동일한 디버프가 이미 적용되었는지 확인하는 함수
- 	* @param InBuff 확인할 디버프
- 	* @param ExistingBuff 이미 존재하는 동일한 디버프(있는 경우)
- 	* @return 동일한 디버프가 이미 존재하면 true, 그렇지 않으면 false
- 	*/
-	bool AlreadyGotDeBuff(ADeBuffBase* InBuff, ADeBuffBase*& ExistingBuff);
+	* @brief 이미 효과가 적용되었는지 확인합니다
+	* @tparam EffectType 효과의 유형 (예: ABuffBase 또는 ADeBuffBase)
+	* @param InEffect 확인하려는 효과
+	* @param ExistingEffect 이미 존재하는 동일한 효과 (있는 경우)
+	* @param CurrentEffects 현재 캐릭터에 적용된 모든 효과의 목록
+	* @return 효과가 이미 적용되었는지 여부
+	*/
+	template <class EffectType>
+	bool AlreadyGotEffect(EffectType* InEffect, EffectType*& ExistingEffect, TArray<EffectType*>& CurrentEffects)
+	{
+		// 입력한 효과가 유효하지 않으면 false를 반환
+		if (InEffect == nullptr)
+		{
+			ExistingEffect = nullptr;
+			return false;
+		}
+
+		// 현재 적용된 모든 효과 확인
+		for (EffectType* CurrentEffect : CurrentEffects)
+		{
+			// 효과의 클래스와 소스가 일치하면 true를 반환합니다.
+			if ((CurrentEffect->GetClass() == InEffect->GetClass()) &&
+				(CurrentEffect->bIsFromAura == InEffect->bIsFromAura))
+			{
+				ExistingEffect = CurrentEffect;
+				return true;
+			}
+		}
+
+		// 일치하는 효과가 없으면 false를 반환합니다.
+		ExistingEffect = nullptr;
+		return false;
+	}
+
+	UFUNCTION(BlueprintCallable, Category="Character Event")
+	void AlreadyGotBuff(ABuffBase* InBuff, ABuffBase*& ExistingBuff);
+
+	UFUNCTION(BlueprintCallable, Category="Character Event")
+	void AlreadyGotDeBuff(ADeBuffBase* InDeBuff, ADeBuffBase*& ExistingDeBuff);
 
 	/**
  	* @brief 근접 공격 애니메이션 및 공격 이벤트에 대한 모든 바운드 델리게이트 제거
@@ -656,7 +689,7 @@ public:
 	FOnHealthSet OnHealthSet; // 체력 설정 시 브로드캐스트되는 델리게이트
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Character|Delegate")
-	FOnManaSet OnManaSet; // 마나 설정 시 브로드캐스트되는 델리게이트
+	FOnManaSet_Character OnManaSet; // 마나 설정 시 브로드캐스트되는 델리게이트
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Character|Delegate")
 	FOnStatsUpdated OnStatsUpdated; // 스탯 업데이트 시 브로드캐스트되는 델리게이트
@@ -668,7 +701,7 @@ public:
 	FOnStopAnimationMontage OnStopAnimationMontage; // 애니메이션 몽타주 정지 시 브로드캐스트되는 델리게이트
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Character|Delegate")
-	FOnAnimationEnded OnAnimationEnded; // 애니메이션 종료 시 브로드캐스트되는 델리게이트
+	FOnAnimationEnded_Character OnAnimationEnded; // 애니메이션 종료 시 브로드캐스트되는 델리게이트
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Character|Delegate")
 	FOnAttacked OnAttacked; // 공격 시 브로드캐스트되는 델리게이트
@@ -729,3 +762,83 @@ private:
 	UPROPERTY()
 	ASlotBase* TargetSlot; // 대상 슬롯
 };
+
+
+#pragma region 삭제코드들
+/*/**
+ * @brief 입력된 버프와 동일한 버프가 이미 적용되었는지 확인하는 함수
+ * @param InBuff 확인할 버프
+ * @param ExistingBuff 이미 존재하는 동일한 버프(있는 경우)
+ * @return 동일한 버프가 이미 존재하면 true, 그렇지 않으면 false
+ #1#
+bool AlreadyGotBuff(ABuffBase* InBuff, ABuffBase*& ExistingBuff);
+
+/**
+ * @brief 입력된 디버프와 동일한 디버프가 이미 적용되었는지 확인하는 함수
+ * @param InBuff 확인할 디버프
+ * @param ExistingBuff 이미 존재하는 동일한 디버프(있는 경우)
+ * @return 동일한 디버프가 이미 존재하면 true, 그렇지 않으면 false
+ #1#
+bool AlreadyGotDeBuff(ADeBuffBase* InBuff, ADeBuffBase*& ExistingBuff);*/
+
+/**
+	 * @brief 캐릭터에게 버프를 추가하는 함수
+	 * @param InBuff 추가할 버프
+	 */
+/*void AddBuff(ABuffBase* InBuff);*/
+
+
+/*
+/**
+ * @brief 캐릭터에서 버프를 제거하는 함수
+ * @param InBuff 제거할 버프
+ #1#
+void RemoveBuff(ABuffBase* InBuff);
+
+/**
+ * @brief 캐릭터에게 디버프를 추가하는 함수
+ * @param InDeBuff 추가할 디버프
+ #1#
+void AddDeBuff(ADeBuffBase* InDeBuff);
+
+/**
+ * @brief 캐릭터에서 디버프를 제거하는 함수
+ * @param InDeBuff 제거할 디버프
+ #1#
+void RemoveDeBuff(ADeBuffBase* InDeBuff);
+*/
+
+
+/*void ACharacterBase::AddBuff(ABuffBase* InBuff)
+{
+	CurrentBuffs.Add(InBuff);
+
+	if (OnStatusEffectsUpdated.IsBound())
+		OnStatusEffectsUpdated.Broadcast();
+}
+
+void ACharacterBase::RemoveBuff(ABuffBase* InBuff)
+{
+	CurrentBuffs.Remove(InBuff);
+
+	if (OnStatusEffectsUpdated.IsBound())
+		OnStatusEffectsUpdated.Broadcast();
+}
+
+void ACharacterBase::AddDeBuff(ADeBuffBase* InDeBuff)
+{
+	CurrentDeBuffs.Add(InDeBuff);
+
+	if (OnStatusEffectsUpdated.IsBound())
+		OnStatusEffectsUpdated.Broadcast();
+}
+
+void ACharacterBase::RemoveDeBuff(ADeBuffBase* InDeBuff)
+{
+	CurrentDeBuffs.Remove(InDeBuff);
+
+	if (OnStatusEffectsUpdated.IsBound())
+		OnStatusEffectsUpdated.Broadcast();
+}*/
+
+#pragma endregion  삭제코드들

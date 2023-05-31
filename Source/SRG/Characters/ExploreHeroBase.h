@@ -6,6 +6,8 @@
 #include "ExploreHeroBase.generated.h"
 
 
+class ASpellBase;
+class ABattleHeroBase;
 class UCameraComponent;
 class USpringArmComponent;
 class UBoxComponent;
@@ -37,13 +39,11 @@ class SRG_API AExploreHeroBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-
 	AExploreHeroBase();
 
 protected:
-	
 	virtual void BeginPlay() override;
-	
+
 	// 상호 작용 이벤트를 해당 메서드에 바인딩합니다.
 	void BindInteractions();
 
@@ -298,8 +298,7 @@ public:
 	*/
 	void BlockPlayerInput(bool IsBlocked);
 
-	
-	
+
 	/*******************************************
 	 * On Event
 	 *******************************************/
@@ -320,13 +319,13 @@ protected:
 
 	UFUNCTION()
 	void OnEndCursorOver_RightClickDetector(UPrimitiveComponent* TouchedComponent);
-	
+
 	UFUNCTION()
 	void OnClicked_RightClickDetector(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
 
 	UFUNCTION()
 	void OnOkClickedHandle();
-	
+
 	UFUNCTION()
 	void OnLevelUpClosed();
 
@@ -335,7 +334,7 @@ protected:
 
 	UFUNCTION()
 	void OnGarrisonListClosedHandler();
-	
+
 
 	/*******************************************
     * Field Members
@@ -348,9 +347,13 @@ public:
 	int32 MaxLevel = 10;
 
 	// 최대 캐릭터 제한
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Settings")
 	int32 MaxCharacterLimit = 7;
-	
+
+	// 전투 영웅 클래스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Settings")
+	TSubclassOf<ABattleHeroBase> BattleHero;
+
 	// 퀘스트 알림 UI 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Settings|Widget")
 	TSubclassOf<UUW_QuestNotificationUI> WBP_QuestNotificationUIClass;
@@ -370,7 +373,6 @@ public:
 	// 영웅 인벤토리 UI 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Settings|Widget")
 	TSubclassOf<UUW_HeroInventory> WBP_HeroInventoryClass;
-	
 
 	// 아이들 애니메이션
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Settings|Animation")
@@ -381,12 +383,20 @@ public:
 	UAnimSequence* WalkAnimation;
 
 
-
 	/*--- 영웅 속성 (Hero Properties) ---*/
 public:
 	// 연속 움직임 여부
 	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	bool bContinuousMovement = true;
+
+	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	FText Name;
+
+	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UTexture2D* HeroImage;
+
+	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UTexture2D* HeroDetailsImage;
 
 	// 입력 차단 여부
 	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
@@ -440,6 +450,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	FHeroStats LastLevelStats;
 
+	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	TMap<TSubclassOf<ASpellBase>,int32> Spells;
 
 	/*--- 참조 (References) ---*/
 public:
@@ -450,17 +462,17 @@ public:
 	// 탐험 네비게이션 경로 참조
 	UPROPERTY(BlueprintReadWrite, Category="Hero Base|References")
 	AExploreNavigationPath* NavigationPath;
-	
+
 	// 퀘스트 알림 UI 참조
 	UPROPERTY(BlueprintReadWrite, Category="Hero Base|References|Widget")
 	UUW_QuestNotificationUI* WBP_QuestNotificationUI;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category="Hero Base|References|Widget")
 	UUW_LevelUpDialogue* WBP_LevelUpDialogue;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category="Hero Base|References|Widget")
 	UUW_ClaimDialogue* WBP_ClaimDialogue;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category="Hero Base|References|Widget")
 	UUW_GarrisonListClass* WBP_GarrisonList;
 
@@ -522,5 +534,3 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category="Explore Hero|Delegate")
 	FOnGarrisonListClosed OnGarrisonListClosed;
 };
-
-

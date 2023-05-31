@@ -24,3 +24,11 @@ void ADeploymentController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ADeploymentController::InitializeEvent()
+{
+}
+
+void ADeploymentController::SetNonDeployedCharacters()
+{
+}
+

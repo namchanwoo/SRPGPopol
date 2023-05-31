@@ -17,7 +17,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDOTApplied, float, InDelay);
  * AStatusEffectBase는 게임의 상태 효과에 대한 핵심 기능을 제공하는 클래스입니다.
  * 여기에는 다양한 방식으로 캐릭터 통계 또는 게임 플레이를 변경할 수 있는 오라, 버프, 디버프 및 기타 게임 효과가 포함될 수 있습니다.
  */
-UCLASS()
+UCLASS(ClassGroup = ("SRPG"), meta = (BlueprintSpawnableComponent),
+	HideCategories = ("HLOD","Rendering","Collision", "Physics", "WorldPartition","Input","Cooking","Replication",
+		"DataLayers","Event"))
 class SRG_API AStatusEffectBase : public AActor
 {
 	GENERATED_BODY()
@@ -181,8 +183,11 @@ public:
 	/*---	      	    STATUS EFFECT CONFIGURATION   	      	---*/
 public:
 	// 이 상태 효과가 오라에서 오는지 여부를 나타내는 부울 플래그입니다.
-	UPROPERTY(BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
 	bool bIsFromAura;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+	bool bIsDOT;
 
 	// 이 상태 효과가 지속되는 턴 수입니다.
 	UPROPERTY(BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
@@ -192,6 +197,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
 	bool bRemoveAfterAttack;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+	FText Name;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+	FText Description;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+	UTexture2D* Icon;
+	
 	// 이 상태 효과를 시전하는 캐릭터에 대한 포인터입니다.
 	UPROPERTY(BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
 	ACharacterBase* CasterCharacter;
@@ -203,11 +217,11 @@ public:
 	/*---	      	    CHARACTER STATISTICS 	      	---*/
 public:
 	// 이 상태 효과로 인해 영향을 받는 캐릭터에 적용되는 추가 통계입니다.
-	UPROPERTY(BlueprintReadWrite, Category="Status Effect")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
 	FCharacterStats StatAdditions;
 
 	// 이 상태 효과로 인해 영향을 받는 캐릭터에 적용될 요소 감소입니다.
-	UPROPERTY(BlueprintReadWrite, Category="Status Effect")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
 	FElementReductions ElementReductions;
 
 	// 이 상태 효과로 인해 영향을 받는 캐릭터의 캐릭터 통계에 대한 승수입니다.

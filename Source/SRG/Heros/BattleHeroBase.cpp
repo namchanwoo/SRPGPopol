@@ -23,3 +23,11 @@ void ABattleHeroBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABattleHeroBase::InitializeEvent()
+{
+}
+
+void ABattleHeroBase::AddDrops(int32 NewGold, const TArray<TSubclassOf<AEquipmentBase>>& NewDrops)
+{
+}
+

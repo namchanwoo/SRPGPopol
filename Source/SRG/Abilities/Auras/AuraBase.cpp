@@ -79,9 +79,9 @@ void AAuraBase::AddBuff(ACharacterBase* AffectedCharacter, TSubclassOf<ABuffBase
 	if (NewBuff)
 	{
 		ABuffBase* ExistingBuff;
-		if (!AffectedCharacter->AlreadyGotBuff(NewBuff, ExistingBuff))
+		if (!AffectedCharacter->AlreadyGotEffect<ABuffBase>(NewBuff, ExistingBuff, AffectedCharacter->CurrentBuffs))
 		{
-			AffectedCharacter->AddBuff(NewBuff);
+			AffectedCharacter->AddEffect(NewBuff,AffectedCharacter->CurrentBuffs);
 			NewBuff->InitializeEvent();
 		}
 	}
@@ -119,9 +119,10 @@ void AAuraBase::AddDeBuff(ACharacterBase* AffectedCharacter, TSubclassOf<ADeBuff
 	if (ADeBuffBase* NewDeBuff = SpawnDeBuff(InDeBuff))
 	{
 		ADeBuffBase* ExistingDeBuff;
-		if (!AffectedCharacter->AlreadyGotDeBuff(NewDeBuff, ExistingDeBuff))
+		if (!AffectedCharacter->AlreadyGotEffect<ADeBuffBase>(NewDeBuff, ExistingDeBuff,
+		                                                      AffectedCharacter->CurrentDeBuffs))
 		{
-			AffectedCharacter->AddDeBuff(NewDeBuff);
+			AffectedCharacter->AddEffect(NewDeBuff,AffectedCharacter->CurrentDeBuffs);
 			NewDeBuff->InitializeEvent();
 		}
 	}
@@ -136,4 +137,3 @@ void AAuraBase::AddDeBuffsToCharacter(ACharacterBase* AffectedCharacter)
 		AddDeBuff(AffectedCharacter, InDeBuff);
 	}
 }
-

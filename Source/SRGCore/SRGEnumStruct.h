@@ -14,6 +14,35 @@ enum class EExploreCursorType : uint8
 	Enemy
 };
 
+UENUM(BlueprintType)
+enum class EBattleState : uint8
+{
+	Initialization,
+	DeploymentPhase,
+	WaitingForPlayerAction,
+	PlayerIsCastingSpell,
+	PlayerIsPlaying,
+	WaitingForEnemyAction,
+	EnemyIsPlaying,
+	Victory,
+	Defeat,
+	Over
+};
+
+
+UENUM(BlueprintType)
+enum class EBattleCursorType : uint8
+{
+	Default,
+	Walk,
+	Fly,
+	MeleeAttack,
+	RangeAttack,
+	BrokenRangeAttack,
+	Spell,
+	Wait
+};
+
 
 UENUM(BlueprintType)
 enum class EQuestStatus : uint8
@@ -35,6 +64,7 @@ enum class EElement : uint8
 	Water
 };
 
+
 UENUM(BlueprintType)
 enum class EMovementType : uint8
 {
@@ -44,7 +74,18 @@ enum class EMovementType : uint8
 };
 
 UENUM(BlueprintType)
-enum class EEquipmenet : uint8
+enum class EPassiveAbilityUseMoment : uint8
+{
+	OnTurnStart,
+	OnMoved,
+	BeforeAttack,
+	AfterAttack,
+	OnKill,
+	OnTurnEnd
+};
+
+UENUM(BlueprintType)
+enum class EEquipment : uint8
 {
 	None,
 	Weapon,
@@ -54,21 +95,6 @@ enum class EEquipmenet : uint8
 	Shoes,
 	Necklace,
 	Misc
-};
-
-UENUM(BlueprintType)
-enum class EBattleState : uint8
-{
-	Initialization,
-	DeploymentPhase,
-	WaitingForPlayerAction,
-	PlayerIsCastingSpell,
-	PlayerIsPlaying,
-	WaitingForEnemyAction,
-	EnemyIsPlaying,
-	Victory,
-	Defeat,
-	Over
 };
 
 
@@ -289,6 +315,8 @@ public:
 	}
 };
 
+
+
 USTRUCT(BlueprintType)
 struct FCharacterStatsBuff
 {
@@ -358,6 +386,27 @@ struct FElementReductions
 	}
 };
 
+
+USTRUCT(BlueprintType)
+struct FDamageData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage Data")
+	int32 Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage Data")
+	int32 MinDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage Data")
+	int32 MaxDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage Data")
+	float DamageModifier;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage Data")
+	EElement Element = EElement::Normal;
+};
 
 USTRUCT(BlueprintType)
 struct FQuestStepData

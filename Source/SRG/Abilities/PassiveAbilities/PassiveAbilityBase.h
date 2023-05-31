@@ -1,9 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
+﻿
 #pragma once
 
 #include "CoreMinimal.h"
 #include "SRG/Abilities/AbilityBase.h"
+#include "SRGCore/SRGEnumStruct.h"
 #include "PassiveAbilityBase.generated.h"
 
 UCLASS()
@@ -22,4 +22,16 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void UsePassiveAbility(const TArray<ACharacterBase*> InHitCharacters);
+	
+	void ClearPassiveAbilityUseCallback();
+
+public:
+	UPROPERTY()
+	EPassiveAbilityUseMoment UseMoment;
+	
+
+	UPROPERTY()
+	float UseChance;
 };

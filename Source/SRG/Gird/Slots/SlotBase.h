@@ -7,6 +7,10 @@
 #include "SRG/Abilities/Auras/AuraBase.h"
 #include "SlotBase.generated.h"
 
+class AUnitBase;
+class ACharacterBase;
+
+
 UCLASS()
 class SRG_API ASlotBase : public AActor
 {
@@ -23,8 +27,26 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
+
 	void ApplyAuraToContainedUnit();
-	
+
 	void AddAura(AAuraBase* InAura, ACharacterBase* InAuraOwner);
+
+	UFUNCTION(BlueprintPure, Category="Slot Event")
+	bool IsEnemySlot(ACharacterBase* InCharacter, ACharacterBase*& EnemyCharacter);
+	
+	void OnSpellDisabled();
+
+	/*******************************************
+	 * Field Members
+	 *******************************************/
+public:
+	UPROPERTY(BlueprintReadWrite, Category="Slot")
+	FVector2D Coordinates;
+
+	UPROPERTY(BlueprintReadWrite, Category="Slot")
+	AUnitBase* ContainedUnit;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Slot")
+	TArray<ASlotBase*> Path;
 };
