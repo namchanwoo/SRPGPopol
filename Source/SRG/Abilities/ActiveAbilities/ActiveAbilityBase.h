@@ -3,7 +3,9 @@
 #include "CoreMinimal.h"
 #include "Kismet/GameplayStatics.h"
 #include "SRG/Abilities/AbilityBase.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRG/StatusEffects/Buffs/BuffBase.h"
+#include "SRG/StatusEffects/DeBuffs/DeBuffBase.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "ActiveAbilityBase.generated.h"
 
 class ADeBuffBase;
@@ -148,14 +150,14 @@ public:
 	/*---	      	    Ability and Target Management    	      	---*/
 public:
 	/**
- * @brief 해당 능력이 영향을 미치는 슬롯과 캐릭터들을 반환합니다.
- * @param SlotsInRange 영향을 받는 슬롯들 
- * @param EmptySlotsInRange 영향을 받는 빈 슬롯들
- * @param AlliesInRange 영향을 받는 아군 캐릭터들
- * @param EnemiesInRange 영향을 받는 적군 캐릭터들
- */
-	void GetAbilitySlots(TArray<ASlotBase*>& SlotsInRange, TArray<ASlotBase*>& EmptySlotsInRange,
-	                     TArray<ACharacterBase*>& AlliesInRange, TArray<ACharacterBase*>& EnemiesInRange);
+ 	* @brief 해당 능력이 영향을 미치는 슬롯과 캐릭터들을 반환합니다.
+ 	* @param OutSlotsInRange 영향을 받는 슬롯들 
+ 	* @param OutEmptySlotsInRange 영향을 받는 빈 슬롯들
+ 	* @param OutAlliesInRange 영향을 받는 아군 캐릭터들
+ 	* @param OutEnemiesInRange 영향을 받는 적군 캐릭터들
+ 	*/
+	void GetAbilitySlots(TArray<ASlotBase*>& OutSlotsInRange, TArray<ASlotBase*>& OutEmptySlotsInRange,
+	                     TArray<ACharacterBase*>& OutAlliesInRange, TArray<ACharacterBase*>& OutEnemiesInRange);
 
 	/**
 	 * @brief 능력의 세부 정보 (마나 비용 및 쿨다운)을 반환합니다.

@@ -11,12 +11,15 @@
 #include "SRG/Abilities/PassiveAbilities/PassiveAbilityBase.h"
 #include "SRG/Core/BattleController.h"
 #include "SRG/Gird/Grid.h"
+#include "SRG/Gird/Slots/SlotBase.h"
 #include "SRG/Misc/Damage.h"
 #include "SRG/StatusEffects/DeBuffs/DeBuffBase.h"
 #include "SRG/Widgets/UW_CharacterHealth.h"
-#include "SRGCore/AssetTableRef.h"
-#include "SRGCore/SRGLog.h"
-#include "SRGCore/SRPGUtilityLibrary.h"
+
+
+#include "SRG/StatusEffects/Buffs/BuffBase.h"
+#include "SRGCore/Libraries/SRPGUtilityLibrary.h"
+#include "SRGCore/Utilities/AssetTableRef.h"
 
 ACharacterBase::ACharacterBase()
 {
@@ -47,7 +50,7 @@ ACharacterBase::ACharacterBase()
 
 	// 상호작용 UI 설정
 	if (TSubclassOf<UUW_CharacterHealth> WBP_CharacterHealthClass =
-		DT::FindClass<UUW_CharacterHealth>(DT_BLUEPRINT_PATH,TEXT("WBP_CharacterHealth")))
+		DT::FindClass<UUW_CharacterHealth>(DT_WIDGET_PATH,TEXT("WBP_CharacterHealth")))
 	{
 		HealthWidget->SetWidgetClass(WBP_CharacterHealthClass);
 	}
@@ -485,6 +488,7 @@ void ACharacterBase::CalculateDyingStack(int32 InDamage, int32& DiedStack, int32
 	}
 	else
 	{
+		//Todo:: 결과연산을 봐야합니다.
 		// 현재 데미지가 현재 체력보다 클 경우
 		double Remainder;
 		int32 ModValue = UKismetMathLibrary::FMod(CurrentDamage - CurrentHealth, MainStats.MaxHealth, Remainder);

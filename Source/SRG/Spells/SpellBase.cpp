@@ -32,3 +32,21 @@ void ASpellBase::OnSpellDisabled()
 {
 }
 
+TMap<ACharacterBase*, FDamageData> ASpellBase::GetSpellDamage(TArray<ACharacterBase*> InTargetCharacters)
+{
+	return {};
+}
+
+void ASpellBase::PlaySpellAnimation()
+{
+}
+
+void ASpellBase::SetTargetSlot(ASlotBase* InSlot)
+{
+}
+
+void ASpellBase::GetSpellSlots(TArray<ASlotBase*>& OutSlotsInRange, TArray<ASlotBase*>& OutEmptySlots,
+	TArray<ACharacterBase*>& OutAllies, TArray<ACharacterBase*>& OutEnemies)
+{
+}
+

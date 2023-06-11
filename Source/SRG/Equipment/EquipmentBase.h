@@ -3,8 +3,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "EquipmentBase.generated.h"
+
+
+class ASpellBase;
 
 UCLASS()
 class SRG_API AEquipmentBase : public AActor
@@ -44,8 +47,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Equipment")
 	UTexture2D* Icon;
-
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Equipment")
-	// TArray<TSubclassOf<SpellBase>> Spells;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Equipment")
+	TArray<TSubclassOf<ASpellBase>> Spells;
 	
 };

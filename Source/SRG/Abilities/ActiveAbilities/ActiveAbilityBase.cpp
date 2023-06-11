@@ -5,7 +5,7 @@
 #include "SRG/Gird/Grid.h"
 #include "SRG/StatusEffects/DeBuffs/DeBuffBase.h"
 #include "SRG/Units/Characters/CharacterBase.h"
-#include "SRGCore/SRGLog.h"
+#include "SRGCore/Utilities/SRGLog.h"
 
 
 AActiveAbilityBase::AActiveAbilityBase()
@@ -148,12 +148,13 @@ void AActiveAbilityBase::AddDeBuff(ACharacterBase* InAffectedCharacter, TSubclas
 	AddEffect(InAffectedCharacter, InDeBuff, InTurnDuration, InAffectedCharacter->CurrentDeBuffs);
 }
 
-void AActiveAbilityBase::GetAbilitySlots(TArray<ASlotBase*>& SlotsInRange, TArray<ASlotBase*>& EmptySlotsInRange,
-                                         TArray<ACharacterBase*>& AlliesInRange,
-                                         TArray<ACharacterBase*>& EnemiesInRange)
+void AActiveAbilityBase::GetAbilitySlots(TArray<ASlotBase*>& OutSlotsInRange, TArray<ASlotBase*>& OutEmptySlotsInRange,
+                                         TArray<ACharacterBase*>& OutAlliesInRange,
+                                         TArray<ACharacterBase*>& OutEnemiesInRange)
 {
-	BattleController->Grid->GetSlotsInCharacterRange(AbilityOwner, Range, AbilityOwner->Slot, false,
-	                                                 SlotsInRange, EmptySlotsInRange, AlliesInRange, EnemiesInRange);
+	BattleController->GetGrid()->GetSlotsInCharacterRange(AbilityOwner, Range, AbilityOwner->Slot, false,
+	                                                 OutSlotsInRange, OutEmptySlotsInRange,
+	                                                 OutAlliesInRange, OutEnemiesInRange);
 }
 
 bool AActiveAbilityBase::GetAbilityDetails(int32& OutManaCost, int32& OutCoolDown)

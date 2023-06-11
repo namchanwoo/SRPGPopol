@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "ShopBase.generated.h"
 
 UCLASS()

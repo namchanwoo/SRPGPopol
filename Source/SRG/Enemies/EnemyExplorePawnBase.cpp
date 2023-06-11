@@ -12,13 +12,13 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "NavAreas/NavArea_Obstacle.h"
-#include "SRG/Core/SRGGameInstance.h"
+#include "SRG/Core/SRPGGameInstance.h"
 #include "SRG/Controllers/ExplorePlayerController.h"
 #include "SRG/Interactables/InteractionDetector.h"
 #include "SRG/Widgets/ExploreWidgets/UW_EnemyInfoDialogue.h"
 #include "SRG/Widgets/ExploreWidgets/UW_ExploreCursor.h"
-#include "SRGCore/AssetTableRef.h"
-#include "SRGCore/SRGLog.h"
+#include "SRGCore/Utilities/AssetTableRef.h"
+#include "SRGCore/Utilities/SRGLog.h"
 
 
 AEnemyExplorePawnBase::AEnemyExplorePawnBase()
@@ -90,7 +90,7 @@ void AEnemyExplorePawnBase::AssignAIControllerClass()
 void AEnemyExplorePawnBase::LoadWBP_EnemyInfoDialogueClass()
 {
 	if (TSubclassOf<UUW_EnemyInfoDialogue> WBP_EnemyInfoDialogue =
-		DT::FindClass<UUW_EnemyInfoDialogue>(DT_BLUEPRINT_PATH, FName(TEXT("WBP_EnemyInfoDialogue"))))
+		DT::FindClass<UUW_EnemyInfoDialogue>(DT_WIDGET_PATH, FName(TEXT("WBP_EnemyInfoDialogue"))))
 	{
 		WBP_EnemyInfoDialogueClass = WBP_EnemyInfoDialogue;
 	}
@@ -120,7 +120,7 @@ void AEnemyExplorePawnBase::BeginPlay()
 	}
 
 	// GameInstance 캐스팅 및 에러 처리
-	GameInstance = Cast<USRGGameInstance>(UGameplayStatics::GetGameInstance(this));
+	GameInstance = Cast<USRPGGameInstance>(UGameplayStatics::GetGameInstance(this));
 	if (!GameInstance)
 	{
 		SRPG_LOG_SCREEN_ERROR(TEXT("USRGGameInstance 캐스팅에 실패했습니다."));

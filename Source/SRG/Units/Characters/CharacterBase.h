@@ -2,11 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/TimelineComponent.h"
-#include "SRG/StatusEffects/Buffs/BuffBase.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "SRG/Units/UnitBase.h"
-#include "SRGCore/SRGEnumStruct.h"
 #include "CharacterBase.generated.h"
 
+
+class AUnitBase;
 class UNiagaraSystem;
 class ADeBuffBase;
 class ABuffBase;
@@ -67,8 +68,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterHighlighted, bool, IsOn)
  * 또한 그리드 기반 이동, 능력 사용, 손상 받기, 버프 및 디버프 적용, 체력 및 마나 관리를 포함하여 게임 세계와의 상호 작용을 처리합니다.
  * ACharacterBase에서 상속함으로써 개발자는 게임의 게임 플레이 경험에 기여하는 다양하고 매력적인 캐릭터를 만들 수 있습니다.
  */
-UCLASS(ClassGroup = ("SRPG"),
-	HideCategories = ("HLOD","Collision", "Physics", "World Partition","Input","Cooking", "Data Layer", "Event"))
+UCLASS()
 class SRG_API ACharacterBase : public AUnitBase
 {
 	GENERATED_BODY()
@@ -474,6 +474,7 @@ public:
  	* @brief 능력 애니메이션 및 공격 이벤트에 대한 모든 바운드 대리인을 제거합니다.
  	*/
 	void ClearAbilityCallback();
+	
 
 
 	/*******************************************
@@ -482,8 +483,9 @@ public:
 
 	/*---	      	    Attributes    	      	---*/
 public:
+	// 인공지능 캐릭터 여부
 	UPROPERTY(BlueprintReadWrite, Category="Character|Attributes")
-	bool bIsAI; // 인공지능 캐릭터 여부
+	bool bIsAI; 
 
 	UPROPERTY(BlueprintReadWrite, Category="Character|Attributes")
 	bool bIsWaiting; // 대기 중인 캐릭터 여부

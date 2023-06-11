@@ -12,4 +12,7 @@ UCLASS()
 class SRG_API AObstacleBase : public AUnitBase
 {
 	GENERATED_BODY()
+public:
+
+	bool bRandomRotation;
 };

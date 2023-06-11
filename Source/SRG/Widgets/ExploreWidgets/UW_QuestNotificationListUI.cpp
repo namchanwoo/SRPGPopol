@@ -2,19 +2,20 @@
 
 #include "UW_QuestNotification.h"
 #include "Components/VerticalBox.h"
-#include "SRGCore/AssetTableRef.h"
+#include "SRGCore/Utilities/AssetTableRef.h"
 
 UUW_QuestNotificationListUI::UUW_QuestNotificationListUI(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	auto WBP_QuestNotification = DT::FindClass<UUW_QuestNotification>(DT_BLUEPRINT_PATH, FName(TEXT("WBP_QuestNotification")));
-	if (WBP_QuestNotification)
+	if (TSubclassOf<UUW_QuestNotification> WBP_QuestNotification = DT::FindClass<UUW_QuestNotification>(
+		DT_WIDGET_PATH, FName(TEXT("WBP_QuestNotification"))))
 	{
 		QuestNotificationClass = WBP_QuestNotification;
 	}
 }
 
-void UUW_QuestNotificationListUI::ShowQuestNotification(TSubclassOf<AQuestBase> InQuest, FQuestStepData InQuestData, AExploreHeroBase* InExploreHero)
+void UUW_QuestNotificationListUI::ShowQuestNotification(TSubclassOf<AQuestBase> InQuest, FQuestStepData InQuestData,
+                                                        AExploreHeroBase* InExploreHero)
 {
 	if (!QuestNotificationClass)
 	{
@@ -22,7 +23,8 @@ void UUW_QuestNotificationListUI::ShowQuestNotification(TSubclassOf<AQuestBase> 
 		return;
 	}
 
-	UUW_QuestNotification* NewQuestNotification = CreateWidget<UUW_QuestNotification>(GetWorld(), QuestNotificationClass);
+	UUW_QuestNotification* NewQuestNotification = CreateWidget<UUW_QuestNotification>(
+		GetWorld(), QuestNotificationClass);
 	NewQuestNotification->Quest = InQuest;
 	NewQuestNotification->QuestStepData = InQuestData;
 	NewQuestNotification->ExploreHero = InExploreHero;

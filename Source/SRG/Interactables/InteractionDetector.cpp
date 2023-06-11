@@ -4,9 +4,9 @@
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavAreas/NavArea_Obstacle.h"
-#include "SRG/Core/SRGGameInstance.h"
+#include "SRG/Core/SRPGGameInstance.h"
 #include "SRG/Widgets/ExploreWidgets/UW_InteractionUI.h"
-#include "SRGCore/AssetTableRef.h"
+#include "SRGCore/Utilities/AssetTableRef.h"
 
 AInteractionDetector::AInteractionDetector()
 {
@@ -40,7 +40,7 @@ void AInteractionDetector::SetupInteractionWidget()
 
 	// 상호작용 UI 설정
 	if (TSubclassOf<UUW_InteractionUI> WBP_InteractionUIClass =
-		DT::FindClass<UUW_InteractionUI>(DT_BLUEPRINT_PATH,TEXT("WBP_InteractionUI")))
+		DT::FindClass<UUW_InteractionUI>(DT_WIDGET_PATH,TEXT("WBP_InteractionUI")))
 	{
 		InteractionWidget->SetWidgetClass(WBP_InteractionUIClass);
 	}
@@ -127,7 +127,7 @@ void AInteractionDetector::OnInteractClicked_InteractionUI(int32 ButtonIndex)
 	InteractionUI->InstantHide();
 
 	// 게임 인스턴스를 얻고 SRGGameInstance로 캐스팅합니다.
-	USRGGameInstance* SRGGameInstance = Cast<USRGGameInstance>(UGameplayStatics::GetGameInstance(this));
+	USRPGGameInstance* SRGGameInstance = Cast<USRPGGameInstance>(UGameplayStatics::GetGameInstance(this));
 
 	// 캐스팅에 실패하면 오류 로그를 출력하고 함수를 종료합니다.
 	if (!SRGGameInstance)

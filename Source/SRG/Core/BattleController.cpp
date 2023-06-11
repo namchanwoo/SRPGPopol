@@ -1,17 +1,24 @@
 ﻿#include "BattleController.h"
 
-#include "AILogicBase.h"
-#include "DeploymentController.h"
+
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
-#include "RPGSaveGame.h"
-#include "SRGGameInstance.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
+
+
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetTextLibrary.h"
 #include "Particles/ParticleSystem.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+
+#include "RPGSaveGame.h"
+#include "SRPGGameInstance.h"
+
+#include "SRGCore/Libraries/SRPGUtilityLibrary.h"
+#include "SRGCore/Utilities/SRGLog.h"
+
+
 #include "SRG/Abilities/ActiveAbilities/ActiveAbilityBase.h"
 #include "SRG/Abilities/MultiTargetPassiveAbilities/MultiTargetPassiveAbilityBase.h"
 #include "SRG/Characters/ExploreHeroBase.h"
@@ -19,31 +26,48 @@
 #include "SRG/Gird/Grid.h"
 #include "SRG/Gird/HeroSpawnLocation.h"
 #include "SRG/Heros/BattleHeroBase.h"
-#include "SRG/Libraries/SRGFunctionLibrary.h"
+#include "SRG/Libraries/SRPGFunctionLibrary.h"
 #include "SRG/Spells/SpellBase.h"
 #include "SRG/Units/Characters/CharacterBase.h"
 #include "SRG/Units/Obstacles/ObstacleBase.h"
+#include "SRG/StatusEffects/Buffs/BuffBase.h"
+#include "SRG/Gird/Slots/SlotBase.h"
+#include "SRG/StatusEffects/DeBuffs/DeBuffBase.h"
+#include "SRG/Units/Characters/RangeCharacters/RangeCharacterBase.h"
+#include "SRG/Abilities/PassiveAbilities/PassiveAbilityBase.h"
+
+#include "AILogicBase.h"
+#include "DeploymentController.h"
+
 #include "SRG/Widgets/UW_ActionButton.h"
 #include "SRG/Widgets/UW_BattleResultUI.h"
 #include "SRG/Widgets/UW_BattleUI.h"
 #include "SRG/Widgets/UW_ControlPanel.h"
 #include "SRG/Widgets/UW_BattleSettingsDialogue.h"
 #include "SRG/Widgets/ExploreWidgets/UW_YesNoDialogue.h"
-
-#include "SRGCore/SRGLog.h"
-#include "SRGCore/SRPGUtilityLibrary.h"
-
-#include "SRG/StatusEffects/Buffs/BuffBase.h"
-#include "SRG/StatusEffects/DeBuffs/DeBuffBase.h"
-#include "SRG/Units/Characters/RangeCharacters/RangeCharacterBase.h"
 #include "SRG/Widgets/UW_BossHP.h"
-#include "SRG/Abilities/PassiveAbilities/PassiveAbilityBase.h"
 #include "SRG/Widgets/UW_SpellBookUI.h"
 
 
 ABattleController::ABattleController()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
+	SetRootComponent(DefaultSceneRoot);
+
+	// BattleOverTheme 오디오 구성 요소 만들기
+	BattleOverTheme = CreateDefaultSubobject<UAudioComponent>(TEXT("BattleOverTheme"));
+	BattleOverTheme->bIsUISound = true;
+	BattleOverTheme->bAutoActivate = false;
+	BattleOverTheme->SetupAttachment(RootComponent);
+
+	// BattleThemeAudio 오디오 구성 요소 만들기
+	BattleThemeAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("BattleThemeAudio"));
+	BattleThemeAudio->bIsUISound = true;
+	BattleThemeAudio->bAutoActivate = false;
+	BattleThemeAudio->SetupAttachment(RootComponent);
+
 	MainMenuLevelName = FName(TEXT("MainMenu"));
 }
 
@@ -130,8 +154,8 @@ void ABattleController::ChangeBattleState(EBattleState NewBattleState)
 
 void ABattleController::InitializeEvent()
 {
-	GameInstance = Cast<USRGGameInstance>(UGameplayStatics::GetGameInstance(this));
-	SRPG_CHECK(GameInstance);
+	SRPGGameInstance = Cast<USRPGGameInstance>(UGameplayStatics::GetGameInstance(this));
+	SRPG_IF_CHECK(SRPGGameInstance!=nullptr, TEXT("SRPGGameInstance 캐스팅에 실패했습니다."));
 
 	Grid->InitializeEvent();
 
@@ -206,54 +230,20 @@ void ABattleController::EnemyCharacterPlays()
 
 void ABattleController::SpawnHero()
 {
-	if (IsValid(GameInstance))
+	if (IsValid(SRPGGameInstance->RpgSaveGame))
 	{
-		int32 LoadExp, LoadGold, LoadCurrentMana;
-		TArray<FPlayerCharacterData> LoadPlayerCharacterList;
-		TSubclassOf<AExploreHeroBase> LoadExploreHero;
-		TMap<TSubclassOf<AQuestBase>, FQuestStepData> LoadActiveQuestData;
-		TMap<TSubclassOf<AQuestBase>, int32> LoadCompletedQuestData;
-		TArray<TSubclassOf<AEquipmentBase>> LoadBackPack;
-		TArray<TSubclassOf<AEquipmentBase>> LoadEquipment;
-		GameInstance->RpgSaveGame->LoadHero(LoadExp, LoadGold, LoadCurrentMana, LoadPlayerCharacterList,
-		                                    LoadExploreHero, LoadActiveQuestData, LoadCompletedQuestData,
-		                                    LoadBackPack, LoadEquipment);
+		int32 loadExp, loadGold, loadCurrentMana;
+		TArray<FPlayerCharacterData> loadPlayerCharacterList;
+		TSubclassOf<AExploreHeroBase> loadExploreHero;
+		TMap<TSubclassOf<AQuestBase>, FQuestStepData> loadActiveQuestData;
+		TMap<TSubclassOf<AQuestBase>, int32> loadCompletedQuestData;
+		TArray<TSubclassOf<AEquipmentBase>> loadBackPack, loadEquipment;
+		SRPGGameInstance->RpgSaveGame->LoadHero(loadExp, loadGold, loadCurrentMana, loadPlayerCharacterList,
+		                                        loadExploreHero, loadActiveQuestData, loadCompletedQuestData,
+		                                        loadBackPack, loadEquipment);
 
-		const AExploreHeroBase* LoadExploreHeroCDO = LoadExploreHero->GetDefaultObject<AExploreHeroBase>();
-		const int32 HeroLevel = USRGFunctionLibrary::GetHeroLevel(LoadExp, LoadExploreHeroCDO->ExpExponent,
-		                                                          LoadExploreHeroCDO->MaxLevel);
-		const FHeroStats HeroStats = USRGFunctionLibrary::CalculateHeroStats(HeroLevel, LoadExploreHeroCDO->MaxLevel,
-		                                                                     LoadExploreHeroCDO->InitialStats,
-		                                                                     LoadExploreHeroCDO->FirstLevelStats,
-		                                                                     LoadExploreHeroCDO->LastLevelStats);
-
-		UWorld* World = GetWorld();
-		if (!World)
-		{
-			SRPG_LOG_ERROR(TEXT("World를 가져올 수 없습니다. 함수를 종료합니다."));
-			return;
-		}
-
-		const auto SpawnTransform = Grid->HeroSpawnLocation->GetActorTransform();
-		BattleHero = World->SpawnActorDeferred<ABattleHeroBase>(LoadExploreHeroCDO->BattleHero, SpawnTransform);
-		SRPG_CHECK(BattleHero)
-		BattleHero->BattleController = this;
-		BattleHero->HeroStats = HeroStats;
-		BattleHero->BackPack = LoadBackPack;
-		BattleHero->Equipment = LoadEquipment;
-		BattleHero->Level = HeroLevel;
-		BattleHero->Gold = LoadGold;
-		BattleHero->CurrentMana = LoadCurrentMana;
-		BattleHero->Name = LoadExploreHeroCDO->Name;
-		BattleHero->HeroImage = LoadExploreHeroCDO->HeroImage;
-		BattleHero->HeroDetailsImage = LoadExploreHeroCDO->HeroDetailsImage;
-		BattleHero->Spells = LoadExploreHeroCDO->Spells;
-		UGameplayStatics::FinishSpawningActor(BattleHero, SpawnTransform);
-
-		BattleHero->InitializeEvent();
-
-		BattleHero->OnRightClicked.AddDynamic(this, &ABattleController::ShowHeroDetails);
-		Grid->HeroSpawnLocation->Destroy();
+		const AExploreHeroBase* loadExploreHeroCDO = loadExploreHero->GetDefaultObject<AExploreHeroBase>();
+		InitializeBattleHero(loadExploreHeroCDO, loadExp, loadGold, loadCurrentMana, loadBackPack, loadEquipment);
 	}
 	else
 	{
@@ -261,22 +251,73 @@ void ABattleController::SpawnHero()
 	}
 }
 
+void ABattleController::SpawnDebugHero()
+{
+	SRPG_IF_CHECK(DebugHero, TEXT("DebugHero를 설정하지 않았습니다."));
+	const AExploreHeroBase* DebugHeroCDO = DebugHero->GetDefaultObject<AExploreHeroBase>();
+	const int32 HeroLevel = USRPGFunctionLibrary::GetHeroLevel(DebugHeroCDO->Exp, DebugHeroCDO->ExpExponent,
+	                                                           DebugHeroCDO->MaxLevel);
+	const FHeroStats HeroStats = USRPGFunctionLibrary::CalculateHeroStats(
+		HeroLevel, DebugHeroCDO->MaxLevel, DebugHeroCDO->InitialStats, DebugHeroCDO->FirstLevelStats,
+		DebugHeroCDO->LastLevelStats);
+
+	const int32 CurrentMana = HeroStats.Knowledge * 10;
+	InitializeBattleHero(DebugHeroCDO, DebugHeroCDO->Exp, DebugHeroCDO->Gold, CurrentMana, DebugHeroCDO->BackPack,
+	                     DebugHeroCDO->Equipment);
+}
+
+void ABattleController::InitializeBattleHero(const AExploreHeroBase* HeroCDO, int32 InExp, int32 InGold,
+                                             int32 InCurrentMana, const TArray<TSubclassOf<AEquipmentBase>>& InBackPack,
+                                             const TArray<TSubclassOf<AEquipmentBase>>& InEquipment)
+{
+	const int32 HeroLevel = USRPGFunctionLibrary::GetHeroLevel(InExp, HeroCDO->ExpExponent, HeroCDO->MaxLevel);
+	const FHeroStats HeroStats = USRPGFunctionLibrary::CalculateHeroStats(
+		HeroLevel, HeroCDO->MaxLevel, HeroCDO->InitialStats, HeroCDO->FirstLevelStats, HeroCDO->LastLevelStats);
+
+	UWorld* World = GetWorld();
+	SRPG_CHECK(World);
+
+	const FTransform SpawnTransform = Grid->GetHeroSpawnLocation()->GetActorTransform();
+	BattleHero = World->SpawnActorDeferred<ABattleHeroBase>(HeroCDO->BattleHero, SpawnTransform);
+	SRPG_CHECK(BattleHero);
+
+	BattleHero->BattleController = this;
+	BattleHero->HeroStats = HeroStats;
+	BattleHero->BackPack = InBackPack;
+	BattleHero->Equipment = InEquipment;
+	BattleHero->Level = HeroLevel;
+	BattleHero->Gold = InGold;
+	BattleHero->CurrentMana = InCurrentMana;
+	BattleHero->Name = HeroCDO->Name;
+	BattleHero->HeroImage = HeroCDO->HeroImage;
+	BattleHero->HeroDetailsImage = HeroCDO->HeroDetailsImage;
+	BattleHero->Spells = HeroCDO->Spells;
+
+	UGameplayStatics::FinishSpawningActor(BattleHero, SpawnTransform);
+
+	BattleHero->InitializeEvent();
+	BattleHero->OnRightClicked.AddDynamic(this, &ABattleController::ShowHeroDetails);
+
+	Grid->GetHeroSpawnLocation()->Destroy();
+}
+
+
 void ABattleController::SpawnEnemyCharacters()
 {
-	auto SelectEnemyCharacterList = GameInstance->EnemyCharacterList.Num() > 0
-		                                ? GameInstance->EnemyCharacterList
+	auto SelectEnemyCharacterList = SRPGGameInstance->EnemyCharacterList.Num() > 0
+		                                ? SRPGGameInstance->EnemyCharacterList
 		                                : DebugEnemyCharacterList;
 
 	int32 Index = 0;
 	for (const FEnemyCharacterData& InEnemyCharacterList : SelectEnemyCharacterList)
 	{
-		if (!Grid->EnemySpawnLocations.IsValidIndex(Index))
+		if (!Grid->GetEnemySpawnLocations().IsValidIndex(Index))
 		{
 			Index++;
 			continue;
 		}
 
-		if (!IsValid(Grid->EnemySpawnLocations[Index]))
+		if (!IsValid(Grid->GetEnemySpawnLocations()[Index]))
 		{
 			Index++;
 			continue;
@@ -289,7 +330,8 @@ void ABattleController::SpawnEnemyCharacters()
 		}
 
 		ACharacterBase* SpawnedCharacter;
-		if (!Grid->SpawnCharacter(InEnemyCharacterList.Character, Grid->EnemySpawnLocations[Index]->Coordinates, true,
+		if (!Grid->SpawnCharacter(InEnemyCharacterList.Character, Grid->GetEnemySpawnLocations()[Index]->Coordinates,
+		                          true,
 		                          FMath::RandRange(InEnemyCharacterList.MinStack, InEnemyCharacterList.MaxStack),
 		                          FHeroStats(), SpawnedCharacter))
 		{
@@ -314,9 +356,9 @@ void ABattleController::SpawnEnemyCharacters()
 
 void ABattleController::SpawnObstacles()
 {
-	if (IsValid(GameInstance))
+	if (IsValid(SRPGGameInstance))
 	{
-		SpawnMapObstacles(GameInstance->ObstacleList);
+		SpawnMapObstacles(SRPGGameInstance->ObstacleList);
 	}
 	else
 	{
@@ -650,7 +692,7 @@ void ABattleController::GetBaseDamage(ACharacterBase* InAttackingCharacter, int3
 }
 
 void ABattleController::CalculateDamage(ACharacterBase* InAttackingCharacter,
-                                        TArray<ACharacterBase*> InTargetCharacters, bool IsMelee,
+                                        const TArray<ACharacterBase*>& InTargetCharacters, bool IsMelee,
                                         TMap<ACharacterBase*, FDamageData>& OutDamageData,
                                         int32& OutTotalDamage)
 {
@@ -839,6 +881,11 @@ void ABattleController::Surrender()
 	UW_Surrender_YesNoDialogue->AddToViewport();
 }
 
+void ABattleController::ShowCharacterDetails(ACharacterBase* InCharacter)
+{
+	UW_BattleUI->ShowCharacterDetails(InCharacter);
+}
+
 void ABattleController::OnSurrenderConfirmed()
 {
 	if (IsValid(UW_Surrender_YesNoDialogue))
@@ -1022,7 +1069,6 @@ void ABattleController::OnRotatedForMeleeAttack()
 	PlayingCharacter->OnCharacterRotated.RemoveDynamic(this, &ABattleController::OnRotatedForMeleeAttack);
 	GetTargetCharacters(PlayingCharacter, CurrentMeleeAttackSlot, PlayingCharacter->Slot, true,
 	                    TargetCharacters, MainTargetCharacter);
-
 	OnAllPassiveAbilitiesUsed.AddDynamic(this, &ABattleController::OnBeforeMeleeAttackAbilitiesUsed);
 	UsePassiveAbilities(PlayingCharacter, TargetCharacters, EPassiveAbilityUseMoment::BeforeAttack);
 }
@@ -1314,46 +1360,6 @@ void ABattleController::OnAllDOTsAppliedHandler()
 	}
 }
 
-void ABattleController::SpawnDebugHero()
-{
-	const AExploreHeroBase* DebugHeroCDO = DebugHero->GetDefaultObject<AExploreHeroBase>();
-	const int32 HeroLevel = USRGFunctionLibrary::GetHeroLevel(DebugHeroCDO->Exp, DebugHeroCDO->ExpExponent,
-	                                                          DebugHeroCDO->MaxLevel);
-
-	const FHeroStats HeroStats = USRGFunctionLibrary::CalculateHeroStats(HeroLevel, DebugHeroCDO->MaxLevel,
-	                                                                     DebugHeroCDO->InitialStats,
-	                                                                     DebugHeroCDO->FirstLevelStats,
-	                                                                     DebugHeroCDO->LastLevelStats);
-
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		SRPG_LOG_ERROR(TEXT("World를 가져올 수 없습니다. 함수를 종료합니다."));
-		return;
-	}
-
-	const auto SpawnTransform = Grid->HeroSpawnLocation->GetActorTransform();
-	BattleHero = World->SpawnActorDeferred<ABattleHeroBase>(DebugHeroCDO->BattleHero, SpawnTransform);
-	SRPG_CHECK(BattleHero)
-	BattleHero->BattleController = this;
-	BattleHero->HeroStats = HeroStats;
-	BattleHero->Level = HeroLevel;
-	BattleHero->CurrentMana = HeroStats.Knowledge * 10;
-	BattleHero->Gold = DebugHeroCDO->Gold;
-	BattleHero->BackPack = DebugHeroCDO->BackPack;
-	BattleHero->Equipment = DebugHeroCDO->Equipment;
-	BattleHero->Name = DebugHeroCDO->Name;
-	BattleHero->HeroImage = DebugHeroCDO->HeroImage;
-	BattleHero->HeroDetailsImage = DebugHeroCDO->HeroDetailsImage;
-	BattleHero->Spells = DebugHeroCDO->Spells;
-	UGameplayStatics::FinishSpawningActor(BattleHero, SpawnTransform);
-
-	BattleHero->InitializeEvent();
-
-	BattleHero->OnRightClicked.AddDynamic(this, &ABattleController::ShowHeroDetails);
-	Grid->HeroSpawnLocation->Destroy();
-}
-
 bool ABattleController::HasAnyTargetDied(const TArray<ACharacterBase*>& InTargetCharacters)
 {
 	for (ACharacterBase* InTargetCharacter : InTargetCharacters)
@@ -1497,7 +1503,7 @@ void ABattleController::SetStarterCharacters()
 		}
 	}
 
-	for (ACharacterBase* InEnemyCharacter : EnemyCharacters)
+	for (const ACharacterBase* InEnemyCharacter : EnemyCharacters)
 	{
 		if (EnemyStarterCharacters.Contains(InEnemyCharacter->GetClass()))
 		{
@@ -1592,8 +1598,8 @@ void ABattleController::ShowBattleResult()
 		NewBattleResultUI->EnemyCasualties = EnemyCasualties;
 		NewBattleResultUI->Result = BattleState;
 		NewBattleResultUI->ExpReward = TotalExpReward;
-		NewBattleResultUI->Gold = GameInstance->Gold;
-		NewBattleResultUI->Drops = GameInstance->Drops;
+		NewBattleResultUI->Gold = SRPGGameInstance->Gold;
+		NewBattleResultUI->Drops = SRPGGameInstance->Drops;
 		NewBattleResultUI->AddToViewport();
 
 		if (Grid->OnCursorChanged.IsBound())
@@ -1707,8 +1713,8 @@ void ABattleController::OnBattleResultClosedHandler(EBattleState InResult)
 {
 	if (InResult == EBattleState::Victory)
 	{
-		BattleHero->AddDrops(GameInstance->Gold, GameInstance->Drops);
-		GameInstance->ChangeMapAfterBattle(BattleHero, NewBattleResultUI->ExpReward);
+		BattleHero->AddDrops(SRPGGameInstance->Gold, SRPGGameInstance->Drops);
+		SRPGGameInstance->ChangeMapAfterBattle(BattleHero, NewBattleResultUI->ExpReward);
 	}
 	else if (InResult == EBattleState::Defeat)
 	{

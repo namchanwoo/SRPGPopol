@@ -2,7 +2,7 @@
 
 #include "SRG/Enemies/EnemyExplorePawnBase.h"
 #include "SRG/Interactables/InteractionDetector.h"
-#include "SRG/Libraries/SRGFunctionLibrary.h"
+#include "SRG/Libraries/SRPGFunctionLibrary.h"
 
 ABattleQuestBase::ABattleQuestBase()
 {
@@ -40,7 +40,7 @@ void ABattleQuestBase::Activate(int32 CurrentStep)
 	{
 		if (IsValid(EnemyPawn[i]))
 		{
-			USRGFunctionLibrary::DisableActor(EnemyPawn[i], false);
+			USRPGFunctionLibrary::DisableActor(EnemyPawn[i], false);
 		}
 	}
 }
@@ -58,7 +58,7 @@ void ABattleQuestBase::Completed()
 	{
 		if (IsValid(pawn))
 		{
-			USRGFunctionLibrary::DisableActor(pawn, false);
+			USRPGFunctionLibrary::DisableActor(pawn, false);
 		}
 	}
 }
@@ -79,7 +79,7 @@ void ABattleQuestBase::SetQuestActors(AEnemyExplorePawnBase* Actor, bool IsActiv
 	// IsActive와 bHideActors에 따른 Actor 가시성 처리
 	if (bHideActors)
 	{
-		USRGFunctionLibrary::DisableActor(Actor, !IsActive);
+		USRPGFunctionLibrary::DisableActor(Actor, !IsActive);
 	}
 
 	// ChildActorComponent를 검색하고 유효성 확인

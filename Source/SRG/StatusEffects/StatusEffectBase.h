@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "StatusEffectBase.generated.h"
 
 class UNiagaraSystem;

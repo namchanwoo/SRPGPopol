@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "SRG/Abilities/AbilityBase.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "PassiveAbilityBase.generated.h"
 
 UCLASS()

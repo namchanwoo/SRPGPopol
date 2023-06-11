@@ -2,7 +2,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "SRG/Characters/ExploreHeroBase.h"
-#include "SRGCore/SRGLog.h"
+#include "SRGCore/Utilities/SRGLog.h"
 
 AQuestBase::AQuestBase()
 {

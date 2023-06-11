@@ -13,7 +13,9 @@ class ASlotBase;
  * 그리드에서 장치를 이동하는 메커니즘과 장치를 강조 표시하는 방법을 제공합니다.
  * @note SRG 게임에서 모든 유닛 유형의 기반 역할을 합니다.
  */
-UCLASS()
+UCLASS(ClassGroup = ("SRPG"), meta = (BlueprintSpawnableComponent),
+	HideCategories = ("HLOD","Rendering","Collision", "Physics", "WorldPartition","Input","Cooking","Replication",
+		"DataLayers","Event"))
 class SRG_API AUnitBase : public AActor
 {
 	GENERATED_BODY()
@@ -31,7 +33,6 @@ public:
 	 * Unit Event
 	 *******************************************/
 public:
-
 	/**
 	* @brief 유닛과 관련된 모든 이벤트를 초기화합니다.
 	*/
@@ -60,15 +61,12 @@ public:
 	virtual void OnRemovedFromSlot();
 
 
+	bool IsEvenSizedUnit();
 
 	/*******************************************
 	 * Field Members
 	 *******************************************/
 public:
-	// 기본 씬 컴포넌트를 가리키는 포인터입니다. 이 컴포넌트는 이 액터의 위치와 방향을 결정합니다.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Unit|Component")
-	USceneComponent* DefaultSceneRoot;
-
 	// 유닛이 초기화되었는지 여부를 나타내는 불리언 값입니다. true일 경우 유닛이 제대로 초기화되었음을 나타냅니다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Unit")
 	bool bInitialized = false;
@@ -84,4 +82,8 @@ public:
 	// 이 유닛이 현재 차지하고 있는 그리드 슬롯을 가리키는 포인터입니다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Unit")
 	ASlotBase* Slot;
+
+	// 기본 씬 컴포넌트를 가리키는 포인터입니다. 이 컴포넌트는 이 액터의 위치와 방향을 결정합니다.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Unit|Component")
+	USceneComponent* DefaultSceneRoot;
 };

@@ -1,6 +1,6 @@
 ﻿#include "QuestLogic.h"
 #include "QuestBase.h"
-#include "SRGCore/SRGLog.h"
+#include "SRGCore/Utilities/SRGLog.h"
 #include "SRG/Characters/ExploreHeroBase.h"
 
 
@@ -21,8 +21,6 @@ void AQuestLogic::BeginPlay()
 
 void AQuestLogic::CheckQuestStatus(AExploreHeroBase* InExploreHero, const TArray<AQuestBase*>& InQuests)
 {
-	SRPG_LOG_FUNCTION; // 기능 로깅 시작
-
 	if (InExploreHero == nullptr)
 	{
 		SRPG_LOG_ERROR(TEXT("InExploreHero는 null입니다."));

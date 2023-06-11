@@ -78,3 +78,7 @@ void UUW_BattleUI::OnBattleStarted()
 void UUW_BattleUI::ShowBattleQueue()
 {
 }
+
+void UUW_BattleUI::ShowCharacterDetails(ACharacterBase* InCharacter)
+{
+}

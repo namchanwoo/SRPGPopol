@@ -11,7 +11,7 @@ public class SRG : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput",
-			"UMG","UMGEditor",
+			"UMG","UMGEditor","Paper2D",
 			"SRGCore"
 		});
 		

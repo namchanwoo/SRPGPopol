@@ -1,6 +1,6 @@
 #include "SRG/Widgets/ExploreWidgets/UW_InteractionUI.h"
 
-#include "SRGCore/AssetTableRef.h"
+#include "SRGCore/Utilities/AssetTableRef.h"
 #include "UW_InteractionButton.h"
 #include "Components/VerticalBox.h"
 
@@ -8,7 +8,7 @@ UUW_InteractionUI::UUW_InteractionUI(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer)
 {
 	if (const TSubclassOf<UUW_InteractionButton> WBP_InteractionButtonClassSrc = DT::FindClass<UUW_InteractionButton>(
-		DT_BLUEPRINT_PATH, FName(TEXT("WBP_InteractionButton"))))
+		DT_WIDGET_PATH, FName(TEXT("WBP_InteractionButton"))))
 	{
 		WBP_InteractionButtonClass = WBP_InteractionButtonClassSrc;
 	}

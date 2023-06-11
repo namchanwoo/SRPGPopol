@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "UW_QuestNotificationListUI.generated.h"
 
 class UUW_QuestNotification;

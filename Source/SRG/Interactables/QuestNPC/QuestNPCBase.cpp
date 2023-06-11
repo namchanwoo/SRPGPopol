@@ -5,7 +5,7 @@
 #include "SRG/Quests/QuestBase.h"
 #include "SRG/Quests/QuestLogic.h"
 #include "SRG/Widgets/ExploreWidgets/UW_InfoDialogue.h"
-#include "SRGCore/AssetTableRef.h"
+#include "SRGCore/Utilities/AssetTableRef.h"
 
 
 AQuestNPCBase::AQuestNPCBase()
@@ -42,7 +42,7 @@ void AQuestNPCBase::InitializeInfoDialogueClass()
 {
 	// WBP_InfoDialogue 위젯 클래스를 가져옵니다.
 	if (TSubclassOf<UUW_InfoDialogue> WBP_InfoDialogueClassSrc = DT::FindClass<UUW_InfoDialogue>(
-		DT_BLUEPRINT_PATH, FName(TEXT("WBP_InfoDialogue"))))
+		DT_WIDGET_PATH, FName(TEXT("WBP_InfoDialogue"))))
 	{
 		WBP_InfoDialogueClass = WBP_InfoDialogueClassSrc;
 	}

@@ -1,11 +1,14 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "BattleController.h"
 #include "GameFramework/Actor.h"
 #include "AILogicBase.generated.h"
+
+class ASlotBase;
+class AGrid;
+class ACharacterBase;
+class ABattleController;
+class AActiveAbilityBase;
 
 UCLASS()
 class SRG_API AAILogicBase : public AActor
@@ -13,18 +16,47 @@ class SRG_API AAILogicBase : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AAILogicBase();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 public:
 	void InitializeEvent(ABattleController* InBattleController, AGrid* InGrid);
+
+	void RunAILogic(ACharacterBase* InCharacter);
+
+
+	void CalculateMovableSlots(ACharacterBase* InCharacter, bool& IsMeleeAttack,
+	                           TArray<ASlotBase*>& OutEnemySlots, TArray<ASlotBase*>& OutAllySlots,
+	                           ASlotBase*& OutClosetSlotToMove);
+
+	ACharacterBase* GetWeakestEnemy(const TArray<ASlotBase*>& InEnemySlots);
+
+	AActiveAbilityBase* GetActiveAbility();
+
+	/*******************************************
+	 * Field Members
+	 *******************************************/
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Logic")
+	AGrid* Grid;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Logic")
+	ABattleController* BattleController;
+
+	UPROPERTY(BlueprintReadWrite, Category="AI Logic")
+	ASlotBase* ClosestSlotToMove;
+
+	UPROPERTY(BlueprintReadWrite, Category="AI Logic")
+	AActiveAbilityBase* CurrentAvailableAbility;
 	
-	void RunAILogic(ACharacterBase* CharacterBase);
+	UPROPERTY(BlueprintReadWrite, Category="AI Logic")
+	ACharacterBase* CurrentPlayingCharacter;
+
+	UPROPERTY(BlueprintReadWrite, Category="AI Logic")
+	ACharacterBase* WeakestEnemy;
 };

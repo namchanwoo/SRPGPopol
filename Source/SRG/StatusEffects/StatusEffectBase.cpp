@@ -5,7 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 
-#include "SRGCore/SRGLog.h"
+#include "SRGCore/Utilities/SRGLog.h"
 #include "SRG/StatusEffects/Buffs/BuffBase.h"
 #include "SRG/StatusEffects/DeBuffs/DeBuffBase.h"
 #include "SRG/Core/BattleController.h"

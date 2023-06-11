@@ -5,7 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "SRG/Widgets/ExploreWidgets/UW_EnemyInfoDialogue.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "EnemyExplorePawnBase.generated.h"
 
 class UBlendSpace1D;
@@ -14,7 +14,7 @@ class AAITerritory;
 class UBoxComponent;
 class AExplorePlayerController;
 class AExploreHeroBase;
-class USRGGameInstance;
+class USRPGGameInstance;
 class AInteractionDetector;
 class AAIController;
 class AObstacleBase;
@@ -221,7 +221,7 @@ public:
 
 	// 게임 인스턴스
 	UPROPERTY(BlueprintReadWrite, Category = "Enemy Explore|Game State")
-	USRGGameInstance* GameInstance;
+	USRPGGameInstance* GameInstance;
 
 	// 적이 가지고 있는 골드의 양
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Explore|Game State")

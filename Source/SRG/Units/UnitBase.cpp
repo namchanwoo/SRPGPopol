@@ -1,5 +1,7 @@
 ﻿#include "UnitBase.h"
 
+#include "Kismet/KismetMathLibrary.h"
+
 
 AUnitBase::AUnitBase()
 {
@@ -39,4 +41,12 @@ void AUnitBase::OnMovedToSlot()
 
 void AUnitBase::OnRemovedFromSlot()
 {
+}
+
+bool AUnitBase::IsEvenSizedUnit()
+{
+	//ToDo::결과를 봐야함
+	double remainder;
+	int32 modValue = UKismetMathLibrary::FMod(UnitSize, 2.0f, remainder);
+	return FMath::IsNearlyEqual(remainder, 0.0f);
 }

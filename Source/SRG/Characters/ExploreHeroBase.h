@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "ExploreHeroBase.generated.h"
 
 
@@ -343,7 +343,7 @@ protected:
 	/*--- 설정 (Settings) ---*/
 public:
 	// 최대 레벨
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Settings")
 	int32 MaxLevel = 10;
 
 	// 최대 캐릭터 제한
@@ -386,16 +386,16 @@ public:
 	/*--- 영웅 속성 (Hero Properties) ---*/
 public:
 	// 연속 움직임 여부
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	bool bContinuousMovement = true;
 
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	FText Name;
 
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	UTexture2D* HeroImage;
 
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	UTexture2D* HeroDetailsImage;
 
 	// 입력 차단 여부
@@ -403,7 +403,7 @@ public:
 	bool bIsInputBlocked;
 
 	// 경험치
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	int32 Exp;
 
 	// 현재 마나
@@ -411,27 +411,27 @@ public:
 	int32 CurrentMana;
 
 	// 골드
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	int32 Gold;
 
 	// 목표 줌
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	float TargetZoom = 800.0f;
 
 	// 최소 줌
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	float MinZoom = 400.0f;
 
 	// 최대 줌
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	float MaxZoom = 1200.0f;
 
 	// 움직임 속도
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	float MovementSpeed = 400.f;
 
 	// 경험치 지수
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	float ExpExponent = 15.0f;
 
 	// 초기 회전
@@ -439,19 +439,19 @@ public:
 	FRotator InitialRotation;
 
 	// 초기 통계
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	FHeroStats InitialStats;
 
 	// 첫 레벨 통계
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	FHeroStats FirstLevelStats;
 
 	// 마지막 레벨 통계
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
 	FHeroStats LastLevelStats;
 
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Hero Properties")
-	TMap<TSubclassOf<ASpellBase>,int32> Spells;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Hero Properties")
+	TMap<TSubclassOf<ASpellBase>, int32> Spells;
 
 	/*--- 참조 (References) ---*/
 public:
@@ -502,15 +502,15 @@ public:
 	/*--- 게임 플레이 관련 (Gameplay Related) ---*/
 public:
 	// 백팩
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Gameplay Related")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Gameplay Related")
 	TArray<TSubclassOf<AEquipmentBase>> BackPack;
 
 	// 장비
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Gameplay Related")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Gameplay Related")
 	TArray<TSubclassOf<AEquipmentBase>> Equipment;
 
 	// 플레이어 캐릭터 리스트
-	UPROPERTY(BlueprintReadWrite, Category="Hero Base|Gameplay Related")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hero Base|Gameplay Related")
 	TArray<FPlayerCharacterData> PlayerCharacterList;
 
 	// 활성 퀘스트

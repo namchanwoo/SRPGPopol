@@ -47,6 +47,8 @@ public:
 	void ShowActiveAbilityList(ACharacterBase* CharacterBase);
 	void OnBattleStarted();
 	void ShowBattleQueue();
+	
+	void ShowCharacterDetails(ACharacterBase* InCharacter);
 
 public:
 	UPROPERTY()

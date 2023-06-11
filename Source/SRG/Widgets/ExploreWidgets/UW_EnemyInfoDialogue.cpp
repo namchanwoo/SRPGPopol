@@ -6,13 +6,13 @@
 #include "Components/Image.h"
 
 #include "SRG/Units/Characters/CharacterBase.h"
-#include "SRGCore/AssetTableRef.h"
+#include "SRGCore/Utilities/AssetTableRef.h"
 
 UUW_EnemyInfoDialogue::UUW_EnemyInfoDialogue(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	if (TSubclassOf<UUW_RewardItem> WBP_RewardItem = DT::FindClass<UUW_RewardItem>(
-		DT_BLUEPRINT_PATH, FName(TEXT("WBP_RewardItem"))))
+		DT_WIDGET_PATH, FName(TEXT("WBP_RewardItem"))))
 	{
 		WBP_RewardItemClass = WBP_RewardItem;
 	}

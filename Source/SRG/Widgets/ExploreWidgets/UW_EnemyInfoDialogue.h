@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "UW_ExploreWidget.h"
 #include "Blueprint/UserWidget.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "UW_EnemyInfoDialogue.generated.h"
 
 

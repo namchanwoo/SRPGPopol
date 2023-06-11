@@ -1,7 +1,7 @@
 ﻿#include "AbilityBase.h"
 
 #include "SRG/Units/Characters/CharacterBase.h"
-#include "SRGCore/SRGLog.h"
+#include "SRGCore/Utilities/SRGLog.h"
 
 
 AAbilityBase::AAbilityBase()

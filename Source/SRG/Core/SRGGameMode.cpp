@@ -1,4 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SRGGameMode.h"
 #include "SRG/SRGPlayerController.h"

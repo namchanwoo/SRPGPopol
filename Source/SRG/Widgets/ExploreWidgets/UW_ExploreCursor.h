@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UW_ExploreWidget.h"
-#include "SRGCore/SRGEnumStruct.h"
+#include "SRGCore/EnumStruct/SRGEnumStruct.h"
 #include "UW_ExploreCursor.generated.h"
 
 

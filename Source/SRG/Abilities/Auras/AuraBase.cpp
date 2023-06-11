@@ -3,9 +3,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "SRG/Core/BattleController.h"
 #include "SRG/Gird/Grid.h"
+#include "SRG/Gird/Slots/SlotBase.h"
+#include "SRG/StatusEffects/Buffs/BuffBase.h"
 #include "SRG/StatusEffects/DeBuffs/DeBuffBase.h"
 #include "SRG/Units/Characters/CharacterBase.h"
-#include "SRGCore/SRGLog.h"
+#include "SRGCore/Utilities/SRGLog.h"
 
 
 AAuraBase::AAuraBase()
@@ -32,7 +34,7 @@ void AAuraBase::ApplyAura()
 	// 캐릭터 범위 내의 개체들을 수집
 	TArray<ASlotBase*> SlotsInRange, EmptySlotsInRange;
 	TArray<ACharacterBase*> AliesInRange, EnemiesInRange;
-	BattleController->Grid->GetSlotsInCharacterRange(AbilityOwner, Range, AbilityOwner->Slot, true,
+	BattleController->GetGrid()->GetSlotsInCharacterRange(AbilityOwner, Range, AbilityOwner->Slot, true,
 	                                                 SlotsInRange, EmptySlotsInRange,
 	                                                 AliesInRange, EnemiesInRange);
 

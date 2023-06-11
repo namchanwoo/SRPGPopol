@@ -11,14 +11,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "NavAreas/NavArea_Obstacle.h"
 
-#include "SRG/Core/SRGGameInstance.h"
-#include "SRGCore/SRGLog.h"
-#include "SRGCore/AssetTableRef.h"
+#include "SRG/Core/SRPGGameInstance.h"
+#include "SRGCore/Utilities/SRGLog.h"
+#include "SRGCore/Utilities/AssetTableRef.h"
 
 #include "SRG/Equipment/EquipmentBase.h"
 #include "SRG/Controllers/ExplorePlayerController.h"
 #include "SRG/Interactables/InteractionDetector.h"
-#include "SRG/Libraries/SRGFunctionLibrary.h"
+#include "SRG/Libraries/SRPGFunctionLibrary.h"
 #include "SRG/Misc/ExploreNavigationPath.h"
 #include "SRG/Quests/QuestBase.h"
 #include "SRG/Quests/BattleQuests/BattleQuestBase.h"
@@ -90,7 +90,7 @@ AExploreHeroBase::AExploreHeroBase()
 	InteractionDetector->SetupAttachment(GetCapsuleComponent());
 
 	if (const TSubclassOf<UUserWidget> WBP_QuestNotificationUIClassSrc =
-		DT::FindClass<UUserWidget>(DT_BLUEPRINT_PATH, FName(TEXT("WBP_QuestNotificationUI"))))
+		DT::FindClass<UUserWidget>(DT_WIDGET_PATH, FName(TEXT("WBP_QuestNotificationUI"))))
 	{
 		WBP_QuestNotificationUIClass = WBP_QuestNotificationUIClassSrc;
 	}
@@ -114,7 +114,6 @@ void AExploreHeroBase::BeginPlay()
 
 	// 퀘스트 알림 UI 생성 및 구성
 	CreateQuestNotificationUI();
-	
 }
 
 void AExploreHeroBase::BindInteractions()
@@ -200,7 +199,7 @@ void AExploreHeroBase::SetCharacters()
 
 void AExploreHeroBase::SetFullMana()
 {
-	const FHeroStats HeroStat = USRGFunctionLibrary::GetHeroStatsWithEquipment(this, this);
+	const FHeroStats HeroStat = USRPGFunctionLibrary::GetHeroStatsWithEquipment(this, this);
 	if (HeroStat.Knowledge < 0)
 	{
 		SRPG_LOG_WARNING(TEXT("SetFullMana에서 부정적인 지식 통계가 감지되었습니다."));
@@ -345,7 +344,7 @@ EQuestStatus AExploreHeroBase::GetQuestStatus(TSubclassOf<AQuestBase> InQuest)
 void AExploreHeroBase::AddQuest(AQuestBase* NewQuest)
 {
 	// 함수 로깅 시작
-	SRPG_LOG_FUNCTION;
+	;
 
 	// NewQuest가 유효한지 확인
 	if (NewQuest == nullptr)
@@ -369,7 +368,7 @@ void AExploreHeroBase::AddQuest(AQuestBase* NewQuest)
 		ActiveQuests.Add(NewQuest);
 
 		// 게임 인스턴스 얻기 및 USRGGameInstance 타입인지 확인
-		USRGGameInstance* SRGGameInstance = Cast<USRGGameInstance>(UGameplayStatics::GetGameInstance(this));
+		USRPGGameInstance* SRGGameInstance = Cast<USRPGGameInstance>(UGameplayStatics::GetGameInstance(this));
 		SRPG_CHECK(SRGGameInstance); // SRPG_CHECK을 사용하여 null 검사
 
 		// 새 퀘스트를 게임 인스턴스에 추가
@@ -392,9 +391,6 @@ void AExploreHeroBase::LoadQuests(AQuestBase* InQuest)
 
 void AExploreHeroBase::DeliverQuest(AQuestBase* InQuest)
 {
-	// 함수 로깅 시작
-	SRPG_LOG_FUNCTION;
-
 	// NewQuest가 유효한지 확인
 	if (InQuest == nullptr)
 	{
@@ -414,7 +410,7 @@ void AExploreHeroBase::DeliverQuest(AQuestBase* InQuest)
 		CompletedQuestData.Add(QuestClass, InQuest->GetSteps());
 
 		// 게임 인스턴스 얻기 및 USRGGameInstance 타입인지 확인
-		USRGGameInstance* SRGGameInstance = Cast<USRGGameInstance>(UGameplayStatics::GetGameInstance(this));
+		USRPGGameInstance* SRGGameInstance = Cast<USRPGGameInstance>(UGameplayStatics::GetGameInstance(this));
 		SRPG_CHECK(SRGGameInstance); // SRPG_CHECK을 사용하여 null 검사
 
 		SRGGameInstance->RemoveQuest(InQuest);
@@ -429,13 +425,12 @@ void AExploreHeroBase::DeliverQuest(AQuestBase* InQuest)
 
 void AExploreHeroBase::ShowQuestRewards(const FQuestRewards& QuestRewards)
 {
-	
 	if (!WBP_ClaimDialogueClass)
 	{
 		SRPG_LOG_SCREEN_ERROR(TEXT("WBP_ClaimDialogueClas 가 설정되지 않나 위젯을 생성할 수 없습니다."));
 		return;
 	}
-	
+
 	CurrentQuestRewards = QuestRewards;
 	WBP_ClaimDialogue = CreateWidget<UUW_ClaimDialogue>(GetWorld(), WBP_ClaimDialogueClass);
 	WBP_ClaimDialogue->ExploreHero = this;
@@ -678,7 +673,7 @@ void AExploreHeroBase::AddExp(int32 AddExperience)
 	// 현재 레벨 및 통계 가져오기
 	int32 BeforeLevel;
 	FHeroStats BeforeHeroStats;
-	USRGFunctionLibrary::GetHeroStats(this, BeforeLevel, BeforeHeroStats);
+	USRPGFunctionLibrary::GetHeroStats(this, BeforeLevel, BeforeHeroStats);
 
 	// 경험치 증가
 	Exp += AddExperience;
@@ -686,7 +681,7 @@ void AExploreHeroBase::AddExp(int32 AddExperience)
 	// 업데이트된 레벨 및 통계 가져오기
 	int32 AfterLevel;
 	FHeroStats AfterHeroStats;
-	USRGFunctionLibrary::GetHeroStats(this, AfterLevel, AfterHeroStats);
+	USRPGFunctionLibrary::GetHeroStats(this, AfterLevel, AfterHeroStats);
 
 	// 영웅 레벨업 여부 확인
 	if (AfterLevel > BeforeLevel)
@@ -869,5 +864,3 @@ void AExploreHeroBase::OnGarrisonListClosedHandler()
 		OnGarrisonListClosed.Broadcast();
 	}
 }
-
-
