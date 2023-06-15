@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "MeleeCharacters/MeleeCharacterBase.h"
+#include "Sound/SoundCue.h"
 #include "SRG/Abilities/ActiveAbilities/ActiveAbilityBase.h"
 #include "SRG/Abilities/Auras/AuraBase.h"
 #include "SRG/Abilities/MultiTargetPassiveAbilities/MultiTargetPassiveAbilityBase.h"
@@ -55,6 +56,12 @@ ACharacterBase::ACharacterBase()
 		HealthWidget->SetWidgetClass(WBP_CharacterHealthClass);
 	}
 	HealthWidget->SetupAttachment(SpringArm);
+
+
+	if (USoundCue* CUE_Deploy_SRC = DT::FindObject<USoundCue>(DT_SOUND_PATH, FName(TEXT("CUE_Deploy"))))
+	{
+		DeploySound = CUE_Deploy_SRC;
+	}
 }
 
 
@@ -815,12 +822,12 @@ void ACharacterBase::AddDeBuff(ADeBuffBase* NewDeBuff)
 
 void ACharacterBase::RemoveBuff(ABuffBase* RemoveBuff)
 {
-	RemoveEffect(RemoveBuff,CurrentBuffs);
+	RemoveEffect(RemoveBuff, CurrentBuffs);
 }
 
 void ACharacterBase::RemoveDeBuff(ADeBuffBase* RemoveDeBuff)
 {
-	RemoveEffect(RemoveDeBuff,CurrentDeBuffs);
+	RemoveEffect(RemoveDeBuff, CurrentDeBuffs);
 }
 
 void ACharacterBase::SetDefending(bool IsDefending)
@@ -863,14 +870,14 @@ void ACharacterBase::PlayMeleeAttackAnimation()
 		PlayAnimationMontage(RandomMeleeMontage);
 }
 
-void ACharacterBase::AlreadyGotBuff(ABuffBase* InBuff, ABuffBase*& ExistingBuff)
+bool ACharacterBase::AlreadyGotBuff(ABuffBase* InBuff, ABuffBase*& ExistingBuff)
 {
-	AlreadyGotEffect(InBuff,ExistingBuff,CurrentBuffs);
+	return AlreadyGotEffect(InBuff, ExistingBuff, CurrentBuffs);
 }
 
-void ACharacterBase::AlreadyGotDeBuff(ADeBuffBase* InDeBuff, ADeBuffBase*& ExistingDeBuff)
+bool ACharacterBase::AlreadyGotDeBuff(ADeBuffBase* InDeBuff, ADeBuffBase*& ExistingDeBuff)
 {
-	AlreadyGotEffect(InDeBuff,ExistingDeBuff,CurrentDeBuffs);
+	return AlreadyGotEffect(InDeBuff, ExistingDeBuff, CurrentDeBuffs);
 }
 
 void ACharacterBase::ClearMeleeAttackCallback()

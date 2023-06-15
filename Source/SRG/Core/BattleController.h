@@ -64,30 +64,48 @@ public:
 
 	/*---	      	    Battle State Management    	      	---*/
 public:
+	/* 현재 전투 상태를 지정된 새로운 전투 상태로 변경합니다. */
 	void ChangeBattleState(EBattleState NewBattleState);
+
 	void StartBattle();
+
 	void EndBattle(EBattleState InBattleState);
+
+	void PlayerCharacterPlays();
+
+	void EnemyCharacterPlays();
+
+protected:
+	/*Change Battle State On Coll Back Function*/
 	void InitializeEvent();
 	void DeploymentPhase();
-	void PlayerCharacterPlays();
-	void EnemyCharacterPlays();
+	void HandleWaitingForPlayerAction();
+	void HandlePlayerIsCastingSpell();
+	void HandlePlayerIsPlaying();
+	void HandleWaitingForEnemyAction();
 
 
 	/*---	      	    Character and Object Spawning    	      	---*/
 public:
+	/**/
 	void SpawnHero();
+
+	/**/
 	void SpawnDebugHero();
+
+	/* 이 기능은 캐릭터 데이터 목록을 기반으로 적 캐릭터를 생성합니다. */
 	void SpawnEnemyCharacters();
+	
 	void SpawnObstacles();
 	void SpawnMapObstacles(TMap<TSubclassOf<AObstacleBase>, int32> InObstacleList);
 	bool SpawnPlayerCharacter(const FPlayerCharacterData& InPlayerCharacterData, ASlotBase* InSlot,
 	                          ACharacterBase*& OutPlayerCharacter);
 
 private:
-	void InitializeBattleHero(const AExploreHeroBase* HeroCDO, int32 InExp, int32 InGold,
-												 int32 InCurrentMana, const TArray<TSubclassOf<AEquipmentBase>>& InBackPack,
-												 const TArray<TSubclassOf<AEquipmentBase>>& InEquipment);
-	
+	void SpawnBattleHero(const AExploreHeroBase* HeroCDO, int32 InExp, int32 InGold,
+	                     int32 InCurrentMana, const TArray<TSubclassOf<AEquipmentBase>>& InBackPack,
+	                     const TArray<TSubclassOf<AEquipmentBase>>& InEquipment);
+
 	/*---	      	    Battle Theme Management    	      	---*/
 public:
 	void PlayBattleTheme();
@@ -98,6 +116,8 @@ public:
 	/*---	      	    Spell and Ability Management    	      	---*/
 public:
 	void OnSpellClicked(ASpellBase* InSpell);
+
+	UFUNCTION(BlueprintCallable, Category="Battle Controller Event")
 	void CancelSpell();
 	void DisableCurrentSpell();
 	void ApplyDOTs();
@@ -105,6 +125,8 @@ public:
 	void ActiveAbility(ASlotBase* InTargetSlot);
 	void UseNextPassiveAbility(ACharacterBase* InPlayingCharacter, const TArray<ACharacterBase*>& InHitCharacters,
 	                           EPassiveAbilityUseMoment InPassiveAbilityUseMoment);
+
+	UFUNCTION(BlueprintCallable, Category="Battle Controller Event")
 	void PlayerCancelActiveAbility();
 	void DisableCurrentActiveAbility();
 	void ShowSpells();
@@ -263,6 +285,9 @@ protected:
 	void OnDefendAction();
 	UFUNCTION()
 	void OnWaitAction();
+
+	/* 이 함수는 적 캐릭터가 죽었을 때 호출됩니다.
+	 * 그리드와 적 목록에서 캐릭터를 제거하고 캐릭터가 보스일 경우 나머지 적의 체력과 스택을 0으로 설정합니다.*/
 	UFUNCTION()
 	void OnEnemyCharacterDead(ACharacterBase* InCharacter);
 
@@ -490,7 +515,7 @@ public:
 	 *******************************************/
 private:
 	// 디버그 설정을 위한 그리드
-	UPROPERTY(EditAnywhere, Category="Debug Settings", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Debug Settings", meta=(AllowPrivateAccess="true"))
 	AGrid* Grid;
 
 	// 디버그 설정을 위한 AI 로직

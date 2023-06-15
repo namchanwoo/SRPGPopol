@@ -15,10 +15,14 @@
 AStatusEffectBase::AStatusEffectBase()
 {
 	// 매 프레임마다 Tick()을 호출하도록 이 액터를 설정합니다. 필요하지 않은 경우 성능을 개선하기 위해 이 기능을 끌 수 있습니다.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	SetRootComponent(DefaultSceneRoot);
+
+	StatAdditions = FCharacterStats(0, 0, 0, 0, 0, 0, 0, 0);
+	StatMultiplications = FCharacterStatsBuff();
 }
 
 void AStatusEffectBase::BeginPlay()
@@ -48,7 +52,7 @@ void AStatusEffectBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AStatusEffectBase::InitializeEvent()
+void AStatusEffectBase::InitializeEvent_Implementation()
 {
 	SRPG_CHECK(AffectedCharacter);
 
@@ -69,11 +73,11 @@ void AStatusEffectBase::InitializeEvent()
 	OnStatusEffectStarted();
 }
 
-void AStatusEffectBase::OnStatusEffectStarted()
+void AStatusEffectBase::OnStatusEffectStarted_Implementation()
 {
 }
 
-void AStatusEffectBase::OnStatusEffectEnded()
+void AStatusEffectBase::OnStatusEffectEnded_Implementation()
 {
 	Destroy();
 }
@@ -82,13 +86,11 @@ void AStatusEffectBase::RemoveFromCharacter()
 {
 }
 
-void AStatusEffectBase::OnDOT()
+EElement AStatusEffectBase::ShowElementOnUI_Implementation()
 {
-	if (OnDOTApplied.IsBound())
-	{
-		OnDOTApplied.Broadcast(0.0f);
-	}
+	return EElement::Normal;
 }
+
 
 void AStatusEffectBase::SetAuraLogic()
 {
@@ -143,6 +145,12 @@ void AStatusEffectBase::RemoveStatusEffect()
 	RemoveElementReductions();
 	RemoveFromCharacter();
 	OnStatusEffectEnded();
+}
+
+void AStatusEffectBase::OnDOT_Implementation()
+{
+	if (OnDOTApplied.IsBound())
+		OnDOTApplied.Broadcast(0.0f);
 }
 
 void AStatusEffectBase::ApplyStats(const FCharacterStats& InStat)
@@ -216,6 +224,19 @@ TArray<AStatusEffectBase*> AStatusEffectBase::GetAllStatusEffects()
 	CurrentAllStatusEffects.Append(DeBuffs);
 
 	return CurrentAllStatusEffects;
+}
+
+int32 AStatusEffectBase::GetDamageAfterElementReductions(int32 InDamage, EElement InElement)
+{
+	int32 ElementReduction = 0;
+	if (InElement == EElement::Normal) ElementReduction = AffectedCharacter->CurrentNormalReduction;
+	if (InElement == EElement::Fire) ElementReduction = AffectedCharacter->CurrentFireReduction;
+	if (InElement == EElement::Earth) ElementReduction = AffectedCharacter->CurrentEarthReduction;
+	if (InElement == EElement::Air) ElementReduction = AffectedCharacter->CurrentAirReduction;
+	if (InElement == EElement::Water) ElementReduction = AffectedCharacter->CurrentWaterReduction;
+
+	const int32 TruncReduction = FMath::TruncToInt(InDamage * FMath::Clamp(ElementReduction, -1.0f, 1.0f));
+	return FMath::Max(InDamage - TruncReduction, 0);
 }
 
 

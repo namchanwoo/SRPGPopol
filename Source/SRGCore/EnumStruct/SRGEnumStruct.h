@@ -18,7 +18,7 @@ enum class ESlotType : uint8
 	EnemySlot,
 	AllySlot,
 	MovementOverlaySlot,
-	SpellSlot	
+	SpellSlot
 };
 
 UENUM(BlueprintType)
@@ -32,17 +32,28 @@ enum class EExploreCursorType : uint8
 UENUM(BlueprintType)
 enum class EBattleState : uint8
 {
-	Initialization,
-	DeploymentPhase,
-	WaitingForPlayerAction,
-	PlayerIsCastingSpell,
-	PlayerIsPlaying,
-	WaitingForEnemyAction,
-	EnemyIsPlaying,
-	Victory,
-	Defeat,
-	Over
+	/** 전투가 초기화되고 있습니다. */
+	Initialization UMETA(DisplayName = "Initialization"),
+	/** 플레이어가 캐릭터를 배치하는 배치 단계입니다. */
+	DeploymentPhase UMETA(DisplayName = "Deployment Phase"),
+	/** 플레이어가 액션을 실행하기를 기다립니다. */
+	WaitingForPlayerAction UMETA(DisplayName = "Waiting for Player Action"),
+	/** 플레이어는 현재 주문을 시전하고 있습니다. */
+	PlayerIsCastingSpell UMETA(DisplayName = "Player is Casting Spell"),
+	/** 플레이어가 적극적으로 자신의 턴을 플레이하고 있습니다. */
+	PlayerIsPlaying UMETA(DisplayName = "Player is Playing"),
+	/** 적의 행동을 기다리고 있습니다. */
+	WaitingForEnemyAction UMETA(DisplayName = "Waiting for Enemy Action"),
+	/** 적은 적극적으로 자신의 턴을 플레이하고 있습니다. */
+	EnemyIsPlaying UMETA(DisplayName = "Enemy is Playing"),
+	/** 플레이어가 승리를 달성했습니다. */
+	Victory UMETA(DisplayName = "Victory"),
+	/** 플레이어가 패배했습니다. */
+	Defeat UMETA(DisplayName = "Defeat"),
+	/** 전투가 끝났습니다. */
+	Over UMETA(DisplayName = "Over")
 };
+
 
 
 UENUM(BlueprintType)
@@ -98,6 +109,15 @@ enum class EPassiveAbilityUseMoment : uint8
 	OnKill,
 	OnTurnEnd
 };
+
+UENUM(BlueprintType)
+enum class EPassiveAbilityTarget : uint8
+{
+	Self,
+	CharactersInRange,
+	HitCharacters
+};
+
 
 UENUM(BlueprintType)
 enum class EEquipment : uint8
@@ -331,7 +351,6 @@ public:
 };
 
 
-
 USTRUCT(BlueprintType)
 struct FCharacterStatsBuff
 {
@@ -354,6 +373,17 @@ struct FCharacterStatsBuff
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Stats Buff")
 	float MovementRange;
+
+	FCharacterStatsBuff(): Attack(0), Defense(0), MinDamage(0), MaxDamage(0), Ammo(0), MovementRange(0)
+	{
+	}
+
+	FCharacterStatsBuff(float InAttack, float InDefense, float InMinDamage,
+	                    float InMaxDamage, float InAmmo, float InMovementRange)
+		: Attack(InAttack), Defense(InDefense), MinDamage(InMinDamage), MaxDamage(InMaxDamage), Ammo(InAmmo),
+		  MovementRange(InMovementRange)
+	{
+	}
 };
 
 
@@ -434,7 +464,6 @@ struct FListOfSlots
 
 	FListOfSlots()
 	{
-		
 	}
 
 	FListOfSlots(const TArray<ASlotBase*>& NewOverlaySlots)

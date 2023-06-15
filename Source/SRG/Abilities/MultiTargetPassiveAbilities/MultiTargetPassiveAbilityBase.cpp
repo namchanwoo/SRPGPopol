@@ -22,4 +22,3 @@ TArray<ACharacterBase*> AMultiTargetPassiveAbilityBase::GetEnemiesInAbilityRange
 {
 	return {};
 }
-

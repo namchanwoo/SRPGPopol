@@ -2,8 +2,8 @@
 
 #include "BattleController.h"
 #include "SRG/Abilities/ActiveAbilities/ActiveAbilityBase.h"
-#include "SRG/Abilities/ActiveAbilities/AllyTargetActiveAbilityBase.h"
-#include "SRG/Abilities/ActiveAbilities/AreaTargetActiveAbilityBase.h"
+#include "SRG/Abilities/ActiveAbilities/AllyTargetActiveAbilities/AllyTargetActiveAbilityBase.h"
+#include "SRG/Abilities/ActiveAbilities/AreaTargetActiveAbilities/AreaTargetActiveAbilityBase.h"
 #include "SRG/Abilities/ActiveAbilities/EnemyTargetActiveAbility/EnemyTargetActiveAbilityBase.h"
 #include "SRG/Gird/Grid.h"
 #include "SRG/Gird/Slots/SlotBase.h"

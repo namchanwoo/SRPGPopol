@@ -1,10 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "HeroSpawnLocation.generated.h"
+
+class UArrowComponent;
 
 UCLASS()
 class SRG_API AHeroSpawnLocation : public AActor
@@ -12,14 +12,27 @@ class SRG_API AHeroSpawnLocation : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AHeroSpawnLocation();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	
+
+
+	/*******************************************
+	 * Components
+	 *******************************************/
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Hero Spawn Location|Component")
+	USceneComponent* DefaultScene;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Hero Spawn Location|Component")
+	UStaticMeshComponent* Sphere;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Hero Spawn Location|Component")
+	UArrowComponent* Arrow;
+
+	
 };

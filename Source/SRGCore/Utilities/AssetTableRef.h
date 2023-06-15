@@ -14,6 +14,9 @@
 #define DT_TEXTURES_PATH TEXT("DataTable'/Game/Game_/AssetRef/AssetRef_Textures.AssetRef_Textures'")
 #define DT_BLUEPRINT_PATH TEXT("DataTable'/Game/Game_/AssetRef/AssetRef_BluePrints.AssetRef_BluePrints'")
 #define DT_WIDGET_PATH TEXT("DataTable'/Game/Game_/AssetRef/AssetRef_Widget.AssetRef_Widget'")
+#define DT_SOUND_PATH TEXT("DataTable'/Game/Game_/AssetRef/AssetRef_Sounds.AssetRef_Sounds'")
+#define DT_MESHES_PATH TEXT("DataTable'/Game/Game_/AssetRef/AssetRef_Meshes.AssetRef_Meshes'")
+
 
 
 USTRUCT()

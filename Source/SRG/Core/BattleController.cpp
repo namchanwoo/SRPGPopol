@@ -1,9 +1,7 @@
 ﻿#include "BattleController.h"
 
-
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
-
 
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,7 +15,6 @@
 
 #include "SRGCore/Libraries/SRPGUtilityLibrary.h"
 #include "SRGCore/Utilities/SRGLog.h"
-
 
 #include "SRG/Abilities/ActiveAbilities/ActiveAbilityBase.h"
 #include "SRG/Abilities/MultiTargetPassiveAbilities/MultiTargetPassiveAbilityBase.h"
@@ -51,7 +48,8 @@
 
 ABattleController::ABattleController()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	SetRootComponent(DefaultSceneRoot);
@@ -74,7 +72,6 @@ ABattleController::ABattleController()
 void ABattleController::BeginPlay()
 {
 	Super::BeginPlay();
-
 	ChangeBattleState(EBattleState::Initialization);
 }
 
@@ -99,87 +96,91 @@ void ABattleController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ChangeBattleState(EBattleState NewBattleState)
 {
 	BattleState = NewBattleState;
 
 	if (OnBattleStateChanged.IsBound())
-	{
 		OnBattleStateChanged.Broadcast(BattleState);
-	}
 
-	if (BattleState == EBattleState::Initialization)
+	switch (BattleState)
 	{
+	case EBattleState::Initialization:
 		InitializeEvent();
-	}
-	else if (BattleState == EBattleState::DeploymentPhase)
-	{
+		break;
+
+	case EBattleState::DeploymentPhase:
 		DeploymentPhase();
-	}
-	else if (BattleState == EBattleState::WaitingForPlayerAction)
-	{
-		WaitingCharacters.Remove(PlayingCharacter);
-		PlayerCharacterPlays();
+		break;
 
-		if (!bIsAutoPlay)
-		{
-			UW_BattleUI->EnableActionButtons(PlayingCharacter->bIsWaiting);
-			UW_BattleUI->ActivateControlPanel(!bIsAutoPlay);
-		}
-	}
-	else if (BattleState == EBattleState::PlayerIsCastingSpell)
-	{
-		if (Grid->OnCursorChanged.IsBound())
-		{
-			Grid->OnCursorChanged.Broadcast(EBattleCursorType::Wait, nullptr, nullptr, nullptr);
-		}
+	case EBattleState::WaitingForPlayerAction:
+		HandleWaitingForPlayerAction();
+		break;
 
-		UW_BattleUI->DisableActionButtons();
-		UW_BattleUI->DisableActiveAbilities();
-		UW_BattleUI->ActivateControlPanel(false);
-	}
-	else if (BattleState == EBattleState::PlayerIsPlaying)
-	{
-		UW_BattleUI->DisableActionButtons();
-		UW_BattleUI->DisableActiveAbilities();
-		UW_BattleUI->ActivateControlPanel(false);
-	}
-	else if (BattleState == EBattleState::WaitingForEnemyAction)
-	{
-		WaitingCharacters.Remove(PlayingCharacter);
-		EnemyCharacterPlays();
-		PlayingCharacter->SetWaiting(false);
+	case EBattleState::PlayerIsCastingSpell:
+		HandlePlayerIsCastingSpell();
+		break;
+
+	case EBattleState::PlayerIsPlaying:
+		HandlePlayerIsPlaying();
+		break;
+
+	case EBattleState::WaitingForEnemyAction:
+		HandleWaitingForEnemyAction();
+		break;
+
+	default: break;
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::InitializeEvent()
 {
+	// 게임 인스턴스를 검색하고 SRPGGameInstance 클래스로 캐스팅합니다.
 	SRPGGameInstance = Cast<USRPGGameInstance>(UGameplayStatics::GetGameInstance(this));
+
+	// 캐스팅이 성공했는지 확인
 	SRPG_IF_CHECK(SRPGGameInstance!=nullptr, TEXT("SRPGGameInstance 캐스팅에 실패했습니다."));
 
+	// 그리드 초기화
 	Grid->InitializeEvent();
 
+	// AI 로직 초기화
 	AILogic->InitializeEvent(this, Grid);
 
+	// 영웅 캐릭터 스폰
 	SpawnHero();
+
+	// 적 캐릭터 스폰
 	SpawnEnemyCharacters();
+
+	// 장애물 생성
 	SpawnObstacles();
+
+	// 배틀 테마 플레이
 	PlayBattleTheme();
 
-	SRPG_CHECK(WBP_BattleUIClass);
+	// WBP_BattleUIClass가 설정되어 있는지 확인
+	SRPG_IF_CHECK(WBP_BattleUIClass, TEXT("WBP_BattleUIClass 클래스를 설정하지 않았습니다."));
+
+	// 전투 UI 위젯 생성 및 초기화
 	UW_BattleUI = CreateWidget<UUW_BattleUI>(GetWorld(), WBP_BattleUIClass);
 	UW_BattleUI->BattleController = this;
 	UW_BattleUI->AddToViewport();
 	UW_BattleUI->InitializeEvent();
-
 	UW_BattleUI->OnDefendAction.AddDynamic(this, &ABattleController::OnDefendAction);
 	UW_BattleUI->OnWaitAction.AddDynamic(this, &ABattleController::OnWaitAction);
 
+	// 플레이어 컨트롤러를 가져오고 입력 모드를 게임 및 UI로 설정합니다.
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController, UW_BattleUI);
+
+	// 전투 상태를 배치 단계로 변경
 	ChangeBattleState(EBattleState::DeploymentPhase);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::DeploymentPhase()
 {
 	if (UWorld* World = GetWorld())
@@ -200,6 +201,47 @@ void ABattleController::DeploymentPhase()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
+void ABattleController::HandleWaitingForPlayerAction()
+{
+	WaitingCharacters.Remove(PlayingCharacter);
+	PlayerCharacterPlays();
+
+	if (!bIsAutoPlay)
+	{
+		UW_BattleUI->EnableActionButtons(PlayingCharacter->bIsWaiting);
+		UW_BattleUI->ActivateControlPanel(!bIsAutoPlay);
+	}
+}
+
+/*ToDo: 기능 구현 확인되지 않음*/
+void ABattleController::HandlePlayerIsCastingSpell()
+{
+	if (Grid->OnCursorChanged.IsBound())
+		Grid->OnCursorChanged.Broadcast(EBattleCursorType::Wait, nullptr, nullptr, nullptr);
+
+	UW_BattleUI->DisableActionButtons();
+	UW_BattleUI->DisableActiveAbilities();
+	UW_BattleUI->ActivateControlPanel(false);
+}
+
+/*ToDo: 기능 구현 확인되지 않음*/
+void ABattleController::HandlePlayerIsPlaying()
+{
+	UW_BattleUI->DisableActionButtons();
+	UW_BattleUI->DisableActiveAbilities();
+	UW_BattleUI->ActivateControlPanel(false);
+}
+
+/*ToDo: 기능 구현 확인되지 않음*/
+void ABattleController::HandleWaitingForEnemyAction()
+{
+	WaitingCharacters.Remove(PlayingCharacter);
+	EnemyCharacterPlays();
+	PlayingCharacter->SetWaiting(false);
+}
+
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::PlayerCharacterPlays()
 {
 	if (bIsAutoPlay)
@@ -215,6 +257,7 @@ void ABattleController::PlayerCharacterPlays()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::EnemyCharacterPlays()
 {
 	FTimerHandle EnemyCharacterPlaysTimerHandle;
@@ -228,6 +271,7 @@ void ABattleController::EnemyCharacterPlays()
 	}), 1.0f, false);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::SpawnHero()
 {
 	if (IsValid(SRPGGameInstance->RpgSaveGame))
@@ -243,7 +287,7 @@ void ABattleController::SpawnHero()
 		                                        loadBackPack, loadEquipment);
 
 		const AExploreHeroBase* loadExploreHeroCDO = loadExploreHero->GetDefaultObject<AExploreHeroBase>();
-		InitializeBattleHero(loadExploreHeroCDO, loadExp, loadGold, loadCurrentMana, loadBackPack, loadEquipment);
+		SpawnBattleHero(loadExploreHeroCDO, loadExp, loadGold, loadCurrentMana, loadBackPack, loadEquipment);
 	}
 	else
 	{
@@ -254,6 +298,7 @@ void ABattleController::SpawnHero()
 void ABattleController::SpawnDebugHero()
 {
 	SRPG_IF_CHECK(DebugHero, TEXT("DebugHero를 설정하지 않았습니다."));
+
 	const AExploreHeroBase* DebugHeroCDO = DebugHero->GetDefaultObject<AExploreHeroBase>();
 	const int32 HeroLevel = USRPGFunctionLibrary::GetHeroLevel(DebugHeroCDO->Exp, DebugHeroCDO->ExpExponent,
 	                                                           DebugHeroCDO->MaxLevel);
@@ -262,13 +307,13 @@ void ABattleController::SpawnDebugHero()
 		DebugHeroCDO->LastLevelStats);
 
 	const int32 CurrentMana = HeroStats.Knowledge * 10;
-	InitializeBattleHero(DebugHeroCDO, DebugHeroCDO->Exp, DebugHeroCDO->Gold, CurrentMana, DebugHeroCDO->BackPack,
-	                     DebugHeroCDO->Equipment);
+	SpawnBattleHero(DebugHeroCDO, DebugHeroCDO->Exp, DebugHeroCDO->Gold, CurrentMana, DebugHeroCDO->BackPack,
+	                DebugHeroCDO->Equipment);
 }
 
-void ABattleController::InitializeBattleHero(const AExploreHeroBase* HeroCDO, int32 InExp, int32 InGold,
-                                             int32 InCurrentMana, const TArray<TSubclassOf<AEquipmentBase>>& InBackPack,
-                                             const TArray<TSubclassOf<AEquipmentBase>>& InEquipment)
+void ABattleController::SpawnBattleHero(const AExploreHeroBase* HeroCDO, int32 InExp, int32 InGold,
+                                        int32 InCurrentMana, const TArray<TSubclassOf<AEquipmentBase>>& InBackPack,
+                                        const TArray<TSubclassOf<AEquipmentBase>>& InEquipment)
 {
 	const int32 HeroLevel = USRPGFunctionLibrary::GetHeroLevel(InExp, HeroCDO->ExpExponent, HeroCDO->MaxLevel);
 	const FHeroStats HeroStats = USRPGFunctionLibrary::CalculateHeroStats(
@@ -277,7 +322,7 @@ void ABattleController::InitializeBattleHero(const AExploreHeroBase* HeroCDO, in
 	UWorld* World = GetWorld();
 	SRPG_CHECK(World);
 
-	const FTransform SpawnTransform = Grid->GetHeroSpawnLocation()->GetActorTransform();
+	const FTransform SpawnTransform = Grid->HeroSpawnLocation->GetActorTransform();
 	BattleHero = World->SpawnActorDeferred<ABattleHeroBase>(HeroCDO->BattleHero, SpawnTransform);
 	SRPG_CHECK(BattleHero);
 
@@ -297,41 +342,46 @@ void ABattleController::InitializeBattleHero(const AExploreHeroBase* HeroCDO, in
 
 	BattleHero->InitializeEvent();
 	BattleHero->OnRightClicked.AddDynamic(this, &ABattleController::ShowHeroDetails);
-
-	Grid->GetHeroSpawnLocation()->Destroy();
+	Grid->HeroSpawnLocation->Destroy();
 }
-
 
 void ABattleController::SpawnEnemyCharacters()
 {
-	auto SelectEnemyCharacterList = SRPGGameInstance->EnemyCharacterList.Num() > 0
-		                                ? SRPGGameInstance->EnemyCharacterList
-		                                : DebugEnemyCharacterList;
+	// 생성할 적 캐릭터 목록을 선택합니다.
+	TArray<FEnemyCharacterData>& SelectEnemyCharacterList = SRPGGameInstance->EnemyCharacterList.Num() > 0
+		                                                        ? SRPGGameInstance->EnemyCharacterList
+		                                                        : DebugEnemyCharacterList;
 
 	int32 Index = 0;
 	for (const FEnemyCharacterData& InEnemyCharacterList : SelectEnemyCharacterList)
 	{
-		if (!Grid->GetEnemySpawnLocations().IsValidIndex(Index))
+		// 인덱스가 유효한지 확인하고 그렇지 않으면 false를 반환합니다.
+		if (!Grid->EnemySpawnLocations.IsValidIndex(Index))
 		{
 			Index++;
 			continue;
 		}
 
-		if (!IsValid(Grid->GetEnemySpawnLocations()[Index]))
+		// 인덱스의 스폰 위치가 유효한지 확인하고 유효하지 않으면 false를 반환합니다.
+		if (!IsValid(Grid->EnemySpawnLocations[Index]))
 		{
 			Index++;
 			continue;
 		}
 
+		// 문자 데이터가 유효한지 확인하고 유효하지 않으면 false를 반환합니다.
 		if (!IsValid(InEnemyCharacterList.Character))
 		{
 			Index++;
 			continue;
 		}
 
-		ACharacterBase* SpawnedCharacter;
-		if (!Grid->SpawnCharacter(InEnemyCharacterList.Character, Grid->GetEnemySpawnLocations()[Index]->Coordinates,
-		                          true,
+		// 생성된 캐릭터를 보관할 캐릭터 포인터를 선언합니다.
+		ACharacterBase* SpawnedCharacter = nullptr;
+
+		// 캐릭터 생성을 시도하고 실패하면 인덱스를 증가시키고 계속합니다.
+		if (!Grid->SpawnCharacter(InEnemyCharacterList.Character,
+		                          Grid->EnemySpawnLocations[Index]->Slot->Coordinates, true,
 		                          FMath::RandRange(InEnemyCharacterList.MinStack, InEnemyCharacterList.MaxStack),
 		                          FHeroStats(), SpawnedCharacter))
 		{
@@ -339,21 +389,26 @@ void ABattleController::SpawnEnemyCharacters()
 			continue;
 		}
 
+		// 캐릭터가 성공적으로 생성되면 적 목록에 추가하고 해당 이벤트를 초기화한 다음 OnEnemyCharacterDead 메서드를 해당 OnDead 이벤트에 추가합니다.
 		EnemyCharacters.Add(SpawnedCharacter);
 		SpawnedCharacter->InitializeEvent();
 		SpawnedCharacter->OnDead.AddDynamic(this, &ABattleController::OnEnemyCharacterDead);
 
+		// 스폰된 캐릭터가 보스인 경우 보스 변수에 할당합니다.
 		if (SpawnedCharacter->bIsBoss)
 		{
 			Boss = SpawnedCharacter;
 		}
 
+		// 인덱스를 증가시킵니다.
 		Index++;
 	}
 
+	// 모든 캐릭터를 생성한 후 적의 생성 위치를 제거합니다.
 	Grid->RemoveEnemySpawnLocation();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::SpawnObstacles()
 {
 	if (IsValid(SRPGGameInstance))
@@ -366,6 +421,7 @@ void ABattleController::SpawnObstacles()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::SpawnMapObstacles(TMap<TSubclassOf<AObstacleBase>, int32> InObstacleList)
 {
 	auto CurrentObstacleList = InObstacleList;
@@ -404,6 +460,7 @@ void ABattleController::SpawnMapObstacles(TMap<TSubclassOf<AObstacleBase>, int32
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::PlayBattleTheme()
 {
 	if (IsValid(BattleTheme))
@@ -413,6 +470,7 @@ void ABattleController::PlayBattleTheme()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::PlayBattleOverTheme()
 {
 	BattleThemeAudio->FadeOut(1.0f, 0.0f);
@@ -471,6 +529,7 @@ void ABattleController::PlayBattleOverTheme()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnSpellClicked(ASpellBase* InSpell)
 {
 	DisableCurrentSpell();
@@ -496,6 +555,7 @@ void ABattleController::OnSpellClicked(ASpellBase* InSpell)
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::CancelSpell()
 {
 	if (BattleState == EBattleState::WaitingForPlayerAction && IsValid(CurrentSpell))
@@ -506,6 +566,7 @@ void ABattleController::CancelSpell()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::DisableCurrentSpell()
 {
 	if (IsValid(CurrentSpell))
@@ -516,6 +577,7 @@ void ABattleController::DisableCurrentSpell()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ApplyDOTs()
 {
 	DOTIndex = 0;
@@ -524,6 +586,7 @@ void ABattleController::ApplyDOTs()
 	ApplyNextDOT(AllStatusEffects);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ApplyNextDOT(TArray<AStatusEffectBase*> InAllStatusEffects)
 {
 	if (DOTIndex >= InAllStatusEffects.Num())
@@ -558,6 +621,7 @@ void ABattleController::ApplyNextDOT(TArray<AStatusEffectBase*> InAllStatusEffec
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::MoveAction(ASlotBase* InMoveSlot, ASlotBase* InAttackSlot)
 {
 	CurrentMoveSlot = InMoveSlot;
@@ -581,6 +645,7 @@ void ABattleController::MoveAction(ASlotBase* InMoveSlot, ASlotBase* InAttackSlo
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::MeleeAttackAction(ASlotBase* InAttackSlot)
 {
 	CurrentMeleeAttackSlot = InAttackSlot;
@@ -597,6 +662,7 @@ void ABattleController::MeleeAttackAction(ASlotBase* InAttackSlot)
 	PlayingCharacter->Rotate(NewTargetSlot);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::Retaliate()
 {
 	MainTargetCharacter->OnCharacterRotated.AddDynamic(this, &ABattleController::OnRotatedForRetaliate);
@@ -612,6 +678,7 @@ void ABattleController::Retaliate()
 	MainTargetCharacter->CurrentRetaliationCount--;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::RangeAttack(ASlotBase* InAttackSlot)
 {
 	CurrentRangeAttackSlot = InAttackSlot;
@@ -625,6 +692,7 @@ void ABattleController::RangeAttack(ASlotBase* InAttackSlot)
 	PlayingCharacter->Rotate(NewTargetSlot);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::GetTargetCharacters(ACharacterBase* InAttackingCharacter, ASlotBase* InAttackSlot,
                                             ASlotBase* InStandingSlot, bool IsMelee,
                                             TArray<ACharacterBase*>& OutTargetCharacters,
@@ -646,16 +714,19 @@ void ABattleController::GetTargetCharacters(ACharacterBase* InAttackingCharacter
 	OutTargetCharacters = NewTargetCharacters;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 float ABattleController::GetAttackBonus(ACharacterBase* InAttackingCharacter, ACharacterBase* InTargetCharacter)
 {
 	return FMath::Clamp((InAttackingCharacter->CurrentAttack - InTargetCharacter->CurrentDefense) * 0.05f, 0.0f, 3.0f);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 float ABattleController::GetDefenseReduction(ACharacterBase* InAttackingCharacter, ACharacterBase* InTargetCharacter)
 {
 	return FMath::Clamp((InTargetCharacter->CurrentDefense - InAttackingCharacter->CurrentAttack) * 0.025f, 0.0f, 0.7f);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 float ABattleController::GetRangeReduction(ACharacterBase* InAttackingCharacter, ACharacterBase* InTargetCharacter,
                                            bool IsMelee)
 {
@@ -670,6 +741,7 @@ float ABattleController::GetRangeReduction(ACharacterBase* InAttackingCharacter,
 	return 0.0f;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::GetBaseDamage(ACharacterBase* InAttackingCharacter, int32& OutBaseDamage,
                                       int32& OutMinBaseDamage, int32& OutMaxBaseDamage)
 {
@@ -691,6 +763,7 @@ void ABattleController::GetBaseDamage(ACharacterBase* InAttackingCharacter, int3
 	OutMaxBaseDamage = currentAttackingCharacter->CurrentMaxDamage * currentAttackingCharacter->Stack;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::CalculateDamage(ACharacterBase* InAttackingCharacter,
                                         const TArray<ACharacterBase*>& InTargetCharacters, bool IsMelee,
                                         TMap<ACharacterBase*, FDamageData>& OutDamageData,
@@ -745,12 +818,14 @@ void ABattleController::CalculateDamage(ACharacterBase* InAttackingCharacter,
 	OutTotalDamage = currentTotalDamage;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 bool ABattleController::CanTargetRetaliate()
 {
 	return !PlayingCharacter->PassiveAbilities.Contains(BP_NoEnemyRetaliationAbility) &&
 		MainTargetCharacter->CurrentRetaliationCount > 0;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::PlayMeleeHitEffect(ACharacterBase* InAttackingCharacter, ACharacterBase* InTargetCharacter)
 {
 	if (IsValid(InAttackingCharacter->MeleeHitEffect))
@@ -767,6 +842,7 @@ void ABattleController::PlayMeleeHitEffect(ACharacterBase* InAttackingCharacter,
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::RemoveBeforeAttackStatusEffects(ACharacterBase* InCharacter)
 {
 	for (int i = InCharacter->CurrentBuffs.Num() - 1; i >= 0; --i)
@@ -786,6 +862,7 @@ void ABattleController::RemoveBeforeAttackStatusEffects(ACharacterBase* InCharac
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::DoubleMeleeAttack()
 {
 	if (PlayingCharacter->PassiveAbilities.Contains(BP_StrikeTwiceAbility) && !bIsSecondAttack)
@@ -799,6 +876,7 @@ void ABattleController::DoubleMeleeAttack()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::DoubleRangeAttack()
 {
 	if (PlayingCharacter->CurrentAmmo > 0 && !bIsSecondAttack &&
@@ -813,6 +891,7 @@ void ABattleController::DoubleRangeAttack()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ActiveAbility(ASlotBase* InTargetSlot)
 {
 	CurrentActiveAbilitySlot = InTargetSlot;
@@ -829,6 +908,7 @@ void ABattleController::ActiveAbility(ASlotBase* InTargetSlot)
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::UseNextPassiveAbility(ACharacterBase* InPlayingCharacter,
                                               const TArray<ACharacterBase*>& InHitCharacters,
                                               EPassiveAbilityUseMoment InPassiveAbilityUseMoment)
@@ -858,6 +938,7 @@ void ABattleController::UseNextPassiveAbility(ACharacterBase* InPlayingCharacter
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::Settings()
 {
 	UW_BattleSettingsDialogue = CreateWidget<UUW_BattleSettingsDialogue>(GetWorld(), WBP_BattleSettingsDialogueClass);
@@ -866,6 +947,7 @@ void ABattleController::Settings()
 	UW_BattleSettingsDialogue->AddToViewport();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::Surrender()
 {
 	UW_Surrender_YesNoDialogue = CreateWidget<UUW_YesNoDialogue>(GetWorld(), WBP_YesNoDialogueClass);
@@ -881,11 +963,13 @@ void ABattleController::Surrender()
 	UW_Surrender_YesNoDialogue->AddToViewport();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ShowCharacterDetails(ACharacterBase* InCharacter)
 {
 	UW_BattleUI->ShowCharacterDetails(InCharacter);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnSurrenderConfirmed()
 {
 	if (IsValid(UW_Surrender_YesNoDialogue))
@@ -895,6 +979,7 @@ void ABattleController::OnSurrenderConfirmed()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnSurrenderCancelled()
 {
 	if (IsValid(UW_Surrender_YesNoDialogue))
@@ -903,16 +988,19 @@ void ABattleController::OnSurrenderCancelled()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnQuitAccepted()
 {
 	UGameplayStatics::OpenLevel(GetWorld(), MainMenuLevelName);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnQuitCancelled()
 {
 	UW_BattleSettingDialogue_YesNoDialogue->RemoveFromParent();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnContinueHandler()
 {
 	if (IsValid(UW_BattleSettingsDialogue))
@@ -921,6 +1009,7 @@ void ABattleController::OnContinueHandler()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnQuitHandler()
 {
 	SRPG_CHECK(WBP_YesNoDialogueClass);
@@ -946,6 +1035,7 @@ void ABattleController::OnQuitHandler()
 	}), 0.15f, false);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnPassiveAbilityUsed()
 {
 	CurrentPassiveAbilities[PassiveAbilityIndex]->ClearPassiveAbilityUseCallback();
@@ -953,6 +1043,7 @@ void ABattleController::OnPassiveAbilityUsed()
 	UseNextPassiveAbility(CurrentPassiveAbilityCharacter, PassiveAbilityHitCharacters, CurrentPassiveAbilityUseMoment);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRotatedForAbility()
 {
 	PlayingCharacter->OnCharacterRotated.RemoveDynamic(this, &ABattleController::OnRotatedForAbility);
@@ -960,12 +1051,14 @@ void ABattleController::OnRotatedForAbility()
 	CurrentActiveAbility->PlayAbilityAnimation();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnMovedAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
 	OnCharacterTurnEnded();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnMoved()
 {
 	PlayingCharacter->OnCharacterMoved.RemoveDynamic(this, &ABattleController::OnMoved);
@@ -989,6 +1082,7 @@ void ABattleController::OnMoved()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRotatedForMove()
 {
 	PlayingCharacter->OnCharacterRotated.RemoveDynamic(this, &ABattleController::OnRotatedForMove);
@@ -997,6 +1091,7 @@ void ABattleController::OnRotatedForMove()
 	Grid->RemoveUnitOnSlot(PlayingCharacter);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnAfterMeleeAttackAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1018,6 +1113,7 @@ void ABattleController::OnAfterMeleeAttackAbilitiesUsed()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnBeforeMeleeAttackAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1043,6 +1139,7 @@ void ABattleController::OnBeforeMeleeAttackAbilitiesUsed()
 	PlayingCharacter->OnAnimationEnded.AddDynamic(this, &ABattleController::OnAttackAnimationEnded);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnKillPassiveAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1064,6 +1161,7 @@ void ABattleController::OnKillPassiveAbilitiesUsed()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRotatedForMeleeAttack()
 {
 	PlayingCharacter->OnCharacterRotated.RemoveDynamic(this, &ABattleController::OnRotatedForMeleeAttack);
@@ -1073,6 +1171,7 @@ void ABattleController::OnRotatedForMeleeAttack()
 	UsePassiveAbilities(PlayingCharacter, TargetCharacters, EPassiveAbilityUseMoment::BeforeAttack);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnAttacked()
 {
 	CalculateDamage(PlayingCharacter, TargetCharacters, true, DamageDealt, TotalDamage);
@@ -1091,6 +1190,7 @@ void ABattleController::OnAttacked()
 	DisableCurrentActiveAbility();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnAttackAnimationEnded()
 {
 	PlayingCharacter->ClearMeleeAttackCallback();
@@ -1099,6 +1199,7 @@ void ABattleController::OnAttackAnimationEnded()
 	UsePassiveAbilities(PlayingCharacter, TargetCharacters, EPassiveAbilityUseMoment::AfterAttack);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnPlayerCharacterSpawned(bool IsSuccess, ACharacterBase* InPlayerCharacter)
 {
 	if (!IsSuccess)
@@ -1111,6 +1212,7 @@ void ABattleController::OnPlayerCharacterSpawned(bool IsSuccess, ACharacterBase*
 	InPlayerCharacter->OnDead.AddDynamic(this, &ABattleController::OnPlayerCharacterDead);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnPlayerCharacterDead(ACharacterBase* InCharacter)
 {
 	Grid->RemoveUnitOnSlot(InCharacter);
@@ -1127,6 +1229,7 @@ void ABattleController::OnPlayerCharacterDead(ACharacterBase* InCharacter)
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRotatedForRetaliate()
 {
 	MainTargetCharacter->OnCharacterRotated.RemoveDynamic(this, &ABattleController::OnRotatedForRetaliate);
@@ -1138,6 +1241,7 @@ void ABattleController::OnRotatedForRetaliate()
 	UsePassiveAbilities(MainTargetCharacter, TargetCharacters, EPassiveAbilityUseMoment::BeforeAttack);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnBeforeRetaliateAttackAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1146,6 +1250,7 @@ void ABattleController::OnBeforeRetaliateAttackAbilitiesUsed()
 	MainTargetCharacter->PlayMeleeAttackAnimation();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRetaliateAttack()
 {
 	CalculateDamage(MainTargetCharacter, TargetCharacters, true, DamageDealt, TotalDamage);
@@ -1157,6 +1262,7 @@ void ABattleController::OnRetaliateAttack()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRetaliateAnimationEnded()
 {
 	MainTargetCharacter->ClearMeleeAttackCallback();
@@ -1164,6 +1270,7 @@ void ABattleController::OnRetaliateAnimationEnded()
 	UsePassiveAbilities(MainTargetCharacter, TargetCharacters, EPassiveAbilityUseMoment::AfterAttack);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnAfterRetaliateAttackAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1178,6 +1285,7 @@ void ABattleController::OnAfterRetaliateAttackAbilitiesUsed()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRetaliateKillPassiveAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1192,6 +1300,7 @@ void ABattleController::OnRetaliateKillPassiveAbilitiesUsed()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRotatedForRangeAttack()
 {
 	PlayingCharacter->OnCharacterRotated.RemoveDynamic(this, &ABattleController::OnRotatedForRangeAttack);
@@ -1203,6 +1312,7 @@ void ABattleController::OnRotatedForRangeAttack()
 	UsePassiveAbilities(PlayingCharacter, TargetCharacters, EPassiveAbilityUseMoment::BeforeAttack);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnBeforeRangeAttackAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1232,6 +1342,7 @@ void ABattleController::OnBeforeRangeAttackAbilitiesUsed()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnProjectileHitHandler()
 {
 	RangePlayingCharacter->OnProjectileHit.RemoveDynamic(this, &ABattleController::OnProjectileHitHandler);
@@ -1261,6 +1372,7 @@ void ABattleController::OnProjectileHitHandler()
 	}), 1.0f, false);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnAfterRangeAttackAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1275,6 +1387,7 @@ void ABattleController::OnAfterRangeAttackAbilitiesUsed()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnRangeKillPassiveAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1289,6 +1402,7 @@ void ABattleController::OnRangeKillPassiveAbilitiesUsed()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnDOTAppliedHandler(float InDelay)
 {
 	if (IsValid(AllStatusEffects[DOTIndex]))
@@ -1310,11 +1424,13 @@ void ABattleController::OnDOTAppliedHandler(float InDelay)
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnSpellUseStartedHandler()
 {
 	ChangeBattleState(EBattleState::PlayerIsCastingSpell);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnSpellUseEndedHandler()
 {
 	CurrentSpell->OnSpellUseEnded.RemoveDynamic(this, &ABattleController::OnSpellUseEndedHandler);
@@ -1331,6 +1447,7 @@ void ABattleController::OnSpellUseEndedHandler()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnTurnStartAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1339,6 +1456,7 @@ void ABattleController::OnTurnStartAbilitiesUsed()
 		                  : EBattleState::WaitingForPlayerAction);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnAllDOTsAppliedHandler()
 {
 	ClearDOTCallback();
@@ -1360,6 +1478,7 @@ void ABattleController::OnAllDOTsAppliedHandler()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 bool ABattleController::HasAnyTargetDied(const TArray<ACharacterBase*>& InTargetCharacters)
 {
 	for (ACharacterBase* InTargetCharacter : InTargetCharacters)
@@ -1379,16 +1498,19 @@ bool ABattleController::HasAnyTargetDied(const TArray<ACharacterBase*>& InTarget
 	return false;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ClearPassiveAbilityCallback()
 {
 	OnAllPassiveAbilitiesUsed.RemoveAll(this);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ClearDOTCallback()
 {
 	OnAllDOTsApplied.RemoveAll(this);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::UsePassiveAbilities(ACharacterBase* InPlayingCharacter,
                                             const TArray<ACharacterBase*>& InHitCharacters,
                                             EPassiveAbilityUseMoment InPassiveAbilityUseMovement)
@@ -1397,6 +1519,7 @@ void ABattleController::UsePassiveAbilities(ACharacterBase* InPlayingCharacter,
 	UseNextPassiveAbility(InPlayingCharacter, InHitCharacters, InPassiveAbilityUseMovement);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 TMap<ACharacterBase*, FDamageData> ABattleController::GetElementReduction(EElement InAttackingElement,
                                                                           const TMap<ACharacterBase*, FDamageData>&
                                                                           InDamageData)
@@ -1448,6 +1571,7 @@ TMap<ACharacterBase*, FDamageData> ABattleController::GetElementReduction(EEleme
 	return currentDamageData;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 bool ABattleController::SpawnPlayerCharacter(const FPlayerCharacterData& InPlayerCharacterData, ASlotBase* InSlot,
                                              ACharacterBase*& OutPlayerCharacter)
 {
@@ -1461,6 +1585,7 @@ bool ABattleController::SpawnPlayerCharacter(const FPlayerCharacterData& InPlaye
 	return IsSpawn;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::IncreaseTurnCount()
 {
 	CurrentTurn++;
@@ -1471,6 +1596,7 @@ void ABattleController::IncreaseTurnCount()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::SetReadyCharacters()
 {
 	PlayedCharacters.Empty();
@@ -1488,6 +1614,7 @@ void ABattleController::SetReadyCharacters()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::SetStarterCharacters()
 {
 	for (const ACharacterBase* InPlayerCharacter : PlayerCharacters)
@@ -1517,6 +1644,7 @@ void ABattleController::SetStarterCharacters()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::StartBattle()
 {
 	if (PlayerCharacters.Num() > 0)
@@ -1546,6 +1674,7 @@ void ABattleController::StartBattle()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::EndBattle(EBattleState InBattleState)
 {
 	ChangeBattleState(InBattleState);
@@ -1556,6 +1685,7 @@ void ABattleController::EndBattle(EBattleState InBattleState)
 	UW_BattleUI->HideControlPanel();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::PlayVictoryAnimations()
 {
 	TArray<ACharacterBase*> SelectCharacters;
@@ -1579,6 +1709,7 @@ void ABattleController::PlayVictoryAnimations()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ShowBattleResult()
 {
 	PlayVictoryAnimations();
@@ -1613,12 +1744,14 @@ void ABattleController::ShowBattleResult()
 	}), 3.0f, false);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnNewTurnAnimationEndedHandler()
 {
 	UW_BattleUI->OnNewTurnAnimationEnded.RemoveDynamic(this, &ABattleController::OnNewTurnAnimationEndedHandler);
 	OnCharacterTurnStarted();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnCharacterTurnStarted()
 {
 	DamageDealt.Empty();
@@ -1661,6 +1794,7 @@ void ABattleController::OnCharacterTurnStarted()
 	}), 0.5f, false);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnCharacterTurnEnded()
 {
 	DisableCurrentActiveAbility();
@@ -1687,6 +1821,7 @@ void ABattleController::OnCharacterTurnEnded()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnTurnEndAbilitiesUsed()
 {
 	ClearPassiveAbilityCallback();
@@ -1709,6 +1844,7 @@ void ABattleController::OnTurnEndAbilitiesUsed()
 	}), 0.5f, false);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnBattleResultClosedHandler(EBattleState InResult)
 {
 	if (InResult == EBattleState::Victory)
@@ -1722,11 +1858,13 @@ void ABattleController::OnBattleResultClosedHandler(EBattleState InResult)
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ShowHeroDetails()
 {
 	UW_BattleUI->ShowHeroDetails(BattleHero);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnDefendAction()
 {
 	PlayingCharacter->SetDefending(true);
@@ -1745,6 +1883,7 @@ void ABattleController::OnDefendAction()
 	OnCharacterTurnEnded();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnWaitAction()
 {
 	PlayingCharacter->SetWaiting(true);
@@ -1766,30 +1905,38 @@ void ABattleController::OnWaitAction()
 
 void ABattleController::OnEnemyCharacterDead(ACharacterBase* InCharacter)
 {
+	// 그리드와 적 목록에서 죽은 캐릭터를 제거합니다.
 	Grid->RemoveUnitOnSlot(InCharacter);
-
 	EnemyCharacters.Remove(InCharacter);
+
+	// 죽은 적 캐릭터 목록에 캐릭터를 추가합니다.
 	DeadEnemyCharacters.Add(FPlayerCharacterData(InCharacter->GetClass(), InCharacter->StartingStack));
 
+	// 남은 적이 없는지 확인하고 있다면 전투를 종료하고 돌아갑니다.
 	if (EnemyCharacters.Num() == 0)
 	{
 		EndBattle(EBattleState::Victory);
+		return;
 	}
-	else
+
+	// 캐릭터가 보스라면 남은 모든 적의 스택과 체력을 0으로 설정합니다.
+	if (InCharacter->bIsBoss)
 	{
-		if (InCharacter->bIsBoss)
+		for (ACharacterBase* Enemy : EnemyCharacters)
 		{
-			for (int i = EnemyCharacters.Num() - 1; i >= 0; --i)
+			if (IsValid(Enemy))
 			{
-				EnemyCharacters[i]->Stack = 0;
-				EnemyCharacters[i]->SetHealth(0, false);
+				Enemy->Stack = 0;
+				Enemy->SetHealth(0, false);
 			}
 		}
 	}
 
+	// 죽은 캐릭터의 OnDead 이벤트에서 현재 메서드를 제거합니다.
 	InCharacter->OnDead.RemoveDynamic(this, &ABattleController::OnEnemyCharacterDead);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 ACharacterBase* ABattleController::GetNextReadyCharacter()
 {
 	for (ACharacterBase* ReadyToPlayCharacter : ReadyToPlayCharacters)
@@ -1810,6 +1957,7 @@ ACharacterBase* ABattleController::GetNextReadyCharacter()
 	return nullptr;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 ACharacterBase* ABattleController::GetNextWaitingCharacter()
 {
 	for (ACharacterBase* WaitingCharacter : WaitingCharacters)
@@ -1827,6 +1975,7 @@ ACharacterBase* ABattleController::GetNextWaitingCharacter()
 	return nullptr;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::GetCharactersBasedOnMovementRange(TArray<ACharacterBase*>& OutReadyToPlayCharacters,
                                                           TArray<ACharacterBase*>& OutWaitingCharacters)
 {
@@ -1867,6 +2016,7 @@ void ABattleController::GetCharactersBasedOnMovementRange(TArray<ACharacterBase*
 	OutWaitingCharacters = CurrentWaitingCharacters;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::GetCasualties(TMap<TSubclassOf<ACharacterBase>, int32>& PlayerCasualties,
                                       TMap<TSubclassOf<ACharacterBase>, int32>& EnemyCasualties, int32& TotalExpReward)
 {
@@ -1918,6 +2068,7 @@ void ABattleController::GetCasualties(TMap<TSubclassOf<ACharacterBase>, int32>& 
 	TotalExpReward = CurrentExpReward;
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::PlayerCancelActiveAbility()
 {
 	if (BattleState == EBattleState::WaitingForPlayerAction && IsValid(CurrentActiveAbility))
@@ -1927,6 +2078,7 @@ void ABattleController::PlayerCancelActiveAbility()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::DisableCurrentActiveAbility()
 {
 	if (IsValid(CurrentActiveAbility))
@@ -1937,6 +2089,7 @@ void ABattleController::DisableCurrentActiveAbility()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::AutoPlay()
 {
 	bIsAutoPlay = !bIsAutoPlay;
@@ -1951,6 +2104,7 @@ void ABattleController::AutoPlay()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::ShowSpells()
 {
 	if (BattleHero->bCanUseSpell)
@@ -1972,18 +2126,21 @@ void ABattleController::ShowSpells()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnSpellBookClosedHandler()
 {
 	UW_SpellBookUI->RemoveFromParent();
 	UW_BattleUI->UW_ControlPanel->UW_SpellBookButton->ActivateButton(false);
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnSpellClickedHandler(ASpellBase* InSpell)
 {
 	OnSpellClicked(InSpell);
 	UW_SpellBookUI->RemoveFromParent();
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnActiveAbilityClicked(AActiveAbilityBase* InActiveAbility)
 {
 	DisableCurrentActiveAbility();
@@ -2004,6 +2161,7 @@ void ABattleController::OnActiveAbilityClicked(AActiveAbilityBase* InActiveAbili
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnActiveAbilityUseStartedHandler()
 {
 	if (PlayingCharacter->bIsAI)
@@ -2023,6 +2181,7 @@ void ABattleController::OnActiveAbilityUseStartedHandler()
 	}
 }
 
+/*ToDo: 기능 구현 확인되지 않음*/
 void ABattleController::OnActiveAbilityUseEndedHandler()
 {
 	DisableCurrentActiveAbility();

@@ -1,6 +1,4 @@
-﻿
-
-#pragma region AGrid
+﻿#pragma region AGrid
 
 /*void AGrid::ReCreateSlots()
 {
@@ -1064,7 +1062,6 @@ void ABattleController::SpawnDebugHero()
 	Grid->GetHeroSpawnLocation()->Destroy();
 }
 */
-
 
 
 

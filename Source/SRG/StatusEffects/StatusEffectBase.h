@@ -35,147 +35,104 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	/*******************************************
-	 * EVENT HANDLING FUNCTIONS
-	 *******************************************/
+	/*---	      	    EVENT HANDLING FUNCTIONS    	      	---*/
 public:
-	/**
-	* @brief 필요한 속성 및 동작을 설정하여 상태 효과를 초기화합니다.
-	*/
-	virtual void InitializeEvent();
+	/* 필요한 속성 및 동작을 설정하여 상태 효과를 초기화합니다. */
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable,Category="Status Effect Event")
+	void InitializeEvent();
 
-	/**
-	* @brief 상태 효과가 적용될 때 동작을 정의합니다.
-	*/
-	virtual void OnStatusEffectStarted();
+	/* 상태 효과가 적용될 때 동작을 정의합니다. */
+	UFUNCTION(BlueprintNativeEvent,Category="Status Effect Event")
+	void OnStatusEffectStarted();
 
-	/**
-	* @brief 상태 효과 종료 시 동작을 정의합니다.
-	*/
-	virtual void OnStatusEffectEnded();
+	/* 상태 효과 종료 시 동작을 정의합니다. */
+	UFUNCTION(BlueprintNativeEvent,Category="Status Effect Event")
+	void OnStatusEffectEnded();
 
-	/**
-	* @brief 이 함수는 캐릭터의 사망 이벤트를 처리합니다. 일반적으로 죽음에 대한 상태 효과를 제거하는 데 사용됩니다.
-	* @param InCharacter 사망한 캐릭터.
-	*/
+	/* 이 함수는 캐릭터의 사망 이벤트를 처리합니다. 일반적으로 죽음에 대한 상태 효과를 제거하는 데 사용됩니다. */
 	UFUNCTION()
 	void OnCharacterDies(ACharacterBase* InCharacter);
 
-	/**
-	* @brief 이 함수는 턴 기반 시스템에서 새로운 턴이 시작될 때 이벤트를 처리합니다.
-	* @param NewTurn 새 차례의 번호입니다.
-	*/
+	/* 이 함수는 턴 기반 시스템에서 새로운 턴이 시작될 때 이벤트를 처리합니다. */
 	UFUNCTION()
 	void OnNewTurnHandler(int32 NewTurn);
 
-
-	/*******************************************
- 	* AURA MANAGEMENT FUNCTIONS
- 	*******************************************/
+	
+	/*---	      	    AURA MANAGEMENT FUNCTIONS    	      	---*/
 public:
-	/**
-	* @brief 오라 로직을 설정합니다. 오라에서 온 상태 효과가 있는지 확인하고 필요한 델리게이트를 추가합니다.
-	*/
+	/* 오라 로직을 설정합니다. 오라에서 온 상태 효과가 있는지 확인하고 필요한 델리게이트를 추가합니다. */
 	void SetAuraLogic();
 
-	/**
-	* @brief 오라 갱신 이벤트를 처리하는 함수입니다. 오라 상태 효과를 다시 적용하는 데 사용됩니다.
-	*/
+	/* 오라 갱신 이벤트를 처리하는 함수입니다. 오라 상태 효과를 다시 적용하는 데 사용됩니다. */
 	UFUNCTION()
 	void OnRefreshAurasHandler();
 
+	
 
-	/*******************************************
- 	* STATUS EFFECT MANAGEMENT FUNCTIONS
- 	*******************************************/
+	/*---	      	    STATUS EFFECT MANAGEMENT FUNCTIONS    	      	---*/
 public:
-	/**
-	* @brief 이 상태 효과가 제거하는 다른 상태 효과를 제거합니다.
-	*/
+	/* 이 상태 효과가 제거하는 다른 상태 효과를 제거합니다. */
+	UFUNCTION(BlueprintCallable,Category="Status Effect Event")
 	void RemoveOtherStatusEffects();
 
-	/**
-	* @brief 이 상태 효과를 제거합니다. 캐릭터에서 제거하고 이벤트를 발생시킵니다.
-	*/
+	/* 이 상태 효과를 제거합니다. 캐릭터에서 제거하고 이벤트를 발생시킵니다. */
+	UFUNCTION(BlueprintCallable,Category="Status Effect Event")
 	void RemoveStatusEffect();
 
-	/**
-	* @brief 지속 피해(DOT) 상태 효과가 적용될 때 호출되는 가상 함수입니다.
-	*/
-	virtual void OnDOT();
+	/* 지속 피해(DOT) 상태 효과가 적용될 때 호출되는 가상 함수입니다. */
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable,Category="Status Effect Event")
+	void OnDOT();
 
-	/**
-	* @brief 이 상태 효과를 캐릭터에서 제거합니다. 이 함수는 캐릭터의 상태 효과 목록에서 이 상태 효과를 제거합니다.
-	*/
+	/* 이 상태 효과를 캐릭터에서 제거합니다. 이 함수는 캐릭터의 상태 효과 목록에서 이 상태 효과를 제거합니다.*/
+	UFUNCTION(BlueprintCallable,Category="Status Effect Event")
 	virtual void RemoveFromCharacter();
 
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable,Category="Status Effect Event")
+	EElement ShowElementOnUI();
 
-	/*******************************************
- 	* STATISTICS MODIFICATION FUNCTIONS
- 	*******************************************/
+
+	/*---	      	    STATISTICS MODIFICATION FUNCTIONS    	      	---*/
 public:
-	/**
-	* @brief 주어진 통계를 캐릭터에 적용합니다.
-	* @param InStat 적용할 통계 
-	*/
+	/* 주어진 통계를 캐릭터에 적용합니다. */
 	void ApplyStats(const FCharacterStats& InStat);
 
-	/**
-	* @brief 주어진 요소 감소를 캐릭터에 적용합니다.
-	* @param InElementReductions 적용할 요소 감소 
-	*/
+	/* 주어진 요소 감소를 캐릭터에 적용합니다. */
 	void ApplyElementReductions(const FElementReductions& InElementReductions);
 
-	/**
-	* @brief 캐릭터에서 통계를 제거합니다.
-	*/
+	/* 캐릭터에서 통계를 제거합니다. */
 	void RemoveStats();
 
-	/**
-	* @brief 캐릭터에서 요소 감소를 제거합니다.
-	*/
+	/* 캐릭터에서 요소 감소를 제거합니다. */
 	void RemoveElementReductions();
 
-	/**
-	* @brief 캐릭터의 통계에 곱해지는 통계를 계산하여 반환합니다.
-	* @return 곱해진 통계
-	*/
+	/* 캐릭터의 통계에 곱해지는 통계를 계산하여 반환합니다. */
 	FCharacterStats GetMultipliedStats();
 
-	/**
-	* @brief 모든 상태 효과를 가져와서 반환합니다.
-	* @return 현재 적용된 모든 상태 효과
-	*/
+	/* 모든 상태 효과를 가져와서 반환합니다. */
+	UFUNCTION(BlueprintCallable,Category="Status Effect Event")
 	TArray<AStatusEffectBase*> GetAllStatusEffects();
 
-
-	/*******************************************
- 	* CHARACTER INTERACTION FUNCTIONS
- 	*******************************************/
+	UFUNCTION(BlueprintPure,Category="Status Effect Event")
+	int32 GetDamageAfterElementReductions(int32 InDamage,EElement InElement);
+	
+	/*---	      	    CHARACTER INTERACTION FUNCTIONS    	      	---*/
 public:
-	/**
-	* @brief 캐스터 캐릭터가 슬롯에서 제거될 때 실행되는 함수입니다.
-	* @param InCharacter 슬롯에서 제거되는 캐스터 캐릭터
-	*/
+	/* 캐스터 캐릭터가 슬롯에서 제거될 때 실행되는 함수입니다. */
 	UFUNCTION()
 	void OnCasterCharacterRemovedFromSlot(ACharacterBase* InCharacter);
-
-
-	/*******************************************
- 	* VISUAL AND AUDIO EFFECT FUNCTIONS
- 	*******************************************/
+	
+	/*---	      	    VISUAL AND AUDIO EFFECT FUNCTIONS    	      	---*/
 public:
-	/**
-	* @brief 상태 효과에 연관된 사운드를 재생합니다.
-	*/
+	/* 상태 효과에 연관된 사운드를 재생합니다. */
 	void PlaySound();
 
-	/**
-	* @brief 상태 효과에 연관된 파티클 효과를 재생합니다.
-	*/
+	/* 상태 효과에 연관된 파티클 효과를 재생합니다. */
 	void PlayParticleEffect();
 
 
+
+
+	
 	/*******************************************
 	 * Field Members
 	 *******************************************/
@@ -183,10 +140,10 @@ public:
 	/*---	      	    STATUS EFFECT CONFIGURATION   	      	---*/
 public:
 	// 이 상태 효과가 오라에서 오는지 여부를 나타내는 부울 플래그입니다.
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
+	UPROPERTY(BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
 	bool bIsFromAura;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status Effect")
 	bool bIsDOT;
 
 	// 이 상태 효과가 지속되는 턴 수입니다.
@@ -197,15 +154,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
 	bool bRemoveAfterAttack;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status Effect")
 	FText Name;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status Effect")
 	FText Description;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status Effect")
 	UTexture2D* Icon;
-	
+
 	// 이 상태 효과를 시전하는 캐릭터에 대한 포인터입니다.
 	UPROPERTY(BlueprintReadWrite, Category="Status Effect", meta=(ExposeOnSpawn="true"))
 	ACharacterBase* CasterCharacter;
@@ -217,11 +174,11 @@ public:
 	/*---	      	    CHARACTER STATISTICS 	      	---*/
 public:
 	// 이 상태 효과로 인해 영향을 받는 캐릭터에 적용되는 추가 통계입니다.
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status Effect")
 	FCharacterStats StatAdditions;
 
 	// 이 상태 효과로 인해 영향을 받는 캐릭터에 적용될 요소 감소입니다.
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Status Effect")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status Effect")
 	FElementReductions ElementReductions;
 
 	// 이 상태 효과로 인해 영향을 받는 캐릭터의 캐릭터 통계에 대한 승수입니다.
@@ -231,7 +188,7 @@ public:
 	/*---	      	    CHARACTER REFERENCE 	      	---*/
 public:
 	// 이 상태 효과가 적용될 캐릭터에 대한 포인터입니다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status Effect")
+	UPROPERTY(BlueprintReadWrite, Category="Status Effect")
 	ACharacterBase* AffectedCharacter;
 
 	/*---	      	    SOUND AND VISUAL EFFECTS 	      	---*/
@@ -251,11 +208,11 @@ public:
 	/*---	      	    DELEGATES 	      	---*/
 public:
 	// 이 상태 효과의 턴 지속 시간이 업데이트될 때 호출될 델리게이트입니다.
-	UPROPERTY(BlueprintAssignable, BlueprintAssignable, Category="Status Effect|Delegate")
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Status Effect|Delegate")
 	FOnTurnDurationUpdated OnTurnDurationUpdated;
 
 	// DOT가 적용될 때 호출될 델리게이트입니다.
-	UPROPERTY(BlueprintAssignable, BlueprintAssignable, Category="Status Effect|Delegate")
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Status Effect|Delegate")
 	FOnDOTApplied OnDOTApplied;
 
 

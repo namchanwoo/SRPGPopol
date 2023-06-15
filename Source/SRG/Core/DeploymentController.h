@@ -30,6 +30,15 @@ public:
 	
 	void SetNonDeployedCharacters();
 
+	UFUNCTION(BlueprintCallable,Category="Deployment Controller Event")
+	void OnDragEnded();
+
+	
+	
+	/*******************************************
+	 * Field Members
+	 *******************************************/
+public:
 	UPROPERTY()
 	ABattleController* BattleController;
 	

@@ -1,10 +1,12 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EnemySpawnLocation.generated.h"
+
+class UBoxComponent;
+class UArrowComponent;
+class ASlotBase;
 
 UCLASS()
 class SRG_API AEnemySpawnLocation : public AActor
@@ -20,9 +22,29 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="EnemySpawnLocation")
-	FVector2D Coordinates;
+
+
+	/*******************************************
+	 * Field Members
+	 *************** ****************************/
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="EnemySpawnLocation")
+	ASlotBase* Slot;
+
+	/*******************************************
+ 	* Components
+ 	*******************************************/
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Enemy Spawn Location|Component")
+	USceneComponent* DefaultScene;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Enemy Spawn Location|Component")
+	UStaticMeshComponent* Sphere;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Enemy Spawn Location|Component")
+	UArrowComponent* Arrow;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Enemy Spawn Location|Component")
+	UBoxComponent* Box;
 };

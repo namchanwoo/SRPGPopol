@@ -32,3 +32,8 @@ void ADeploymentController::SetNonDeployedCharacters()
 {
 }
 
+void ADeploymentController::OnDragEnded()
+{
+	
+}
+

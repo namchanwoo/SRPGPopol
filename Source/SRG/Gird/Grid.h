@@ -125,10 +125,12 @@ private:
 	void DestroySlots(TMap<FVector2D, ASlotBase*>& SlotMap, bool bClearCallbacks);
 
 protected:
+
 	/**
-	 * @brief 
-	 * @param NewBattleState 
-	 */
+ 	 * OnBattleStateChanged 이벤트에 대한 이벤트 처리기입니다.
+ 	 * 새로운 전투 상태에 따라 논리를 처리합니다.
+ 	 * @param NewBattleState 새로운 전투 상태.
+ 	 */
 	UFUNCTION()
 	void OnBattleStateChangedHandler(EBattleState NewBattleState);
 
@@ -424,12 +426,8 @@ public:
 
 	TArray<ASlotBase*> GetAttackSlots(ACharacterBase* InAttackingCharacter, ACharacterBase* InTargetCharacter);
 
-	/*---	           Grid Getters         ---*/
-public:
-	AHeroSpawnLocation* GetHeroSpawnLocation() { return HeroSpawnLocation; }
-	const TArray<AEnemySpawnLocation*>& GetEnemySpawnLocations() { return EnemySpawnLocations; }
 
-
+	
 	/*******************************************
 	 * Field Members
 	 *******************************************/
@@ -527,7 +525,7 @@ public:
 	UInstancedStaticMeshComponent* PathMesh; // 이 그리드의 경로를 나타내는 Mesh 컴포넌트입니다.
 
 	/*---	           Grid Reference         ---*/
-private:
+public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Grid|Reference", meta=(AllowPrivateAccess="true"))
 	ABattleController* BattleControllerRef; // BattleController에 대한 참조입니다.
 

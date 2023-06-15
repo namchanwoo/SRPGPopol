@@ -21,14 +21,12 @@ AAITerritory::AAITerritory()
 	Sphere->SetHiddenInGame(true);
 	Sphere->SetupAttachment(RootComponent);
 
-	UStaticMesh* SM_Sphere = DT::FindObject<UStaticMesh>(DT_MATERIAL_PATH, FName(TEXT("SM_Sphere")));
-	if (SM_Sphere)
+	if (UStaticMesh* SM_Sphere = DT::FindObject<UStaticMesh>(DT_MESHES_PATH, FName(TEXT("SM_Sphere"))))
 	{
 		Sphere->SetStaticMesh(SM_Sphere);
 	}
 
-	UMaterialInstance* MI_AITerritory = DT::FindObject<UMaterialInstance>(DT_MATERIAL_PATH, FName(TEXT("MI_AITerritory")));
-	if (MI_AITerritory)
+	if (UMaterialInstance* MI_AITerritory = DT::FindObject<UMaterialInstance>(DT_MATERIAL_PATH, FName(TEXT("MI_AITerritory"))))
 	{
 		Sphere->SetMaterial(0, MI_AITerritory);
 	}

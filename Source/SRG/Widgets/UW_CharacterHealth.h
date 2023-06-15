@@ -19,10 +19,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category="UW Character Health")
 	void InitializeEvent(ACharacterBase* NewCharacterBase);
 
-	UFUNCTION(BlueprintNativeEvent, Category="UW Character Health")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="UW Character Health")
 	void OnHealthSetHandler(int32 InHp, bool IsHeal);
 
-	UFUNCTION(BlueprintNativeEvent, Category="UW Character Health")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="UW Character Health")
 	void SetStackAmount();
 
 	/*******************************************

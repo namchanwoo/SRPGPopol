@@ -27,15 +27,22 @@ void AAbilityBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 
 	if (AbilityOwner)
-	{
 		AbilityOwner->OnDead.RemoveDynamic(this, &AAbilityBase::OnCharacterDies);
-	}
+	
 }
 
 void AAbilityBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+void AAbilityBase::OnAbilityUsed_Implementation(const TArray<ASlotBase*>& InSlotsInRange,
+                                                const TArray<ASlotBase*>& InEmptySlotsInRange, const TArray<ACharacterBase*>& InAlliesInRange,
+                                                const TArray<ACharacterBase*>& InEnemiesInRange)
+{
+}
+
+
 
 void AAbilityBase::OnCharacterDies(ACharacterBase* InCharacter)
 {

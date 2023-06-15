@@ -529,3 +529,86 @@ public:
 
 
 #pragma endregion BattleController
+
+
+#pragma region CharacterBase
+
+/*/**
+ * @brief 입력된 버프와 동일한 버프가 이미 적용되었는지 확인하는 함수
+ * @param InBuff 확인할 버프
+ * @param ExistingBuff 이미 존재하는 동일한 버프(있는 경우)
+ * @return 동일한 버프가 이미 존재하면 true, 그렇지 않으면 false
+ #1#
+bool AlreadyGotBuff(ABuffBase* InBuff, ABuffBase*& ExistingBuff);
+
+/**
+ * @brief 입력된 디버프와 동일한 디버프가 이미 적용되었는지 확인하는 함수
+ * @param InBuff 확인할 디버프
+ * @param ExistingBuff 이미 존재하는 동일한 디버프(있는 경우)
+ * @return 동일한 디버프가 이미 존재하면 true, 그렇지 않으면 false
+ #1#
+bool AlreadyGotDeBuff(ADeBuffBase* InBuff, ADeBuffBase*& ExistingBuff);*/
+
+/**
+	 * @brief 캐릭터에게 버프를 추가하는 함수
+	 * @param InBuff 추가할 버프
+	 */
+/*void AddBuff(ABuffBase* InBuff);*/
+
+
+/*
+/**
+ * @brief 캐릭터에서 버프를 제거하는 함수
+ * @param InBuff 제거할 버프
+ #1#
+void RemoveBuff(ABuffBase* InBuff);
+
+/**
+ * @brief 캐릭터에게 디버프를 추가하는 함수
+ * @param InDeBuff 추가할 디버프
+ #1#
+void AddDeBuff(ADeBuffBase* InDeBuff);
+
+/**
+ * @brief 캐릭터에서 디버프를 제거하는 함수
+ * @param InDeBuff 제거할 디버프
+ #1#
+void RemoveDeBuff(ADeBuffBase* InDeBuff);
+*/
+
+
+/*void ACharacterBase::AddBuff(ABuffBase* InBuff)
+{
+	CurrentBuffs.Add(InBuff);
+
+	if (OnStatusEffectsUpdated.IsBound())
+		OnStatusEffectsUpdated.Broadcast();
+}
+
+void ACharacterBase::RemoveBuff(ABuffBase* InBuff)
+{
+	CurrentBuffs.Remove(InBuff);
+
+	if (OnStatusEffectsUpdated.IsBound())
+		OnStatusEffectsUpdated.Broadcast();
+}
+
+void ACharacterBase::AddDeBuff(ADeBuffBase* InDeBuff)
+{
+	CurrentDeBuffs.Add(InDeBuff);
+
+	if (OnStatusEffectsUpdated.IsBound())
+		OnStatusEffectsUpdated.Broadcast();
+}
+
+void ACharacterBase::RemoveDeBuff(ADeBuffBase* InDeBuff)
+{
+	CurrentDeBuffs.Remove(InDeBuff);
+
+	if (OnStatusEffectsUpdated.IsBound())
+		OnStatusEffectsUpdated.Broadcast();
+}*/
+
+
+
+#pragma endregion CharacterBase

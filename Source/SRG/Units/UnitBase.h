@@ -28,10 +28,8 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-
-	/*******************************************
-	 * Unit Event
-	 *******************************************/
+	
+	/*---	      	    Unit Event    	      	---*/
 public:
 	/**
 	* @brief 유닛과 관련된 모든 이벤트를 초기화합니다.
@@ -68,7 +66,7 @@ public:
 	 *******************************************/
 public:
 	// 유닛이 초기화되었는지 여부를 나타내는 불리언 값입니다. true일 경우 유닛이 제대로 초기화되었음을 나타냅니다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Unit")
+	UPROPERTY(BlueprintReadWrite, Category="Unit")
 	bool bInitialized = false;
 
 	// 유닛의 크기를 나타내는 값입니다. 이 값은 유닛이 차지하는 그리드 슬롯의 수를 결정합니다.
@@ -76,13 +74,15 @@ public:
 	int32 UnitSize = 1;
 
 	// 이 유닛이 위치하고 있는 그리드를 가리키는 포인터입니다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Unit")
+	UPROPERTY(BlueprintReadWrite, Category="Unit")
 	AGrid* Grid;
 
 	// 이 유닛이 현재 차지하고 있는 그리드 슬롯을 가리키는 포인터입니다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Unit")
+	UPROPERTY(BlueprintReadWrite, Category="Unit")
 	ASlotBase* Slot;
 
+	/*---	      	    Components    	      	---*/
+public:
 	// 기본 씬 컴포넌트를 가리키는 포인터입니다. 이 컴포넌트는 이 액터의 위치와 방향을 결정합니다.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Unit|Component")
 	USceneComponent* DefaultSceneRoot;

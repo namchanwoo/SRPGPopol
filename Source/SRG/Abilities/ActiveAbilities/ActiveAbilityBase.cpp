@@ -35,6 +35,12 @@ void AActiveAbilityBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+TMap<ACharacterBase*, FDamageData> AActiveAbilityBase::GetAbilityDamage_Implementation(
+	const TArray<ACharacterBase*>& InTargetCharacters)
+{
+	return {};
+}
+
 void AActiveAbilityBase::SetCoolDown(int32 NewCurrentCoolDown)
 {
 	if (NewCurrentCoolDown < 0)
@@ -148,14 +154,16 @@ void AActiveAbilityBase::AddDeBuff(ACharacterBase* InAffectedCharacter, TSubclas
 	AddEffect(InAffectedCharacter, InDeBuff, InTurnDuration, InAffectedCharacter->CurrentDeBuffs);
 }
 
-void AActiveAbilityBase::GetAbilitySlots(TArray<ASlotBase*>& OutSlotsInRange, TArray<ASlotBase*>& OutEmptySlotsInRange,
-                                         TArray<ACharacterBase*>& OutAlliesInRange,
-                                         TArray<ACharacterBase*>& OutEnemiesInRange)
+void AActiveAbilityBase::GetAbilitySlots_Implementation(TArray<ASlotBase*>& OutSlotsInRange,
+                                                        TArray<ASlotBase*>& OutEmptySlotsInRange,
+                                                        TArray<ACharacterBase*>& OutAlliesInRange,
+                                                        TArray<ACharacterBase*>& OutEnemiesInRange)
 {
 	BattleController->GetGrid()->GetSlotsInCharacterRange(AbilityOwner, Range, AbilityOwner->Slot, false,
-	                                                 OutSlotsInRange, OutEmptySlotsInRange,
-	                                                 OutAlliesInRange, OutEnemiesInRange);
+	                                                      OutSlotsInRange, OutEmptySlotsInRange,
+	                                                      OutAlliesInRange, OutEnemiesInRange);
 }
+
 
 bool AActiveAbilityBase::GetAbilityDetails(int32& OutManaCost, int32& OutCoolDown)
 {
@@ -208,7 +216,7 @@ void AActiveAbilityBase::OnActiveAbilityDisabled()
 {
 }
 
-void AActiveAbilityBase::SetTargetSlotForAI()
+void AActiveAbilityBase::SetTargetSlotForAI_Implementation()
 {
 }
 
@@ -256,13 +264,15 @@ bool AActiveAbilityBase::IsAvailable(bool IsMeleeAttack)
 	}
 }
 
-bool AActiveAbilityBase::ShouldAIUse(const TArray<ASlotBase*>& SlotsInRange,
-                                     const TArray<ASlotBase*>& EmptySlotsInRange,
-                                     const TArray<ACharacterBase*>& AlliesInRange,
-                                     const TArray<ACharacterBase*>& EnemiesInRange, ACharacterBase* WeakestEnemy)
+bool AActiveAbilityBase::ShouldAIUse_Implementation(const TArray<ASlotBase*>& SlotsInRange,
+                                                    const TArray<ASlotBase*>& EmptySlotsInRange,
+                                                    const TArray<ACharacterBase*>& AlliesInRange,
+                                                    const TArray<ACharacterBase*>& EnemiesInRange,
+                                                    ACharacterBase* WeakestEnemy)
 {
-	return true;
+	return false;
 }
+
 
 void AActiveAbilityBase::EndTurn()
 {
@@ -294,37 +304,31 @@ void AActiveAbilityBase::OnNewTurnHandler(int32 NewTurn)
 	SetCoolDown(FMath::Max(CurrentCooldown - 1, 0));
 }
 
-void AActiveAbilityBase::OnAbilityUsed(TArray<ASlotBase*> SlotsInRange, TArray<ASlotBase*> EmptySlotsInRange,
-                                       TArray<ACharacterBase*> AlliesInRange, TArray<ACharacterBase*> EnemiesInRange)
+void AActiveAbilityBase::OnAbilityUsed_Implementation(const TArray<ASlotBase*>& InSlotsInRange,
+                                                      const TArray<ASlotBase*>& InEmptySlotsInRange,
+                                                      const TArray<ACharacterBase*>& InAlliesInRange,
+                                                      const TArray<ACharacterBase*>& InEnemiesInRange)
 {
 	bAbilityUsed = true;
 
 	for (TTuple<TSubclassOf<ABuffBase>, int32> InBuff : Buffs)
 	{
-		for (ACharacterBase* InCharacter : AlliesInRange)
+		for (ACharacterBase* InCharacter : InAlliesInRange)
 		{
-			if (InCharacter->IsDead())
-			{
-				continue;
-			}
-
-			AddEffect<ABuffBase>(InCharacter, InBuff.Key, InBuff.Value, InCharacter->CurrentBuffs);
+			if (InCharacter->IsDead()) { continue; }
+			AddBuff(InCharacter, InBuff.Key, InBuff.Value);
 		}
 	}
 
 	for (TTuple<TSubclassOf<ADeBuffBase>, int32> InDeBuff : DeBuffs)
 	{
-		for (ACharacterBase* InCharacter : EnemiesInRange)
+		for (ACharacterBase* InCharacter : InEnemiesInRange)
 		{
-			if (InCharacter->IsDead())
-			{
-				continue;
-			}
-			AddEffect<ADeBuffBase>(InCharacter, InDeBuff.Key, InDeBuff.Value, InCharacter->CurrentDeBuffs);
+			if (InCharacter->IsDead()) { continue; }
+			AddDeBuff(InCharacter, InDeBuff.Key, InDeBuff.Value);
 		}
 	}
 }
-
 
 void AActiveAbilityBase::OnAbilityUsedHandler()
 {

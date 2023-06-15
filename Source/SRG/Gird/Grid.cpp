@@ -15,7 +15,7 @@
 #include "Slots/InnerSlot.h"
 #include "Slots/Slot.h"
 #include "Slots/SlotBase.h"
-#include "SRG/Abilities/ActiveAbilities/AreaTargetActiveAbilityBase.h"
+#include "SRG/Abilities/ActiveAbilities/AreaTargetActiveAbilities/AreaTargetActiveAbilityBase.h"
 
 #include "SRG/Gird/Slots/SlotBase.h"
 #include "SRG/Spells/SpellBase.h"
@@ -30,6 +30,7 @@
 #include "SRGCore/Libraries/SRPGUtilityLibrary.h"
 #include "SRGCore/Utilities/SRGLog.h"
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 AGrid::AGrid()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -65,6 +66,7 @@ AGrid::AGrid()
 	InnerOverlaySlotClass = AGridInnerOverlaySlot::StaticClass();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::BeginPlay()
 {
 	Super::BeginPlay();
@@ -76,12 +78,14 @@ void AGrid::BeginPlay()
 	DetectClosestMovableSlotTimeline.SetLooping(true);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	DetectClosestMovableSlotTimeline.TickTimeline(DeltaTime);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::InitializeEvent_Implementation()
 {
 	// 레벨에 BP_BattleController 추가되었는지 확인
@@ -91,6 +95,7 @@ void AGrid::InitializeEvent_Implementation()
 	BattleControllerRef->OnBattleStateChanged.AddDynamic(this, &AGrid::OnBattleStateChangedHandler);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ReCreateSlots()
 {
 	SRPG_IF_CHECK(SlotClass, TEXT("SlotClass가 설정되지 않았습니다. 설정해주세요."));
@@ -104,9 +109,11 @@ void AGrid::ReCreateSlots()
 	RemoveAllSlots();
 
 	CreateOuterSlots(World);
+
 	CreateInnerSlots(World);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::RemoveAllSlots()
 {
 	// 슬롯 제거
@@ -137,6 +144,7 @@ void AGrid::RemoveAllSlots()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::DestroySlots(TMap<FVector2D, ASlotBase*>& SlotMap, bool bClearCallbacks)
 {
 	TArray<ASlotBase*> SlotValues;
@@ -152,6 +160,7 @@ void AGrid::DestroySlots(TMap<FVector2D, ASlotBase*>& SlotMap, bool bClearCallba
 	SlotMap.Empty();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::Refresh()
 {
 	// 모든 슬롯을 순회하면서 슬롯을 새로 고침
@@ -174,6 +183,7 @@ void AGrid::Refresh()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::CreateOuterSlots(UWorld* World)
 {
 	// 그리드의 행과 열을 반복합니다.
@@ -205,6 +215,7 @@ void AGrid::CreateOuterSlots(UWorld* World)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::CreateInnerSlots(UWorld* World)
 {
 	// 마지막 행과 열을 제외하고 그리드의 행과 열을 반복합니다.
@@ -231,6 +242,7 @@ void AGrid::CreateInnerSlots(UWorld* World)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 FTransform AGrid::CalculateSlotTransform(int32 Row, int32 Column)
 {
 	// 슬롯 크기 가져오기
@@ -244,6 +256,7 @@ FTransform AGrid::CalculateSlotTransform(int32 Row, int32 Column)
 	return FTransform(FRotator::ZeroRotator, L_SpawnLocation + GetActorTransform().GetLocation());
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 FTransform AGrid::CalculateInnerSlotTransform(int32 Row, int32 Column)
 {
 	// 슬롯의 기본 속성을 가져옵니다.
@@ -261,6 +274,7 @@ FTransform AGrid::CalculateInnerSlotTransform(int32 Row, int32 Column)
 	return FTransform(FRotator::ZeroRotator, L_SpawnLocation + GetActorTransform().GetLocation());
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 ASlot* AGrid::CreateAndInitializeSlot(UWorld* World, const FTransform& SlotTransform, int32 Column, int32 Row)
 {
 	// 새 슬롯 생성
@@ -287,6 +301,7 @@ ASlot* AGrid::CreateAndInitializeSlot(UWorld* World, const FTransform& SlotTrans
 	return L_NewSlot;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 AGridOverlaySlot* AGrid::CreateAndInitializeOverlaySlot(UWorld* World, FTransform& SlotTransform, int32 Column,
                                                         int32 Row)
 {
@@ -305,6 +320,7 @@ AGridOverlaySlot* AGrid::CreateAndInitializeOverlaySlot(UWorld* World, FTransfor
 	return L_NewSlot;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 AInnerSlot* AGrid::CreateAndInitializeInnerSlot(UWorld* World, FTransform& InnerSlotTransform, int32 Column, int32 Row)
 {
 	// 월드에 새로운 내부 슬롯 액터를 스폰합니다.
@@ -327,6 +343,7 @@ AInnerSlot* AGrid::CreateAndInitializeInnerSlot(UWorld* World, FTransform& Inner
 	return NewInnerSlot;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 AGridInnerOverlaySlot* AGrid::CreateAndInitializeInnerOverlaySlot(UWorld* World, FTransform& InnerSlotTransform,
                                                                   int32 Column, int32 Row)
 {
@@ -347,28 +364,41 @@ AGridInnerOverlaySlot* AGrid::CreateAndInitializeInnerOverlaySlot(UWorld* World,
 	return NewInnerOverlaySlot;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnBattleStateChangedHandler(EBattleState NewBattleState)
 {
-	// 새로운 전투 상태가 PlayerIsCastingSpell 또는 PlayerIsPlaying인 경우
-	if (NewBattleState == EBattleState::PlayerIsCastingSpell || NewBattleState == EBattleState::PlayerIsPlaying)
+	switch (NewBattleState)
 	{
-		// 오버레이 데이터를 초기화
-		ResetOverlayData();
+	case EBattleState::Initialization: break;
 
-		// 캐릭터 움직임 오버레이 슬롯을 비움
-		CharacterMovementOverlaySlots.Empty();
+	case EBattleState::DeploymentPhase: break;
 
-		// 데미지 상세 UI를 숨김
-		HideDamageDetailsUI();
+	case EBattleState::WaitingForPlayerAction: break;
 
-		// OnCursorChanged가 바인딩되어 있는 경우, Wait 커서 상태를 브로드캐스트
+	case EBattleState::PlayerIsCastingSpell:
+	case EBattleState::PlayerIsPlaying:
+		ResetOverlayData(); // 오버레이 데이터를 초기화
+		CharacterMovementOverlaySlots.Empty(); // 캐릭터 움직임 오버레이 슬롯을 비움
+		HideDamageDetailsUI(); // 데미지 상세 UI를 숨김
 		if (OnCursorChanged.IsBound())
-		{
 			OnCursorChanged.Broadcast(EBattleCursorType::Wait, nullptr, nullptr, nullptr);
-		}
+		break;
+
+	case EBattleState::WaitingForEnemyAction: break;
+
+	case EBattleState::EnemyIsPlaying: break;
+
+	case EBattleState::Victory: break;
+
+	case EBattleState::Defeat: break;
+
+	case EBattleState::Over: break;
+
+	default: break;
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnMovableSlotTimeline_Detect()
 {
 	// 마우스와 가장 가까운 슬롯을 찾습니다.
@@ -455,6 +485,7 @@ void AGrid::OnMovableSlotTimeline_Detect()
 	HighlightSlot(CurrentSlotUnderMouse, BattleControllerRef->PlayingCharacter->UnitSize, true);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ResetCurrentSlotUnderMouse()
 {
 	// 전투 컨트롤러의 전투 상태가 배치 단계인지 확인합니다.
@@ -497,6 +528,7 @@ void AGrid::ResetCurrentSlotUnderMouse()
 	CurrentSlotUnderMouse = nullptr;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::CheckSlotUnderMouse()
 {
 	// 현재 마우스 아래의 슬롯을 리셋합니다.
@@ -523,6 +555,7 @@ void AGrid::CheckSlotUnderMouse()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ResetSlots()
 {
 	// 모든 슬롯을 반복하면서 슬롯을 리셋합니다.
@@ -544,17 +577,18 @@ void AGrid::ResetSlots()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::SetHeroSpawnPoint(const FTransform& InSlotTransform)
 {
 	// 슬롯 클래스가 유효한지 확인합니다.
 	SRPG_CHECK(SlotClass);
 
-	// 현재 월드를 가져옵니다.
-	UWorld* L_World = GetWorld();
-	SRPG_CHECK(L_World);
-
 	// HeroSpawnLocationClass가 유효한지 확인합니다.
 	SRPG_CHECK(HeroSpawnLocationClass);
+
+	// 현재 월드를 가져옵니다.
+	UWorld* World = GetWorld();
+	SRPG_CHECK(World);
 
 	// 슬롯 클래스의 기본 객체를 가져옵니다.
 	const auto L_SlotCDO = SlotClass->GetDefaultObject<ASlotBase>();
@@ -570,13 +604,13 @@ void AGrid::SetHeroSpawnPoint(const FTransform& InSlotTransform)
 	const FTransform L_SpawnTransform = FTransform(FRotator::ZeroRotator, L_NewLocation);
 
 	// 히어로 스폰 위치 액터를 월드에 생성합니다.
-	HeroSpawnLocation = L_World->SpawnActor<
-		AHeroSpawnLocation>(HeroSpawnLocationClass, L_SpawnTransform, L_SpawnParams);
+	HeroSpawnLocation = World->SpawnActor<AHeroSpawnLocation>(HeroSpawnLocationClass, L_SpawnTransform, L_SpawnParams);
 
 	// 생성된 히어로 스폰 위치를 이 액터에 부착합니다.
 	HeroSpawnLocation->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepWorld, false));
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnMouseOverSlot(ASlotBase* InSlot, bool bIsInnerSlot)
 {
 	// 현재 마우스가 위치한 슬롯을 할당합니다.
@@ -598,6 +632,7 @@ void AGrid::OnMouseOverSlot(ASlotBase* InSlot, bool bIsInnerSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnSlotClicked(ASlotBase* InSlot, FKey InButton)
 {
 	// 마우스 오른쪽 버튼 클릭을 처리합니다.
@@ -629,6 +664,7 @@ void AGrid::OnSlotClicked(ASlotBase* InSlot, FKey InButton)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleBattleClick(ASlotBase* InSlot)
 {
 	StopDetectingClosestMovableSlot();
@@ -660,6 +696,7 @@ void AGrid::HandleBattleClick(ASlotBase* InSlot)
 	HandleEnemyAttackOrMovement(InSlot);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ActivateAbility(ASlotBase* InSlot)
 {
 	BattleControllerRef->ActiveAbility(InSlot);
@@ -668,6 +705,7 @@ void AGrid::ActivateAbility(ASlotBase* InSlot)
 	BattleControllerRef->ChangeBattleState(EBattleState::PlayerIsPlaying);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleEnemyAttackOrMovement(ASlotBase* InSlot)
 {
 	ACharacterBase* OutEnemyCharacter;
@@ -688,6 +726,7 @@ void AGrid::HandleEnemyAttackOrMovement(ASlotBase* InSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::RangeAttack(ASlotBase* InSlot)
 {
 	BattleControllerRef->RangeAttack(InSlot);
@@ -696,6 +735,7 @@ void AGrid::RangeAttack(ASlotBase* InSlot)
 	BattleControllerRef->ChangeBattleState(EBattleState::PlayerIsPlaying);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleMeleeAttackOrMovement(ASlotBase* InSlot, bool IsEnemySlot)
 {
 	if (IsEnemySlot)
@@ -708,6 +748,7 @@ void AGrid::HandleMeleeAttackOrMovement(ASlotBase* InSlot, bool IsEnemySlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::MeleeAttackOrMoveEnemy(ASlotBase* InSlot)
 {
 	if (!Slots.Contains(CurrentSlotUnderMouse->Coordinates)) { return; }
@@ -724,6 +765,7 @@ void AGrid::MeleeAttackOrMoveEnemy(ASlotBase* InSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::MoveAction(ASlotBase* InSlot)
 {
 	if (!Slots.Contains(CurrentSlotUnderMouse->Coordinates)) { return; }
@@ -732,6 +774,7 @@ void AGrid::MoveAction(ASlotBase* InSlot)
 	FinishAction();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::FinishAction()
 {
 	ResetSlots();
@@ -739,6 +782,7 @@ void AGrid::FinishAction()
 	BattleControllerRef->ChangeBattleState(EBattleState::PlayerIsPlaying);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleDeploymentPhase(ASlotBase* InSlot)
 {
 	// MouseOverSlot이 연결되어 있다면 InSlot을 브로드캐스트합니다.
@@ -748,6 +792,7 @@ void AGrid::HandleDeploymentPhase(ASlotBase* InSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleWaitingForPlayerActionPhase(ASlotBase* InSlot, bool L_bIsInnerSlot)
 {
 	// 현재 마우스 아래의 슬롯을 재설정하고 가장 가까운 이동 가능한 슬롯 감지를 중단합니다.
@@ -801,6 +846,7 @@ void AGrid::HandleWaitingForPlayerActionPhase(ASlotBase* InSlot, bool L_bIsInner
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleAllyTargetAbility(ASlotBase* InSlot)
 {
 	RemoveHighlightOnCharacters();
@@ -817,6 +863,7 @@ void AGrid::HandleAllyTargetAbility(ASlotBase* InSlot)
 	HighlightAbilitySlots();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleSlotInRange(ASlotBase* InSlot)
 {
 	// 데미지 세부 정보 UI를 숨깁니다.
@@ -845,6 +892,7 @@ void AGrid::HandleSlotInRange(ASlotBase* InSlot)
 	UpdateCursorType();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleEnemyTargetAbility(ASlotBase* InSlot, bool L_bIsInnerSlot)
 {
 	if (bIsMeleeAttack)
@@ -860,6 +908,7 @@ void AGrid::HandleEnemyTargetAbility(ASlotBase* InSlot, bool L_bIsInnerSlot)
 	ShowDamageDetailsUI(InSlot, InSlot);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HighlightAbilitySlots()
 {
 	// 범위 내의 슬롯, 빈 슬롯, 적 캐릭터를 담을 변수들입니다.
@@ -877,6 +926,7 @@ void AGrid::HighlightAbilitySlots()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::UpdateCursorType()
 {
 	if (OnCursorChanged.IsBound())
@@ -894,6 +944,7 @@ void AGrid::UpdateCursorType()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::DetermineRangeAttackType(ASlotBase* InSlot)
 {
 	// 슬롯 간의 거리가 범위 패널티 거리보다 크다면
@@ -921,6 +972,7 @@ void AGrid::DetermineRangeAttackType(ASlotBase* InSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnMouseLeaveSlot(ASlotBase* InSlot)
 {
 	// 가장 가까운 이동 가능한 슬롯 탐지를 중지합니다.
@@ -947,6 +999,7 @@ void AGrid::OnMouseLeaveSlot(ASlotBase* InSlot)
 	HideDamageDetailsUI();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ResetMovementData()
 {
 	// 모든 슬롯 반복
@@ -968,6 +1021,7 @@ void AGrid::ResetMovementData()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ShowMovementForPlayerCharacter(ACharacterBase* InCharacter)
 {
 	// 이동 가능한 슬롯을 계산합니다.
@@ -999,6 +1053,7 @@ void AGrid::ShowMovementForPlayerCharacter(ACharacterBase* InCharacter)
 	CheckSlotUnderMouse();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ShowMovementPath(ACharacterBase* InCharacter, ASlotBase* InTargetSlot)
 {
 	// 이전 스플라인 포인트를 모두 삭제합니다.
@@ -1018,6 +1073,7 @@ void AGrid::ShowMovementPath(ACharacterBase* InCharacter, ASlotBase* InTargetSlo
 	RenderPathMesh();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::PrepareSplinePoints(ACharacterBase* InCharacter, ASlotBase* InTargetSlot,
                                 const TMap<FVector2D, ASlotBase*>& AllSlots)
 {
@@ -1039,6 +1095,7 @@ void AGrid::PrepareSplinePoints(ACharacterBase* InCharacter, ASlotBase* InTarget
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::AdjustSplineTangents(int PointIndex)
 {
 	// 접선 벡터의 크기를 반으로 조정합니다.
@@ -1047,6 +1104,7 @@ void AGrid::AdjustSplineTangents(int PointIndex)
 	PathSpline->SetTangentsAtSplinePoint(PointIndex, ArriveTangent, LeaveTangent, ESplineCoordinateSpace::Local, true);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::RenderPathMesh()
 {
 	// 이전 인스턴스를 모두 삭제합니다.
@@ -1070,6 +1128,7 @@ void AGrid::RenderPathMesh()
 	UpdateLastPathMeshInstanceRotation();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::AddPathMeshInstance(int Index)
 {
 	// 스플라인을 따라 적절한 위치에 메시 인스턴스를 추가합니다.
@@ -1079,6 +1138,7 @@ void AGrid::AddPathMeshInstance(int Index)
 	                                 FVector(0.75f, 0.75f, 0.75f)), true);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::UpdatePathMeshInstanceRotation(int Index)
 {
 	FTransform OutInstanceTransform;
@@ -1089,6 +1149,7 @@ void AGrid::UpdatePathMeshInstanceRotation(int Index)
 	PathMesh->UpdateInstanceTransform(Index - 1, OutInstanceTransform, true);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::UpdateLastPathMeshInstanceRotation()
 {
 	int32 PathInstanceCount = PathMesh->GetInstanceCount() - 1;
@@ -1100,17 +1161,20 @@ void AGrid::UpdateLastPathMeshInstanceRotation()
 	PathMesh->UpdateInstanceTransform(PathInstanceCount, OutInstanceTransform, true);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ClearMovementPath()
 {
 	PathSpline->ClearSplinePoints(true);
 	PathMesh->ClearInstances();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HighlightMovementSlots(ASlotBase* InSlot, int32 InSize)
 {
 	InSlot->SetSlotType(ESlotType::MovementOverlaySlot, InSize);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ShowCharacterMovementOverlay(ACharacterBase* InCharacter)
 {
 	// 캐릭터가 유효하지 않거나 현재 재생 중이면 기능을 종료합니다.
@@ -1131,6 +1195,7 @@ void AGrid::ShowCharacterMovementOverlay(ACharacterBase* InCharacter)
 	HighlightMovementOverlaySlots(InCharacter);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 TArray<ASlotBase*> AGrid::CalculateAndStoreOverlaySlots(ACharacterBase* InCharacter)
 {
 	TArray<ASlotBase*> StoreOverSlots, OutMoveAbleSlots, OutSlotsInRange, OutEnemySlots, OutAllySlot;
@@ -1141,6 +1206,7 @@ TArray<ASlotBase*> AGrid::CalculateAndStoreOverlaySlots(ACharacterBase* InCharac
 	return OutSlotsInRange;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HighlightMovementOverlaySlots(ACharacterBase* InCharacter)
 {
 	for (ASlotBase* InSlot : MovementOverlaySlotsInRange)
@@ -1158,6 +1224,7 @@ void AGrid::HighlightMovementOverlaySlots(ACharacterBase* InCharacter)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HighlightEmptySlot(ASlotBase* InSlot)
 {
 	if (!OverlaySlots.Contains(InSlot->Coordinates))
@@ -1169,6 +1236,7 @@ void AGrid::HighlightEmptySlot(ASlotBase* InSlot)
 	FindOverlaySlot->SetSlotType(ESlotType::MovementOverlaySlot, 1);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HighlightEnemySlot(ACharacterBase* InCharacter, ASlotBase* InSlot)
 {
 	ACharacterBase* OutEnemyCharacter;
@@ -1178,6 +1246,7 @@ void AGrid::HighlightEnemySlot(ACharacterBase* InCharacter, ASlotBase* InSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::MovementSlotsForEnemy(ACharacterBase* InCharacter, ASlotBase* InSlot)
 {
 	TMap<FVector2D, ASlotBase*> AllSlots = GetAllOverlaySlots(InSlot->ContainedUnit->UnitSize);
@@ -1192,6 +1261,7 @@ void AGrid::MovementSlotsForEnemy(ACharacterBase* InCharacter, ASlotBase* InSlot
 	HighlightMovementSlots(FindToAllSlot, InSlot->ContainedUnit->UnitSize);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ClearAttackSlots()
 {
 	for (ASlotBase* EnemySlot : EnemySlots)
@@ -1200,6 +1270,7 @@ void AGrid::ClearAttackSlots()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::RemoveHighlightOnCharacters()
 {
 	for (ACharacterBase* InHighlightedCharacter : HighlightedCharacters)
@@ -1209,6 +1280,7 @@ void AGrid::RemoveHighlightOnCharacters()
 	HighlightedCharacters.Empty();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HighlightSlot(ASlotBase* InSlot, int32 InSize, bool IsOn)
 {
 	// 입력 슬롯 유효성 검사
@@ -1236,6 +1308,7 @@ void AGrid::HighlightSlot(ASlotBase* InSlot, int32 InSize, bool IsOn)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HideEvenSizedNonPlayerSlots(ASlotBase* CurrentSlot, int32 CurrentSize)
 {
 	if (CurrentSize % 2 == 0 && *Slots.Find(CurrentSlot->Coordinates) != BattleControllerRef->PlayingCharacter->Slot)
@@ -1244,6 +1317,7 @@ void AGrid::HideEvenSizedNonPlayerSlots(ASlotBase* CurrentSlot, int32 CurrentSiz
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::AdjustSlotsInRangeVisibility(const TArray<ASlotBase*>& OutSlotsInRange, bool IsOn, ASlotBase* CurrentSlot)
 {
 	// 범위의 각 슬롯에 대해 반복
@@ -1271,6 +1345,7 @@ void AGrid::AdjustSlotsInRangeVisibility(const TArray<ASlotBase*>& OutSlotsInRan
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HighlightPlayingCharacterSlot(ASlotBase* InSlot)
 {
 	InSlot->HideSlot();
@@ -1279,6 +1354,7 @@ void AGrid::HighlightPlayingCharacterSlot(ASlotBase* InSlot)
 	InSlot->Highlight(true, BattleControllerRef->PlayingCharacter->UnitSize);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HighlightEnemySlots(ASlotBase* InSlot)
 {
 	InSlot->HideSlot();
@@ -1292,6 +1368,7 @@ void AGrid::HighlightEnemySlots(ASlotBase* InSlot)
 	FindCoordSlot->SetEnemySlot(InSlot->ContainedUnit->UnitSize);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 bool AGrid::CalculateMovableSlots(ACharacterBase* InCharacter, bool OnlyVisual, TArray<ASlotBase*>& OutMoveAbleSlots,
                                   TArray<ASlotBase*>& OutSlotsInRange, TArray<ASlotBase*>& OutEnemySlots,
                                   TArray<ASlotBase*>& OutAllySlots)
@@ -1354,6 +1431,7 @@ bool AGrid::CalculateMovableSlots(ACharacterBase* InCharacter, bool OnlyVisual, 
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 bool AGrid::DetermineMeleeAttack(ACharacterBase* CurrentCharacter)
 {
 	if (const ARangeCharacterBase* CastRangeCharacter = Cast<ARangeCharacterBase>(CurrentCharacter))
@@ -1362,6 +1440,7 @@ bool AGrid::DetermineMeleeAttack(ACharacterBase* CurrentCharacter)
 	return true;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ResetDataBasedOnVisual(bool CurrentOnlyVisual, ACharacterBase* CurrentCharacter)
 {
 	if (CurrentOnlyVisual)
@@ -1377,6 +1456,7 @@ void AGrid::ResetDataBasedOnVisual(bool CurrentOnlyVisual, ACharacterBase* Curre
 	CurrentCharacter->Slot->TotalCost = 0;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleSlotBasedOnMeleeAttack(bool CurrentIsMeleeAttack, ACharacterBase* CurrentCharacter, ASlotBase* InSlot,
                                          TArray<ASlotBase*>& CurrentAllySlots, TArray<ASlotBase*>& CurrentEnemySlots)
 {
@@ -1396,6 +1476,7 @@ void AGrid::HandleSlotBasedOnMeleeAttack(bool CurrentIsMeleeAttack, ACharacterBa
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleMovableSlot(ACharacterBase* CurrentCharacter, bool CurrentOnlyVisual, ASlotBase* InSlot,
                               TArray<ASlotBase*>& CurrentMovableSlots)
 {
@@ -1421,6 +1502,7 @@ void AGrid::HandleMovableSlot(ACharacterBase* CurrentCharacter, bool CurrentOnly
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleWalkMovementType(ACharacterBase* CurrentCharacter, bool CurrentOnlyVisual,
                                    TArray<ASlotBase*>& OpenSlots, TArray<ASlotBase*>& ClosedSlots,
                                    TArray<ASlotBase*>& CurrentSlotsInRange, TArray<ASlotBase*>& CurrentMovableSlots,
@@ -1529,6 +1611,7 @@ void AGrid::HandleWalkMovementType(ACharacterBase* CurrentCharacter, bool Curren
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleFlyMovementType(ACharacterBase* CurrentCharacter, bool CurrentOnlyVisual,
                                   TArray<ASlotBase*>& CurrentMovableSlots, TArray<ASlotBase*>& CurrentSlotsInRange,
                                   TArray<ASlotBase*>& CurrentAllySlots, TArray<ASlotBase*>& CurrentEnemySlots)
@@ -1601,6 +1684,7 @@ void AGrid::HandleFlyMovementType(ACharacterBase* CurrentCharacter, bool Current
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HandleImmobilieMovementType(ACharacterBase* CurrentCharacter, bool CurrentOnlyVisual,
                                         TArray<ASlotBase*>& CurrentSlotsInRange, TArray<ASlotBase*>& CurrentAllySlots,
                                         TArray<ASlotBase*>& CurrentEnemySlots)
@@ -1645,6 +1729,7 @@ void AGrid::HandleImmobilieMovementType(ACharacterBase* CurrentCharacter, bool C
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ResetOverlayData()
 {
 	for (const TTuple<UE::Math::TVector2<double>, ASlotBase*> InSlot : Slots)
@@ -1660,6 +1745,7 @@ void AGrid::ResetOverlayData()
 	HideOverlaySlots();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HideOverlaySlots()
 {
 	for (ASlotBase* InSlot : MovementOverlaySlotsInRange)
@@ -1677,6 +1763,7 @@ void AGrid::HideOverlaySlots()
 	MovementOverlaySlotsInRange.Empty();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::HideDamageDetailsUI()
 {
 	RemoveHighlightOnCharacters();
@@ -1688,6 +1775,7 @@ void AGrid::HideDamageDetailsUI()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ShowDamageDetailsUI(ASlotBase* InTargetSlot, ASlotBase* InStandingSlot)
 {
 	ACharacterBase* OutMainTargetCharacter;
@@ -1717,6 +1805,7 @@ void AGrid::ShowDamageDetailsUI(ASlotBase* InTargetSlot, ASlotBase* InStandingSl
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ShowDamageDetailsUIForAreaAbility()
 {
 	USRPGUtilityLibrary::ReverseArray(HighlightedCharacters);
@@ -1744,6 +1833,7 @@ void AGrid::ShowDamageDetailsUIForAreaAbility()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ShowDamageDetailsUIForAreaSpell()
 {
 	USRPGUtilityLibrary::ReverseArray(HighlightedCharacters);
@@ -1771,18 +1861,21 @@ void AGrid::ShowDamageDetailsUIForAreaSpell()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnMouseOverUI()
 {
 	HideDamageDetailsUI();
 	ResetCurrentSlotUnderMouse();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnAreaTargetSpellEnabled(AAreaTargetSpellBase* InAreaTargetSpell)
 {
 	CurrentAreaTargetSpell = InAreaTargetSpell;
 	bAreaSpellEnabled = true;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnAreaTargetSpellDisabled()
 {
 	bAreaSpellEnabled = false;
@@ -1790,12 +1883,14 @@ void AGrid::OnAreaTargetSpellDisabled()
 	CurrentAreaTargetSpell = nullptr;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnAreaTargetAbilityEnabled(AAreaTargetActiveAbilityBase* InAreaTargetActiveAbility)
 {
 	CurrentAreaTargetActiveAbility = InAreaTargetActiveAbility;
 	bAreaTargetAbilityEnabled = true;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnAreaTargetAbilityDisabled()
 {
 	bAreaTargetAbilityEnabled = false;
@@ -1803,6 +1898,7 @@ void AGrid::OnAreaTargetAbilityDisabled()
 	CurrentAreaTargetActiveAbility = nullptr;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnEnemyTargetSpellEnabled()
 {
 	bEnemyTargetSpellEnabled = true;
@@ -1833,11 +1929,13 @@ void AGrid::OnEnemyTargetSpellEnabled()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnEnemyTargetSpellDisabled()
 {
 	bEnemyTargetSpellEnabled = false;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnAllyTargetSpellEnabled()
 {
 	bAllyTargetSpellEnabled = true;
@@ -1878,11 +1976,13 @@ void AGrid::OnAllyTargetSpellEnabled()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnAllyTargetSpellDisabled()
 {
 	bAllyTargetSpellEnabled = false;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnAllyTargetAbilityEnabled()
 {
 	bAllyTargetAbilityEnabled = true;
@@ -1921,6 +2021,7 @@ void AGrid::OnAllyTargetAbilityEnabled()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::OnAllyTargetAbilityDisabled()
 {
 	bAllyTargetAbilityEnabled = false;
@@ -1973,6 +2074,7 @@ void AGrid::OnAllyTargetAbilityDisabled()
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ShowSpellSlots(ASlotBase* InTargetSlot)
 {
 	RemoveHighlightOnCharacters();
@@ -2058,6 +2160,7 @@ void AGrid::ShowSpellSlots(ASlotBase* InTargetSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::ShowAreaTargetAbilitySlots(ASlotBase* InTargetSlot)
 {
 	RemoveHighlightOnCharacters();
@@ -2114,6 +2217,7 @@ void AGrid::ShowAreaTargetAbilitySlots(ASlotBase* InTargetSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::SetSpellTarget(ASlotBase* InTargetSlot, ACharacterBase* InTargetCharacter)
 {
 	if (OnCursorChanged.IsBound())
@@ -2132,6 +2236,7 @@ void AGrid::SetSpellTarget(ASlotBase* InTargetSlot, ACharacterBase* InTargetChar
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::CastSpellOnSlot(ASlotBase* InTargetSlot)
 {
 	if (bAllyTargetSpellEnabled)
@@ -2170,11 +2275,13 @@ void AGrid::CastSpellOnSlot(ASlotBase* InTargetSlot)
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::StopDetectingClosestMovableSlot()
 {
 	DetectClosestMovableSlotTimeline.Stop();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 int32 AGrid::UnitSizeAdjustmentAmount(int32 InUnitSize)
 {
 	//ToDo::결과연산을 봐야합니다.
@@ -2183,6 +2290,7 @@ int32 AGrid::UnitSizeAdjustmentAmount(int32 InUnitSize)
 	return ModValue == 0 ? 1 : 0;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 TArray<ASlotBase*> AGrid::GetNeighbourSlots(ASlotBase* InSlot, int32 InCharacterSize, bool OnlyEmpty)
 {
 	ASlotBase* CurrentSlot = InSlot;
@@ -2222,6 +2330,7 @@ TArray<ASlotBase*> AGrid::GetNeighbourSlots(ASlotBase* InSlot, int32 InCharacter
 	return CurrentNeighbourSlots;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 int32 AGrid::GetDistanceCost(ASlotBase* Slot1, ASlotBase* Slot2)
 {
 	// 슬롯 간 거리 비용
@@ -2240,6 +2349,7 @@ int32 AGrid::GetDistanceCost(ASlotBase* Slot1, ASlotBase* Slot2)
 	return FMath::TruncToInt(DistanceX * 14.0f + (10.0f * (DistanceY - DistanceX)));
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 ASlotBase* AGrid::GetLowestTravelCostSlot(const TArray<ASlotBase*>& InSlots)
 {
 	int32 CurrentTotalCost = 999;
@@ -2255,6 +2365,7 @@ ASlotBase* AGrid::GetLowestTravelCostSlot(const TArray<ASlotBase*>& InSlots)
 	return CurrentLowestCostSlot;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::GetSlotsInRange(ASlotBase* InSlot, int32 InRange, bool OnlyEmptySlots, TArray<ASlotBase*>& OutSlotsInRange,
                             bool& OutAllFree)
 {
@@ -2300,6 +2411,7 @@ void AGrid::GetSlotsInRange(ASlotBase* InSlot, int32 InRange, bool OnlyEmptySlot
 	OutAllFree = CurrentAllEmpty;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 ASlotBase* AGrid::GetClosestSlotInRange(ASlotBase* InSlot, const TArray<ASlotBase*>& InSlots)
 {
 	int32 CurrentDistance = 9999;
@@ -2318,6 +2430,7 @@ ASlotBase* AGrid::GetClosestSlotInRange(ASlotBase* InSlot, const TArray<ASlotBas
 	return CurrentClosestSlot;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 TMap<FVector2D, ASlotBase*>& AGrid::GetAllOverlaySlots(int32 InUnitSize)
 {
 	//ToDo::결과연산을 봐야합니다.
@@ -2326,6 +2439,7 @@ TMap<FVector2D, ASlotBase*>& AGrid::GetAllOverlaySlots(int32 InUnitSize)
 	return ModValue == 0 ? InnerOverlaySlots : OverlaySlots;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::GetSlotsInCharacterRange(ACharacterBase* InCharacter, int32 InRange, ASlotBase* InStartingSlot,
                                      bool ExcludeSelf,
                                      TArray<ASlotBase*>& OutSlotsInRange, TArray<ASlotBase*>& OutEmptySlotsInRange,
@@ -2393,12 +2507,16 @@ void AGrid::GetSlotsInCharacterRange(ACharacterBase* InCharacter, int32 InRange,
 
 void AGrid::RemoveEnemySpawnLocation()
 {
-	for (int i = EnemySpawnLocations.Num() - 1; i >= 0; --i)
+	for (auto* EnemyLocation : EnemySpawnLocations)
 	{
-		EnemySpawnLocations[i]->Destroy();
+		if (IsValid(EnemyLocation))
+		{
+			EnemyLocation->Destroy();
+		}
 	}
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 bool AGrid::SpawnCharacter(TSubclassOf<ACharacterBase> InUnitClass, FVector2D InCoordinates, bool IsAI, int32 InStack,
                            const FHeroStats& InHeroStats, ACharacterBase*& OutSpawnedCharacter)
 {
@@ -2454,6 +2572,7 @@ bool AGrid::SpawnCharacter(TSubclassOf<ACharacterBase> InUnitClass, FVector2D In
 	return true;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::RemoveUnitOnSlot(ACharacterBase* InUnit)
 {
 	if (!IsValid(InUnit)) { return; }
@@ -2470,6 +2589,7 @@ void AGrid::RemoveUnitOnSlot(ACharacterBase* InUnit)
 	InUnit->OnRemovedFromSlot();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 TArray<ASlotBase*> AGrid::GetSlotsForObstacleSpawn()
 {
 	TArray<ASlotBase*> CurrentAvailableSlots;
@@ -2490,6 +2610,7 @@ float AGrid::GetDistanceBetweenCoordinates(FVector2D Coordinate1, FVector2D Coor
 	return FMath::Abs(DistanceCoordinate.X) + FMath::Abs(DistanceCoordinate.Y);
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 bool AGrid::SpawnObstacle(TSubclassOf<AObstacleBase> InObstacle, FVector2D InCoordinates,
                           AObstacleBase*& OutSpawnedObstacle)
 {
@@ -2540,6 +2661,7 @@ bool AGrid::SpawnObstacle(TSubclassOf<AObstacleBase> InObstacle, FVector2D InCoo
 	return true;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::SetUnitOnSlot(AUnitBase* InUnit, ASlotBase* InSlot)
 {
 	AUnitBase* CurrentUnit = InUnit;
@@ -2562,6 +2684,7 @@ void AGrid::SetUnitOnSlot(AUnitBase* InUnit, ASlotBase* InSlot)
 	CurrentUnit->OnMovedToSlot();
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 TMap<FVector2D, ASlotBase*>& AGrid::GetAllSlots(int32 InUnitSize)
 {
 	//ToDo: 결과연산을 봐야합니다.
@@ -2571,6 +2694,7 @@ TMap<FVector2D, ASlotBase*>& AGrid::GetAllSlots(int32 InUnitSize)
 	return ModValue == 0 ? InnerSlots : Slots;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 bool AGrid::CanUnitFitTo(ASlotBase* InSlot, AUnitBase* InUnit, TArray<ASlotBase*>& OutAllSlotsUnitWillStandOn)
 {
 	auto CurrentSlot = InSlot;
@@ -2613,6 +2737,7 @@ bool AGrid::CanUnitFitTo(ASlotBase* InSlot, AUnitBase* InUnit, TArray<ASlotBase*
 	return CurrentCanUnitFit;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 float AGrid::GetDistanceToSlot(ASlotBase* Slot1, ASlotBase* Slot2)
 {
 	FVector2D CoordDistance = Slot1->Coordinates - Slot2->Coordinates;
@@ -2627,6 +2752,7 @@ float AGrid::GetDistanceToSlot(ASlotBase* Slot1, ASlotBase* Slot2)
 	return FMath::TruncToInt(DistanceX + (DistanceY - DistanceX));
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 void AGrid::GetAllCharacterSlots(TArray<ASlotBase*>& OutAllySlots, TArray<ASlotBase*>& OutEnemySlots)
 {
 	TArray<ASlotBase*> CurrentAllySlots, CurrentEnemySlots;
@@ -2656,6 +2782,7 @@ void AGrid::GetAllCharacterSlots(TArray<ASlotBase*>& OutAllySlots, TArray<ASlotB
 	OutEnemySlots = CurrentEnemySlots;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 ASlotBase* AGrid::GetClosestMovableSlot(ASlotBase* InSlot, int32 InUnitSize, const TArray<ASlotBase*>& InMovableSlots)
 {
 	ASlotBase* CurrentSlot = InSlot;
@@ -2704,6 +2831,7 @@ ASlotBase* AGrid::GetClosestMovableSlot(ASlotBase* InSlot, int32 InUnitSize, con
 	return CurrentClosestMovableSlot;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 ASlotBase* AGrid::GetClosestSlotToMouse(ASlotBase* InSlotToAttack, const TArray<ASlotBase*>& InMovableSlots)
 {
 	float CurrentDistance = 99999.0f;
@@ -2735,6 +2863,7 @@ ASlotBase* AGrid::GetClosestSlotToMouse(ASlotBase* InSlotToAttack, const TArray<
 	return CurrentSlotToAttack;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 ASlotBase* AGrid::GetClosestSlotToMouseImproved(ASlotBase* InSlotToAttack, const TArray<ASlotBase*>& InMovableSlots)
 {
 	float CurrentDistance = 99999.0f;
@@ -2810,6 +2939,7 @@ ASlotBase* AGrid::GetClosestSlotToMouseImproved(ASlotBase* InSlotToAttack, const
 	return CurrentClosestSlot;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 bool AGrid::IsEnemyAdjacent(ACharacterBase* InCharacter)
 {
 	auto NeighbourSlots = GetNeighbourSlots(InCharacter->Slot, InCharacter->UnitSize, false);
@@ -2824,6 +2954,7 @@ bool AGrid::IsEnemyAdjacent(ACharacterBase* InCharacter)
 	return false;
 }
 
+/*ToDo : 함수의 구현을 확인하지 않음*/
 TArray<ASlotBase*> AGrid::GetAttackSlots(ACharacterBase* InAttackingCharacter, ACharacterBase* InTargetCharacter)
 {
 	auto CurrentAttackingCharacter = InAttackingCharacter;
@@ -2878,6 +3009,3 @@ TArray<ASlotBase*> AGrid::GetAttackSlots(ACharacterBase* InAttackingCharacter, A
 
 	return CurrentNeighbourSlots;
 }
-
-
-//#2558

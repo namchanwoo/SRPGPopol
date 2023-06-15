@@ -6,6 +6,8 @@
 
 class ABattleController;
 class ACharacterBase;
+class ASlotBase;
+
 
 /*
  * AAbilityBase는 SRG 게임의 능력에 대한 기본 클래스입니다.
@@ -17,8 +19,8 @@ class ACharacterBase;
  * 게임의 특정 기능은 이 클래스의 하위 클래스로 구현하여 이러한 속성과 메서드를 상속하고 필요에 따라 추가하거나 재정의하는 것이 좋습니다.
  */
 UCLASS(ClassGroup = ("SRPG"), meta = (BlueprintSpawnableComponent),
-	HideCategories = ("HLOD","Rendering","Collision", "Physics", "WorldPartition","Input","Cooking","Replication",
-		"DataLayers","Event"))
+	HideCategories = ("HLOD","Rendering","Collision", "Physics", "WorldPartition",
+		"Input","Cooking","Replication", "DataLayers","Event"))
 class SRG_API AAbilityBase : public AActor
 {
 	GENERATED_BODY()
@@ -34,41 +36,65 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	/**
+	* @brief 능력 사용시 호출되는 콜백 함수입니다.
+	* @param InSlotsInRange 범위 내의 슬롯들
+	* @param InEmptySlotsInRange 범위 내의 빈 슬롯들
+	* @param InAlliesInRange 범위 내의 아군 캐릭터들
+	* @param InEnemiesInRange 범위 내의 적 캐릭터들
+	*/
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Active Ability Event")
+	void OnAbilityUsed(const TArray<ASlotBase*>& InSlotsInRange, const TArray<ASlotBase*>& InEmptySlotsInRange,
+	                   const TArray<ACharacterBase*>& InAlliesInRange, const TArray<ACharacterBase*>& InEnemiesInRange);
+
+
+	virtual void OnAbilityUsed_Implementation(const TArray<ASlotBase*>& InSlotsInRange,
+	                                          const TArray<ASlotBase*>& InEmptySlotsInRange,
+	                                          const TArray<ACharacterBase*>& InAlliesInRange,
+	                                          const TArray<ACharacterBase*>& InEnemiesInRange);
+
 protected:
 	UFUNCTION()
 	void OnCharacterDies(ACharacterBase* InCharacter);
 
 
 	/*******************************************
-	 * Field Members
+	 * Reference
 	 *******************************************/
-
-	/*---	      	    Setting    	      	---*/
 public:
 	// 이 능력을 소유한 캐릭터. 능력 인스턴스를 생성할 때 설정될 것으로 예상됩니다.
-	UPROPERTY(BlueprintReadWrite, Category="Ability", meta=(ExposeOnSpawn="true"))
+	UPROPERTY(BlueprintReadWrite, Category="Ability|Reference", meta=(ExposeOnSpawn="true"))
 	ACharacterBase* AbilityOwner;
 
 	// 이 능력과 관련된 전투 컨트롤러입니다. 능력 인스턴스를 생성할 때 설정될 것으로 예상됩니다.
-	UPROPERTY(BlueprintReadWrite, Category="Ability", meta=(ExposeOnSpawn="true"))
+	UPROPERTY(BlueprintReadWrite, Category="Ability|Reference", meta=(ExposeOnSpawn="true"))
 	ABattleController* BattleController;
 
+
+	/*******************************************
+	 * Attribute
+	 *******************************************/
+public:
 	// 이 능력의 이름입니다. Unreal 편집기에서 설정하여 플레이어에 표시하는 데 사용할 수 있습니다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability|Attribute")
 	FText Name;
 
 	// 이 능력의 기능에 대한 설명입니다. Unreal 편집기에서 설정하여 플레이어에 표시하는 데 사용할 수 있습니다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability|Attribute")
 	FText Description;
 
 	// 이 능력을 나타내는 아이콘입니다. Unreal 편집기에서 설정하여 플레이어에 표시하는 데 사용할 수 있습니다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability|Attribute")
 	UTexture2D* Icon;
 
 	// 이 능력의 범위, 즉 영향을 받는 타일 수입니다. 언리얼 에디터에서 설정할 수 있습니다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ability|Attribute")
 	int32 Range = 1;
 
+	/*******************************************
+ 	* Components
+ 	*******************************************/
+public:
 	// 이 액터 구성 요소 계층 구조의 루트로 사용할 기본 장면 구성 요소입니다.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Ability|Component")
 	USceneComponent* DefaultSceneRoot;
